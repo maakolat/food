@@ -39,7 +39,7 @@
       "extraIds": [
         "box"
       ],
-      "image": "assets/pastry-mix.jpg",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/pastry-mix-1789829418332.jpg?v=1789829418332",
       "unit": "50 قطعة",
       "price": 35000
     },
@@ -326,7 +326,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789486426354-1789568916960.jpg?v=1789568916960",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/chicken-tray-1789817044734.jpg?v=1789817044734",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qatayef-1789816939348.jpg?v=1789816939348",
-    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789817022709.jpg?v=1789817022709"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789817022709.jpg?v=1789817022709",
+    "assets/uploads/pastry-mix-1789829418332.jpg"
   ],
-  "updatedAt": 1789821283284
+  "updatedAt": 1789829418332
 }
