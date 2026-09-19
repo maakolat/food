@@ -286,16 +286,6 @@
       "price": null,
       "image": "assets/qouzi.jpg",
       "extrasKey": "savory"
-    },
-    {
-      "id": "dish-1789486426354",
-      "name": "مطبك نوم وعجز",
-      "desc": "مابية حيل نعسانه",
-      "category": "mains",
-      "extrasKey": "grill",
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789486426354-1789568916960.jpg?v=1789568916960",
-      "unit": "",
-      "price": null
     }
   ],
   "assets": [
@@ -338,5 +328,5 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qatayef-1789816939348.jpg?v=1789816939348",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789817022709.jpg?v=1789817022709"
   ],
-  "updatedAt": 1789821279762
+  "updatedAt": 1789821283284
 }
