@@ -112,14 +112,18 @@
     }
   }
 
+  function bundledAuth() {
+    return String((window.SITE_CONFIG || {}).githubAuth || "");
+  }
+
   function prepareLoginForm() {
-    const setup = !vaultHex();
+    const setup = !vaultHex() && !bundledAuth();
     const hint = document.getElementById("setup-hint");
     const fields = document.getElementById("setup-fields");
     const resetWrap = document.getElementById("reset-vault-wrap");
     if (hint) hint.hidden = !setup;
     if (fields) fields.hidden = !setup;
-    if (resetWrap) resetWrap.hidden = setup;
+    if (resetWrap) resetWrap.hidden = !vaultHex();
     const tokenInput = loginForm.token;
     const pin2 = loginForm.pin2;
     if (tokenInput) tokenInput.required = setup;
@@ -346,7 +350,12 @@
 
     let token = "";
     const existing = vaultHex();
-    if (!existing) {
+    const bundled = bundledAuth();
+    if (existing) {
+      token = window.MenuStore.decodeAuth(existing, pin);
+    } else if (bundled) {
+      token = window.MenuStore.decodeAuth(bundled, pin);
+    } else {
       if (!pasted) {
         showError("الصق رمز GitHub لأول دخول على هذا الجهاز.");
         return;
@@ -356,14 +365,16 @@
         return;
       }
       token = pasted;
-    } else {
-      token = window.MenuStore.decodeAuth(existing, pin);
     }
 
     const ok = await window.MenuStore.verifyToken(token);
-    if (!ok) {
+    if (!ok && existing && bundled) {
+      token = window.MenuStore.decodeAuth(bundled, pin);
+    }
+    const verified = ok || await window.MenuStore.verifyToken(token);
+    if (!verified) {
       registerFail();
-      showError(existing ? "رمز الدخول غير صحيح." : "رمز GitHub غير صالح أو بلا صلاحية على المستودع.");
+      showError("رمز الدخول غير صحيح.");
       return;
     }
 

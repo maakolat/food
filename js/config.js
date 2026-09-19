@@ -9,5 +9,6 @@ window.SITE_CONFIG = {
   phoneDisplay: "0786 978 9710",
   city: "العراق",
   hours: "يومياً من 9 صباحاً حتى 10 مساءً",
-  githubRepo: "maakolat/food"
+  githubRepo: "maakolat/food",
+  githubAuth: "5351465144556943554c6d08007479047d0a6060014d715e6d42714c0958420b0c67706d006d757270545175425c427f5f0c4a7f61446161465f73587e7e005c7560420b095505636d55607d7602677406696a6a02424e7c7842585f50"
 };
