@@ -17,7 +17,7 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=29" />
+  <link rel="stylesheet" href="css/style.css?v=30" />
 </head>
 <body class="admin-page">
   <div class="page-bg" aria-hidden="true"></div>
@@ -26,14 +26,26 @@
     <div class="admin-login-card">
       <p class="eyebrow">لوحة التحكم</p>
       <form id="login-form">
+        <p class="muted" id="setup-hint" hidden>أول دخول على هذا الجهاز: الصق رمز GitHub واختر رمز دخول خاص لا يعرفه غيرك. الرمز لا يُحفظ داخل الموقع.</p>
+        <div id="setup-fields" hidden>
+          <label>رمز GitHub
+            <input name="token" type="password" autocomplete="off" placeholder="github_pat_..." />
+          </label>
+          <label>تأكيد رمز الدخول
+            <input name="pin2" type="password" autocomplete="new-password" />
+          </label>
+        </div>
         <label>رمز الدخول
-          <input name="pin" type="password" inputmode="numeric" autocomplete="current-password" required placeholder="••••••" />
+          <input name="pin" type="password" autocomplete="current-password" required minlength="8" placeholder="8 خانات على الأقل" />
         </label>
         <button class="btn btn-primary btn-block" type="submit">دخول</button>
         <p class="admin-error" id="login-error" hidden>رمز الدخول غير صحيح.</p>
+        <p class="muted" id="reset-vault-wrap" hidden>
+          <button class="btn btn-ghost" id="reset-vault" type="button">نسيت الرمز على هذا الجهاز</button>
+        </p>
         <p class="admin-error" id="file-origin-hint" hidden>
           لا تفتح هذه الصفحة من ملف الجهاز. استخدم رابط الموقع:
-          <a href="https://maakolat.github.io/food/admin.html?v=29">لوحة الإدارة على الإنترنت</a>
+          <a href="https://maakolat.github.io/food/admin.html?v=30">لوحة الإدارة على الإنترنت</a>
         </p>
       </form>
       <a class="muted" href="index.html">العودة للموقع</a>
@@ -135,9 +147,9 @@
   <div class="overlay" id="overlay" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=29"></script>
-  <script src="js/menu-data.js?v=29"></script>
-  <script src="js/menu-store.js?v=29"></script>
-  <script src="js/admin.js?v=29"></script>
+  <script src="js/config.js?v=30"></script>
+  <script src="js/menu-data.js?v=30"></script>
+  <script src="js/menu-store.js?v=30"></script>
+  <script src="js/admin.js?v=30"></script>
 </body>
 </html>

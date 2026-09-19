@@ -1,5 +1,8 @@
 (function () {
   const SESSION = "yam-admin-ok";
+  const VAULT = "yam-admin-vault";
+  const FAILS = "yam-admin-fails";
+  const TOKEN_SESSION = "yam-gh-token";
   const loginScreen = document.getElementById("login-screen");
   const adminApp = document.getElementById("admin-app");
   const loginForm = document.getElementById("login-form");
@@ -69,12 +72,64 @@
     setTimeout(() => toastEl.classList.remove("show"), 2600);
   }
 
-  function expectedPin() {
-    return String((window.SITE_CONFIG || {}).adminPin || "").trim();
+  function vaultHex() {
+    try { return localStorage.getItem(VAULT) || ""; } catch (err) { return ""; }
+  }
+
+  function failState() {
+    try { return JSON.parse(localStorage.getItem(FAILS) || "null") || { n: 0, until: 0 }; }
+    catch (err) { return { n: 0, until: 0 }; }
+  }
+
+  function saveFails(state) {
+    try { localStorage.setItem(FAILS, JSON.stringify(state)); } catch (err) {}
+  }
+
+  function lockedUntil() {
+    const state = failState();
+    return Number(state.until || 0);
+  }
+
+  function registerFail() {
+    const state = failState();
+    state.n = Number(state.n || 0) + 1;
+    if (state.n >= 5) {
+      state.until = Date.now() + 120000;
+      state.n = 0;
+    }
+    saveFails(state);
+  }
+
+  function clearFails() {
+    try { localStorage.removeItem(FAILS); } catch (err) {}
   }
 
   function isAuthed() {
-    return sessionStorage.getItem(SESSION) === "1";
+    try {
+      return sessionStorage.getItem(SESSION) === "1" && !!sessionStorage.getItem(TOKEN_SESSION);
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function prepareLoginForm() {
+    const setup = !vaultHex();
+    const hint = document.getElementById("setup-hint");
+    const fields = document.getElementById("setup-fields");
+    const resetWrap = document.getElementById("reset-vault-wrap");
+    if (hint) hint.hidden = !setup;
+    if (fields) fields.hidden = !setup;
+    if (resetWrap) resetWrap.hidden = setup;
+    const tokenInput = loginForm.token;
+    const pin2 = loginForm.pin2;
+    if (tokenInput) tokenInput.required = setup;
+    if (pin2) pin2.required = setup;
+  }
+
+  function showError(msg) {
+    if (!loginError) return;
+    loginError.textContent = msg;
+    loginError.hidden = false;
   }
 
   function showFileOriginHint() {
@@ -96,6 +151,7 @@
   function showLogin() {
     loginScreen.hidden = false;
     adminApp.hidden = true;
+    prepareLoginForm();
   }
 
   function catLabel(id) {
@@ -271,22 +327,82 @@
     return result;
   }
 
-  loginForm.addEventListener("submit", (e) => {
+  loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const pin = String(new FormData(loginForm).get("pin") || "").trim();
-    if (!expectedPin() || pin !== expectedPin()) {
-      loginError.hidden = false;
+    const pin2 = String(new FormData(loginForm).get("pin2") || "").trim();
+    const pasted = String(new FormData(loginForm).get("token") || "").trim();
+    loginError.hidden = true;
+
+    if (Date.now() < lockedUntil()) {
+      const sec = Math.ceil((lockedUntil() - Date.now()) / 1000);
+      showError("محاولات كثيرة. انتظر " + sec + " ثانية ثم أعد المحاولة.");
       return;
     }
-    sessionStorage.setItem(SESSION, "1");
-    loginError.hidden = true;
+    if (pin.length < 8) {
+      showError("رمز الدخول يجب أن يكون 8 خانات على الأقل.");
+      return;
+    }
+
+    let token = "";
+    const existing = vaultHex();
+    if (!existing) {
+      if (!pasted) {
+        showError("الصق رمز GitHub لأول دخول على هذا الجهاز.");
+        return;
+      }
+      if (pin !== pin2) {
+        showError("تأكيد رمز الدخول غير مطابق.");
+        return;
+      }
+      token = pasted;
+    } else {
+      token = window.MenuStore.decodeAuth(existing, pin);
+    }
+
+    const ok = await window.MenuStore.verifyToken(token);
+    if (!ok) {
+      registerFail();
+      showError(existing ? "رمز الدخول غير صحيح." : "رمز GitHub غير صالح أو بلا صلاحية على المستودع.");
+      return;
+    }
+
+    try {
+      localStorage.setItem(VAULT, window.MenuStore.encodeAuth(token, pin));
+      sessionStorage.setItem(TOKEN_SESSION, token);
+      sessionStorage.setItem(SESSION, "1");
+    } catch (err) {
+      showError("تعذر حفظ الجلسة على هذا الجهاز.");
+      return;
+    }
+    clearFails();
+    loginForm.reset();
     showApp();
   });
 
   document.getElementById("logout-btn").addEventListener("click", () => {
-    sessionStorage.removeItem(SESSION);
+    try {
+      sessionStorage.removeItem(SESSION);
+      sessionStorage.removeItem(TOKEN_SESSION);
+    } catch (err) {}
     showLogin();
   });
+
+  const resetVaultBtn = document.getElementById("reset-vault");
+  if (resetVaultBtn) {
+    resetVaultBtn.addEventListener("click", () => {
+      if (!confirm("سيتم حذف قفل هذا الجهاز فقط. ستحتاج رمز GitHub مرة ثانية.")) return;
+      try {
+        localStorage.removeItem(VAULT);
+        localStorage.removeItem(FAILS);
+        sessionStorage.removeItem(SESSION);
+        sessionStorage.removeItem(TOKEN_SESSION);
+      } catch (err) {}
+      prepareLoginForm();
+      showError("");
+      loginError.hidden = true;
+    });
+  }
 
   document.getElementById("add-dish").addEventListener("click", () => openModal(null));
   document.getElementById("close-dish").addEventListener("click", closeModal);

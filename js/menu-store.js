@@ -14,22 +14,51 @@ window.MenuStore = {
   repo() {
     return String((window.SITE_CONFIG || {}).githubRepo || "maakolat/food").trim();
   },
-  decodeAuth(hex) {
-    const pin = String((window.SITE_CONFIG || {}).adminPin || "");
+  decodeAuth(hex, pin) {
+    const key = String(pin || "");
     const h = String(hex || "").replace(/\s/g, "");
-    if (!h || !pin || h.length % 2) return "";
+    if (!h || !key || h.length % 2) return "";
     let out = "";
     for (let i = 0; i < h.length; i += 2) {
-      const code = parseInt(h.substr(i, 2), 16) ^ pin.charCodeAt((i / 2) % pin.length);
+      const code = parseInt(h.substr(i, 2), 16) ^ key.charCodeAt((i / 2) % key.length);
       out += String.fromCharCode(code);
     }
     return out;
   },
+  encodeAuth(text, pin) {
+    const key = String(pin || "");
+    const src = String(text || "");
+    if (!src || !key) return "";
+    let hex = "";
+    for (let i = 0; i < src.length; i++) {
+      const code = src.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+      hex += (code < 16 ? "0" : "") + code.toString(16);
+    }
+    return hex;
+  },
   token() {
-    const cfg = window.SITE_CONFIG || {};
-    let stored = "";
-    try { stored = localStorage.getItem("yam-gh-token") || ""; } catch (err) {}
-    return String(cfg.githubToken || stored || this.decodeAuth(cfg.githubAuth) || "").trim();
+    try {
+      return String(sessionStorage.getItem("yam-gh-token") || "").trim();
+    } catch (err) {
+      return "";
+    }
+  },
+  async verifyToken(token) {
+    const t = String(token || "").trim();
+    if (!t) return false;
+    try {
+      const res = await fetch("https://api.github.com/repos/" + this.repo(), {
+        headers: {
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+          Authorization: "Bearer " + t
+        },
+        cache: "no-store"
+      });
+      return res.ok;
+    } catch (err) {
+      return false;
+    }
   },
   cacheUrl(url) {
     if (!url) return url;
