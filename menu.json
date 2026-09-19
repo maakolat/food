@@ -1,0 +1,373 @@
+﻿{
+  "categories": [
+    {
+      "id": "all",
+      "label": "الكل"
+    },
+    {
+      "id": "pastry",
+      "label": "معجنات ومقبلات"
+    },
+    {
+      "id": "kibbeh",
+      "label": "الكبة"
+    },
+    {
+      "id": "mains",
+      "label": "أطباق رئيسية"
+    },
+    {
+      "id": "dolma",
+      "label": "الدولمة"
+    },
+    {
+      "id": "sweets",
+      "label": "الحلويات"
+    },
+    {
+      "id": "special",
+      "label": "حسب الكمية"
+    }
+  ],
+  "menu": [
+    {
+      "id": "pastry-mix",
+      "name": "لحم بعجين وميني بيتزا وفطائر",
+      "desc": "تشكيلة 50 قطعة، مناسبة للضيافة.",
+      "category": "pastry",
+      "extrasKey": "custom",
+      "extraIds": [
+        "box"
+      ],
+      "image": "assets/pastry-mix.jpg",
+      "unit": "50 قطعة",
+      "price": 35000
+    },
+    {
+      "id": "rice-kibbeh-mix",
+      "category": "pastry",
+      "name": "كبة تمن وبورك وسمبوسة",
+      "desc": "50 قطعة مشكلة من كبة التمن والبورك والسمبوسة.",
+      "price": 35000,
+      "unit": "50 قطعة",
+      "image": "assets/kibbeh-mix.jpg",
+      "extrasKey": "savory"
+    },
+    {
+      "id": "kibbeh-halabi",
+      "category": "kibbeh",
+      "name": "كبة حلبية",
+      "desc": "كبة حلبية مقرمشة.",
+      "price": 10000,
+      "unit": "15 قطعة",
+      "image": "assets/kibbeh-halabi.jpg",
+      "extrasKey": "savory"
+    },
+    {
+      "id": "kibbeh-mosul",
+      "category": "kibbeh",
+      "name": "كبة هلالية موصلية",
+      "desc": "كبة موصلية هلالية.",
+      "price": 15000,
+      "unit": "10 قطع",
+      "image": "assets/kibbeh-mosul.jpg",
+      "extrasKey": "savory"
+    },
+    {
+      "id": "kibbeh-burghul",
+      "category": "kibbeh",
+      "name": "كبة برغل",
+      "desc": "اختَر الحجم المناسب لك.",
+      "image": "assets/kibbeh-burghul.jpg",
+      "extrasKey": "savory",
+      "variants": [
+        {
+          "id": "double",
+          "label": "دبل — 7 قطع",
+          "price": 10000
+        },
+        {
+          "id": "medium",
+          "label": "الوسط — 10 قطع",
+          "price": 10000
+        }
+      ]
+    },
+    {
+      "id": "kabsa",
+      "category": "mains",
+      "name": "كبسة الدجاج والمقلوبة",
+      "desc": "طبق رئيسي جاهز للسفرة.",
+      "price": 20000,
+      "unit": "صينية",
+      "image": "assets/kabsa.jpg",
+      "extrasKey": "grill"
+    },
+    {
+      "id": "chicken-tray",
+      "name": "صينية الدجاج",
+      "desc": "مع الملحقات: طرشي وخضرة وتتبيلة الدجاج.",
+      "category": "mains",
+      "extrasKey": "chicken",
+      "extraIds": [
+        "sofra",
+        "extraPickles"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/chicken-tray-1789817044734.jpg?v=1789817044734",
+      "unit": "",
+      "variants": [
+        {
+          "id": "v1",
+          "label": "صينية كاملة مع الملحقات",
+          "price": 15000
+        },
+        {
+          "id": "v2",
+          "label": "نص صينية",
+          "price": 8000
+        }
+      ]
+    },
+    {
+      "id": "dolma",
+      "category": "dolma",
+      "name": "جدر دولمة",
+      "desc": "دولمة بيتية على ثلاث أحجام.",
+      "image": "assets/dolma.jpg",
+      "extrasKey": "savory",
+      "variants": [
+        {
+          "id": "large",
+          "label": "الحجم الكبير",
+          "price": 25000
+        },
+        {
+          "id": "medium",
+          "label": "الوسط",
+          "price": 17000
+        },
+        {
+          "id": "small",
+          "label": "الصغير",
+          "price": 10000
+        }
+      ]
+    },
+    {
+      "id": "kleija-free-fat",
+      "category": "sweets",
+      "name": "كليجة بالدهن الحر",
+      "desc": "بالتمر والحلقوم، السعر للكيلو.",
+      "price": 12000,
+      "unit": "كيلو",
+      "step": 0.5,
+      "image": "assets/kleija-ghee.jpg",
+      "extrasKey": "sweet"
+    },
+    {
+      "id": "kleija-walnut",
+      "category": "sweets",
+      "name": "كليجة الجوز",
+      "desc": "كليجة فاخرة بالجوز، السعر للكيلو.",
+      "price": 15000,
+      "unit": "كيلو",
+      "step": 0.5,
+      "image": "assets/kleija-walnut.jpg",
+      "extrasKey": "sweet"
+    },
+    {
+      "id": "kleija-janna",
+      "category": "sweets",
+      "name": "كليجة بدهن جنة",
+      "desc": "السعر للكيلو.",
+      "price": 7000,
+      "unit": "كيلو",
+      "step": 0.5,
+      "image": "assets/kleija-plain.jpg",
+      "extrasKey": "sweet"
+    },
+    {
+      "id": "basbousa",
+      "category": "sweets",
+      "name": "بسبوسة",
+      "desc": "اختَر بالقطر أو بالعسل، السعر للكيلو.",
+      "unit": "كيلو",
+      "step": 0.5,
+      "image": "assets/basbousa.jpg",
+      "extrasKey": "sweet",
+      "variants": [
+        {
+          "id": "qater",
+          "label": "بالقطر — الكيلو",
+          "price": 10000
+        },
+        {
+          "id": "honey",
+          "label": "بالعسل — الكيلو",
+          "price": 15000
+        }
+      ]
+    },
+    {
+      "id": "plain-cake",
+      "category": "sweets",
+      "name": "كيك سادة",
+      "desc": "قالب كبير.",
+      "price": 7000,
+      "unit": "قالب كبير",
+      "image": "assets/cake-plain.jpg",
+      "extrasKey": "sweet"
+    },
+    {
+      "id": "layer-cake",
+      "category": "sweets",
+      "name": "كيك الطبقات",
+      "desc": "حسب عدد الطبقات من 3 إلى 10 آلاف.",
+      "image": "assets/cake-layer.jpg",
+      "extrasKey": "sweet",
+      "variants": [
+        {
+          "id": "c3",
+          "label": "طبقات خفيفة — 3,000 د.ع",
+          "price": 3000
+        },
+        {
+          "id": "c5",
+          "label": "وسط — 5,000 د.ع",
+          "price": 5000
+        },
+        {
+          "id": "c8",
+          "label": "كبير — 8,000 د.ع",
+          "price": 8000
+        },
+        {
+          "id": "c10",
+          "label": "فاخر — 10,000 د.ع",
+          "price": 10000
+        }
+      ]
+    },
+    {
+      "id": "qatayef",
+      "name": "قطايف بالقشطة",
+      "desc": "10 قطع.",
+      "category": "sweets",
+      "extrasKey": "sweet",
+      "extraIds": [
+        "sweetSofra",
+        "box"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qatayef-1789816939348.jpg?v=1789816939348",
+      "unit": "10 قطع",
+      "price": 8000
+    },
+    {
+      "id": "grilled-fish",
+      "name": "سمك شوي",
+      "desc": "مع التمن الأحمر والطرشي. السعر حسب الكمية.",
+      "category": "special",
+      "extrasKey": "grill",
+      "extraIds": [
+        "sofra",
+        "pickles",
+        "rice",
+        "greens"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789817022709.jpg?v=1789817022709",
+      "unit": "",
+      "price": null
+    },
+    {
+      "id": "qouzi",
+      "category": "special",
+      "name": "قوزي لحم",
+      "desc": "حسب الكمية المطلوبة للمناسبة.",
+      "price": null,
+      "image": "assets/qouzi.jpg",
+      "extrasKey": "savory"
+    },
+    {
+      "id": "dish-1789491571122",
+      "name": "امير",
+      "desc": "",
+      "category": "special",
+      "extrasKey": "grill",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789491571122.jpg?v=1789492215798",
+      "unit": "",
+      "price": 500
+    },
+    {
+      "id": "dish-1789484692249",
+      "name": "admin",
+      "desc": "admin",
+      "category": "sweets",
+      "extrasKey": "chicken",
+      "image": "assets/pastry-mix.jpg",
+      "unit": "",
+      "variants": [
+        {
+          "id": "v1",
+          "label": "1",
+          "price": 22000
+        },
+        {
+          "id": "v2",
+          "label": "2",
+          "price": 33000
+        }
+      ]
+    },
+    {
+      "id": "dish-1789486426354",
+      "name": "مطبك نوم وعجز",
+      "desc": "مابية حيل نعسانه",
+      "category": "mains",
+      "extrasKey": "grill",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789486426354-1789568916960.jpg?v=1789568916960",
+      "unit": "",
+      "price": null
+    }
+  ],
+  "assets": [
+    "assets/pastry-mix.jpg",
+    "assets/kibbeh-mix.jpg",
+    "assets/kibbeh-halabi.jpg",
+    "assets/kibbeh-mosul.jpg",
+    "assets/kibbeh-burghul.jpg",
+    "assets/kabsa.jpg",
+    "assets/chicken-tray.jpg",
+    "assets/dolma.jpg",
+    "assets/kleija-ghee.jpg",
+    "assets/kleija-walnut.jpg",
+    "assets/kleija-plain.jpg",
+    "assets/basbousa.jpg",
+    "assets/cake-plain.jpg",
+    "assets/cake-layer.jpg",
+    "assets/qatayef.jpg",
+    "assets/grilled-fish.jpg",
+    "assets/qouzi.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789491571122.jpg?v=1789492215798",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789486426354.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789486426354.jpg?v=1789499686583",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789491571122.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qatayef-1789569051970.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/chicken-tray.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789486426354-1789568916960.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789567138608.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kabsa-1789568859080.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/pastry-mix.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qatayef-1789569051970.jpg?v=1789569051970",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qatayef-1789816939348.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789817022709.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/chicken-tray-1789817044734.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789567138608.jpg?v=1789567138608",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kabsa-1789568859080.jpg?v=1789568859080",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789486426354-1789568916960.jpg?v=1789568916960",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/chicken-tray-1789817044734.jpg?v=1789817044734",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qatayef-1789816939348.jpg?v=1789816939348",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789817022709.jpg?v=1789817022709"
+  ],
+  "updatedAt": 1789817682580
+}
