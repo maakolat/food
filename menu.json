@@ -1,4 +1,4 @@
-﻿{
+{
   "categories": [
     {
       "id": "all",
@@ -288,16 +288,6 @@
       "extrasKey": "savory"
     },
     {
-      "id": "dish-1789491571122",
-      "name": "امير",
-      "desc": "",
-      "category": "special",
-      "extrasKey": "grill",
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1789491571122.jpg?v=1789492215798",
-      "unit": "",
-      "price": 500
-    },
-    {
       "id": "dish-1789484692249",
       "name": "admin",
       "desc": "admin",
@@ -369,5 +359,5 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qatayef-1789816939348.jpg?v=1789816939348",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789817022709.jpg?v=1789817022709"
   ],
-  "updatedAt": 1789817682580
+  "updatedAt": 1789821276404
 }
