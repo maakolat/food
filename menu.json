@@ -288,27 +288,6 @@
       "extrasKey": "savory"
     },
     {
-      "id": "dish-1789484692249",
-      "name": "admin",
-      "desc": "admin",
-      "category": "sweets",
-      "extrasKey": "chicken",
-      "image": "assets/pastry-mix.jpg",
-      "unit": "",
-      "variants": [
-        {
-          "id": "v1",
-          "label": "1",
-          "price": 22000
-        },
-        {
-          "id": "v2",
-          "label": "2",
-          "price": 33000
-        }
-      ]
-    },
-    {
       "id": "dish-1789486426354",
       "name": "مطبك نوم وعجز",
       "desc": "مابية حيل نعسانه",
@@ -359,5 +338,5 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qatayef-1789816939348.jpg?v=1789816939348",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789817022709.jpg?v=1789817022709"
   ],
-  "updatedAt": 1789821276404
+  "updatedAt": 1789821279762
 }
