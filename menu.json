@@ -280,12 +280,19 @@
     },
     {
       "id": "qouzi",
-      "category": "special",
       "name": "قوزي لحم",
       "desc": "حسب الكمية المطلوبة للمناسبة.",
-      "price": null,
-      "image": "assets/qouzi.jpg",
-      "extrasKey": "savory"
+      "category": "special",
+      "extrasKey": "custom",
+      "extraIds": [
+        "sofra",
+        "pickles",
+        "greens"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qouzi-1789885808845.jpg?v=1789885808845",
+      "unit": "",
+      "step": 0.5,
+      "price": null
     }
   ],
   "assets": [
@@ -327,7 +334,9 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/chicken-tray-1789817044734.jpg?v=1789817044734",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qatayef-1789816939348.jpg?v=1789816939348",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789817022709.jpg?v=1789817022709",
-    "assets/uploads/pastry-mix-1789829418332.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/pastry-mix-1789829418332.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/pastry-mix-1789829418332.jpg?v=1789829418332",
+    "assets/uploads/qouzi-1789885808845.jpg"
   ],
-  "updatedAt": 1789829418332
+  "updatedAt": 1789885808845
 }
