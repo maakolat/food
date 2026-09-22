@@ -27,6 +27,10 @@
     checkoutModal: document.getElementById("checkout-modal"),
     checkoutForm: document.getElementById("checkout-form"),
     checkoutSummary: document.getElementById("checkout-summary"),
+    locationBox: document.getElementById("location-box"),
+    locationStatus: document.getElementById("location-status"),
+    locationPreview: document.getElementById("location-preview"),
+    shareLocation: document.getElementById("share-location"),
     toast: document.getElementById("toast"),
     hours: document.getElementById("hours-text")
   };
@@ -36,6 +40,7 @@
   let editingCartIndex = null;
   let activeItem = null;
   let qty = 1;
+  let customerLocation = null;
   const cart = JSON.parse(localStorage.getItem("yam-cart") || "[]");
 
   const saveCart = () => localStorage.setItem("yam-cart", JSON.stringify(cart));
@@ -447,6 +452,55 @@
     toast(wasEdit ? "تم تعديل الطلب في السلة" : "تمت إضافة الصنف إلى السلة");
   }
 
+  function mapsUrl(lat, lng) {
+    return `https://maps.google.com/?q=${lat},${lng}`;
+  }
+
+  function setLocationStatus(text, kind) {
+    if (!els.locationStatus) return;
+    els.locationStatus.textContent = text;
+    els.locationStatus.classList.remove("ok", "err");
+    if (kind) els.locationStatus.classList.add(kind);
+    if (els.locationBox) els.locationBox.classList.toggle("is-set", kind === "ok");
+  }
+
+  function applyLocation(lat, lng) {
+    const url = mapsUrl(lat, lng);
+    customerLocation = { lat, lng, url };
+    setLocationStatus("تم تحديد الموقع", "ok");
+    if (els.locationPreview) {
+      els.locationPreview.href = url;
+      els.locationPreview.classList.add("is-visible");
+    }
+    if (els.shareLocation) els.shareLocation.textContent = "إعادة تحديد موقعي";
+  }
+
+  function requestLocation() {
+    if (!navigator.geolocation) {
+      setLocationStatus("المتصفح لا يدعم تحديد الموقع", "err");
+      toast("جهازك أو متصفحك لا يدعم تحديد الموقع");
+      return;
+    }
+    setLocationStatus("جارٍ تحديد الموقع...", "");
+    if (els.shareLocation) els.shareLocation.disabled = true;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        if (els.shareLocation) els.shareLocation.disabled = false;
+        applyLocation(pos.coords.latitude, pos.coords.longitude);
+        toast("تم حفظ موقعك مع الطلب");
+      },
+      (err) => {
+        if (els.shareLocation) els.shareLocation.disabled = false;
+        const msg = err.code === 1
+          ? "المتصفح رفض صلاحية الموقع. اسمح بالموقع ثم أعد المحاولة"
+          : "تعذر تحديد الموقع. حاول مرة أخرى";
+        setLocationStatus("لم يُحدَّد الموقع", "err");
+        toast(msg);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
+
   function renderCheckoutSummary() {
     const lines = cart.map((i) => `${i.name}${i.variant ? ` (${i.variant})` : ""} × ${i.qty}`).join("<br>");
     const pending = cart.some((i) => i.price == null);
@@ -461,6 +515,7 @@
       `الاسم: ${data.name}`,
       `الهاتف: ${data.phone}`,
       `العنوان: ${data.address}`,
+      data.locationUrl ? `الموقع على الخريطة: ${data.locationUrl}` : "الموقع: لم يُحدَّد",
       `الاستلام: ${data.fulfillment}`,
       `خبز: ${data.bread || "لم يُحدَّد"}`,
       data.notes ? `ملاحظات: ${data.notes}` : "",
@@ -667,7 +722,11 @@
       els.checkoutModal.setAttribute("aria-hidden", "false");
       els.overlay.hidden = false;
       document.body.style.overflow = "hidden";
+      if (customerLocation) applyLocation(customerLocation.lat, customerLocation.lng);
+      else requestLocation();
     });
+
+    if (els.shareLocation) els.shareLocation.addEventListener("click", requestLocation);
 
     els.checkoutForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -677,13 +736,19 @@
         toast("حدّد إذا كنت تريد خبزاً مع الطلب أو لا");
         return;
       }
+      if (!customerLocation) {
+        toast("حدّد موقعك على الخريطة قبل إرسال الطلب");
+        requestLocation();
+        return;
+      }
       sendWhatsapp({
         name: form.get("name").trim(),
         phone: form.get("phone").trim(),
         address: form.get("address").trim(),
         fulfillment: form.get("fulfillment"),
         bread,
-        notes: form.get("notes").trim()
+        notes: form.get("notes").trim(),
+        locationUrl: customerLocation.url
       });
     });
   }

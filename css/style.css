@@ -740,6 +740,7 @@ input[type="text"], input[type="tel"], textarea, select {
   text-align: center;
   font-weight: 700;
   color: var(--ruby);
+  text-decoration: none;
 }
 .location-preview.is-visible { display: block; }
 
