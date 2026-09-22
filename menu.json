@@ -212,21 +212,25 @@
     },
     {
       "id": "basbousa",
-      "category": "sweets",
       "name": "بسبوسة",
       "desc": "اختَر بالقطر أو بالعسل، السعر للكيلو.",
+      "category": "sweets",
+      "extrasKey": "sweet",
+      "extraIds": [
+        "sweetSofra",
+        "box"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/basbousa-1790098789718.jpg?v=1790098789718",
       "unit": "كيلو",
       "step": 0.5,
-      "image": "assets/basbousa.jpg",
-      "extrasKey": "sweet",
       "variants": [
         {
-          "id": "qater",
+          "id": "v1",
           "label": "بالقطر — الكيلو",
           "price": 10000
         },
         {
-          "id": "honey",
+          "id": "v2",
           "label": "بالعسل — الكيلو",
           "price": 15000
         }
@@ -367,7 +371,8 @@
     "assets/uploads/kibbeh-burghul-1790098385598.jpg",
     "assets/uploads/dolma-1790098475333.jpg",
     "assets/uploads/kleija-free-fat-1790098642492.jpg",
-    "assets/uploads/kleija-janna-1790098760111.jpg"
+    "assets/uploads/kleija-janna-1790098760111.jpg",
+    "assets/uploads/basbousa-1790098789718.jpg"
   ],
-  "updatedAt": 1790098760111
+  "updatedAt": 1790098789718
 }
