@@ -75,19 +75,24 @@
     },
     {
       "id": "kibbeh-burghul",
-      "category": "kibbeh",
       "name": "كبة برغل",
       "desc": "اختَر الحجم المناسب لك.",
-      "image": "assets/kibbeh-burghul.jpg",
+      "category": "kibbeh",
       "extrasKey": "savory",
+      "extraIds": [
+        "sofra",
+        "pickles"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kibbeh-burghul-1790098385598.jpg?v=1790098385598",
+      "unit": "",
       "variants": [
         {
-          "id": "double",
+          "id": "v1",
           "label": "دبل — 7 قطع",
           "price": 10000
         },
         {
-          "id": "medium",
+          "id": "v2",
           "label": "الوسط — 10 قطع",
           "price": 10000
         }
@@ -344,7 +349,9 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/pastry-mix-1789829418332.jpg?v=1789829418332",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qouzi-1789885808845.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qouzi-1789885808845.jpg?v=1789885808845",
-    "assets/uploads/kabsa-1790098173175.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kabsa-1790098173175.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kabsa-1790098173175.jpg?v=1790098173175",
+    "assets/uploads/kibbeh-burghul-1790098385598.jpg"
   ],
-  "updatedAt": 1790098173171
+  "updatedAt": 1790098385597
 }
