@@ -1,16 +1,15 @@
 {
-  "id": "./",
   "name": "مأكولات الياقوت والمرجان",
   "short_name": "الياقوت والمرجان",
   "description": "منيو المأكولات البيتية والطلب عبر واتساب",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#161012",
   "theme_color": "#161012",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "assets/app-icon.png",
@@ -22,7 +21,13 @@
       "src": "assets/app-icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "assets/app-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

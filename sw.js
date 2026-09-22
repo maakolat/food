@@ -1,4 +1,4 @@
-const CACHE = "yam-app-v35";
+const CACHE = "yam-app-v36";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
@@ -14,16 +14,24 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
-  const url = new URL(event.request.url);
+  let url;
+  try { url = new URL(event.request.url); } catch (err) { return; }
   if (url.origin !== self.location.origin) return;
-  const live = /menu\.json(\?|$)|\/assets\/uploads\//.test(url.pathname + url.search);
-  event.respondWith(
-    fetch(event.request).then((res) => {
-      if (!live && res && res.ok && res.type === "basic") {
+  if (/manifest\.webmanifest$|\/sw\.js$|app-icon\.png$/i.test(url.pathname)) return;
+  if (/menu\.json(\?|$)|\/assets\/uploads\//.test(url.pathname + url.search)) return;
+
+  event.respondWith((async () => {
+    try {
+      const res = await fetch(event.request);
+      if (res && res.ok && res.type === "basic") {
         const copy = res.clone();
         caches.open(CACHE).then((cache) => cache.put(event.request, copy)).catch(() => {});
       }
       return res;
-    }).catch(() => caches.match(event.request))
-  );
+    } catch (err) {
+      const cached = await caches.match(event.request);
+      if (cached) return cached;
+      throw err;
+    }
+  })());
 });

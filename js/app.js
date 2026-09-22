@@ -757,7 +757,24 @@
       steps.hidden = false;
     }
 
+    const inApp = /FBAN|FBAV|Instagram|Line\/|Twitter|Snapchat|WhatsApp|WebView|; wv\)/i.test(navigator.userAgent || "");
+
+    function chromeIntent() {
+      const abs = "https://maakolat.github.io/food/";
+      return "intent://" + abs.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end";
+    }
+
     function setCopy(nativePrompt) {
+      if (inApp) {
+        if (text) text.textContent = "التثبيت من داخل فيسبوك أو إنستغرام يفشل أحياناً. افتح الموقع في كروم أو سفاري ثم ثبّت:";
+        showSteps([
+          "اضغط القائمة ⋮ أو فتح في المتصفح",
+          "افتح كروم أو سفاري",
+          "بعدها ثبّت التطبيق من هناك"
+        ]);
+        btn.textContent = "فتح في كروم";
+        return;
+      }
       if (ios) {
         if (text) text.textContent = "ثبّته ليظهر مع التطبيقات على هاتفك:";
         showSteps([
@@ -774,11 +791,11 @@
         btn.textContent = "تثبيت على الهاتف";
         return;
       }
-      if (text) text.textContent = "من متصفح كروم على الهاتف:";
+      if (text) text.textContent = "إذا ظهر خطأ، ثبّته يدوياً من المتصفح:";
       showSteps([
-        "افتح القائمة ⋮ أعلى الصفحة",
-        "اضغط تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية",
-        "أكد التثبيت"
+        "افتح الموقع في كروم وليس من تطبيق ثاني",
+        "اضغط القائمة ⋮ أعلى الصفحة",
+        "اختر تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية"
       ]);
       btn.textContent = "تثبيت على الهاتف";
     }
@@ -789,15 +806,31 @@
     });
 
     async function tryInstall() {
+      if (inApp) {
+        try { window.location.href = chromeIntent(); } catch (err) {}
+        setCopy(false);
+        showPopup(true);
+        return;
+      }
       if (deferred) {
-        deferred.prompt();
-        await deferred.userChoice.catch(() => {});
-        deferred = null;
-        hidePopup(true);
+        try {
+          deferred.prompt();
+          const choice = await deferred.userChoice;
+          deferred = null;
+          if (choice && choice.outcome === "accepted") {
+            hidePopup(true);
+            return;
+          }
+        } catch (err) {
+          deferred = null;
+        }
+        setCopy(false);
+        showPopup(true);
         return;
       }
       if (ios) {
-        hidePopup(true);
+        setCopy(false);
+        showPopup(true);
         return;
       }
       setCopy(false);
