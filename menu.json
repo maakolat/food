@@ -141,24 +141,29 @@
     },
     {
       "id": "dolma",
-      "category": "dolma",
       "name": "جدر دولمة",
       "desc": "دولمة بيتية على ثلاث أحجام.",
-      "image": "assets/dolma.jpg",
+      "category": "dolma",
       "extrasKey": "savory",
+      "extraIds": [
+        "sofra",
+        "pickles"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dolma-1790098475333.jpg?v=1790098475333",
+      "unit": "",
       "variants": [
         {
-          "id": "large",
+          "id": "v1",
           "label": "الحجم الكبير",
           "price": 25000
         },
         {
-          "id": "medium",
+          "id": "v2",
           "label": "الوسط",
           "price": 17000
         },
         {
-          "id": "small",
+          "id": "v3",
           "label": "الصغير",
           "price": 10000
         }
@@ -351,7 +356,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qouzi-1789885808845.jpg?v=1789885808845",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kabsa-1790098173175.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kabsa-1790098173175.jpg?v=1790098173175",
-    "assets/uploads/kibbeh-burghul-1790098385598.jpg"
+    "assets/uploads/kibbeh-burghul-1790098385598.jpg",
+    "assets/uploads/dolma-1790098475333.jpg"
   ],
-  "updatedAt": 1790098385597
+  "updatedAt": 1790098475330
 }
