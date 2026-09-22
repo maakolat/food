@@ -1058,6 +1058,27 @@ body:has(.modal.open) .wa-float { display: none; }
 .mobile-bar:not([hidden]) ~ .wa-float,
 body:has(#mobile-bar:not([hidden])) .wa-float { bottom: calc(86px + env(safe-area-inset-bottom)); }
 
+.install-banner {
+  position: fixed;
+  right: 16px;
+  left: 16px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 18px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+.install-banner[hidden] { display: none; }
+.install-banner strong { display: block; }
+.install-banner p { margin: 2px 0 0; color: var(--muted); font-size: 0.84rem; }
+.install-banner .btn { flex-shrink: 0; }
+.mobile-bar:not([hidden]) ~ .install-banner { bottom: calc(86px + env(safe-area-inset-bottom)); }
+
 .site-footer {
   position: relative;
 }

@@ -4,21 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#161012" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="الياقوت والمرجان" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <title>مأكولات الياقوت والمرجان | اطلب أطيب الأكلات البيتية</title>
   <meta name="description" content="مأكولات الياقوت والمرجان — كبة، دولمة، معجنات وحلويات بيتية. اطلب أونلاين ويصلك الطلب مباشرة على واتساب." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/app-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect rx='14' width='64' height='64' fill='%236B1220'/%3E%3Ccircle cx='26' cy='30' r='10' fill='%23C9A227'/%3E%3Ccircle cx='40' cy='36' r='9' fill='%23D46A4C'/%3E%3C/svg%3E" />
+  <link rel="icon" href="assets/app-icon.png" type="image/png" />
   <script>
     (function () {
       var theme = localStorage.getItem("yam-theme") || "dark";
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=32" />
+  <link rel="stylesheet" href="css/style.css?v=33" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -300,11 +306,20 @@
     </div>
   </div>
 
+  <div class="install-banner" id="install-banner" hidden>
+    <div>
+      <strong>ثبّت التطبيق على جهازك</strong>
+      <p id="install-text">يظهر مع باقي التطبيقات وتفتحه مثل أي تطبيق.</p>
+    </div>
+    <button class="btn btn-primary" id="install-btn" type="button">تثبيت</button>
+    <button class="icon-btn" id="install-close" type="button" aria-label="إغلاق">×</button>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=32"></script>
-  <script src="js/menu-data.js?v=32"></script>
-  <script src="js/menu-store.js?v=32"></script>
-  <script src="js/app.js?v=32"></script>
+  <script src="js/config.js?v=33"></script>
+  <script src="js/menu-data.js?v=33"></script>
+  <script src="js/menu-store.js?v=33"></script>
+  <script src="js/app.js?v=33"></script>
 </body>
 </html>

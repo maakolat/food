@@ -708,6 +708,68 @@
         window.MenuStore.refreshPublished().then(applyLive).catch(() => {});
       }, 8000);
     }
+    setupInstall();
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch((err) => console.warn("sw", err));
+    }
+  }
+
+  function setupInstall() {
+    const banner = document.getElementById("install-banner");
+    const btn = document.getElementById("install-btn");
+    const close = document.getElementById("install-close");
+    const text = document.getElementById("install-text");
+    if (!banner || !btn) return;
+    const standalone = window.matchMedia("(display-mode: standalone)").matches
+      || window.navigator.standalone === true;
+    if (standalone) return;
+    if (localStorage.getItem("yam-install-hide") === "1") return;
+
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    let deferred = null;
+
+    function showBanner() {
+      banner.hidden = false;
+    }
+
+    if (close) {
+      close.addEventListener("click", () => {
+        banner.hidden = true;
+        localStorage.setItem("yam-install-hide", "1");
+      });
+    }
+
+    if (ios) {
+      if (text) text.textContent = "من زر المشاركة في سفاري اختر: إضافة إلى الشاشة الرئيسية.";
+      btn.textContent = "حسناً";
+      btn.addEventListener("click", () => {
+        banner.hidden = true;
+        localStorage.setItem("yam-install-hide", "1");
+      });
+      showBanner();
+      return;
+    }
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferred = e;
+      if (text) text.textContent = "يظهر مع باقي التطبيقات وتفتحه مثل أي تطبيق.";
+      btn.textContent = "تثبيت";
+      showBanner();
+    });
+
+    btn.addEventListener("click", async () => {
+      if (!deferred) return;
+      deferred.prompt();
+      await deferred.userChoice.catch(() => {});
+      deferred = null;
+      banner.hidden = true;
+    });
+
+    window.addEventListener("appinstalled", () => {
+      banner.hidden = true;
+      localStorage.setItem("yam-install-hide", "1");
+    });
   }
   start();
 })();
