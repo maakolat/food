@@ -764,6 +764,7 @@ input[type="text"], input[type="tel"], textarea, select {
 
 @media (max-width: 900px) {
   .header-nav { display: none; }
+  .install-app-btn { display: none; }
   .about-grid, .trust-row, .menu-grid, .hero-grid, .featured-row, .special-wrap {
     grid-template-columns: 1fr;
   }
@@ -1058,8 +1059,13 @@ body:has(.modal.open) .wa-float { display: none; }
 .mobile-bar:not([hidden]) ~ .wa-float,
 body:has(#mobile-bar:not([hidden])) .wa-float { bottom: calc(86px + env(safe-area-inset-bottom)); }
 
-.install-banner {
-  position: fixed;
+.install-app-btn {
+  white-space: nowrap;
+}
+@media (display-mode: standalone) {
+  .install-banner,
+  .install-app-btn { display: none !important; }
+}
   right: 16px;
   left: 16px;
   bottom: calc(18px + env(safe-area-inset-bottom));

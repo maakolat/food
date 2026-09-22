@@ -717,35 +717,71 @@
   function setupInstall() {
     const banner = document.getElementById("install-banner");
     const btn = document.getElementById("install-btn");
+    const headerBtn = document.getElementById("install-app-btn");
     const close = document.getElementById("install-close");
     const text = document.getElementById("install-text");
     if (!banner || !btn) return;
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || window.navigator.standalone === true;
-    if (standalone) return;
-    if (localStorage.getItem("yam-install-hide") === "1") return;
+    if (standalone) {
+      if (headerBtn) headerBtn.hidden = true;
+      return;
+    }
 
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const mobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
     let deferred = null;
+    const hideKey = "yam-install-hide";
 
-    function showBanner() {
+    function showBanner(force) {
+      if (!force && localStorage.getItem(hideKey) === "1") return;
       banner.hidden = false;
     }
 
-    if (close) {
-      close.addEventListener("click", () => {
-        banner.hidden = true;
-        localStorage.setItem("yam-install-hide", "1");
-      });
+    function hideAll(permanent) {
+      banner.hidden = true;
+      if (permanent) localStorage.setItem(hideKey, "1");
     }
 
+    function setCopy(nativePrompt) {
+      if (!text) return;
+      if (ios) {
+        text.textContent = "من زر المشاركة في سفاري اختر: إضافة إلى الشاشة الرئيسية.";
+        btn.textContent = "حسناً";
+        return;
+      }
+      if (nativePrompt) {
+        text.textContent = "يثبّت على الكمبيوتر والجوال ويظهر مع البرامج مثل أي تطبيق.";
+        btn.textContent = "تثبيت";
+        return;
+      }
+      text.textContent = "من كروم أو إيدج: أيقونة التثبيت في شريط العنوان، أو القائمة ⋮ ثم تثبيت التطبيق.";
+      btn.textContent = "شرح التثبيت";
+    }
+
+    if (close) close.addEventListener("click", () => hideAll(true));
+
+    async function tryInstall() {
+      if (deferred) {
+        deferred.prompt();
+        await deferred.userChoice.catch(() => {});
+        deferred = null;
+        hideAll(true);
+        return;
+      }
+      if (ios) {
+        hideAll(true);
+        return;
+      }
+      showBanner(true);
+      setCopy(false);
+    }
+
+    btn.addEventListener("click", tryInstall);
+    if (headerBtn) headerBtn.addEventListener("click", tryInstall);
+
     if (ios) {
-      if (text) text.textContent = "من زر المشاركة في سفاري اختر: إضافة إلى الشاشة الرئيسية.";
-      btn.textContent = "حسناً";
-      btn.addEventListener("click", () => {
-        banner.hidden = true;
-        localStorage.setItem("yam-install-hide", "1");
-      });
+      setCopy(false);
       showBanner();
       return;
     }
@@ -753,23 +789,19 @@
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferred = e;
-      if (text) text.textContent = "يظهر مع باقي التطبيقات وتفتحه مثل أي تطبيق.";
-      btn.textContent = "تثبيت";
+      setCopy(true);
       showBanner();
     });
 
-    btn.addEventListener("click", async () => {
-      if (!deferred) return;
-      deferred.prompt();
-      await deferred.userChoice.catch(() => {});
-      deferred = null;
-      banner.hidden = true;
+    window.addEventListener("appinstalled", () => {
+      hideAll(true);
+      if (headerBtn) headerBtn.hidden = true;
     });
 
-    window.addEventListener("appinstalled", () => {
-      banner.hidden = true;
-      localStorage.setItem("yam-install-hide", "1");
-    });
+    if (!mobile) {
+      setCopy(false);
+      setTimeout(showBanner, 1200);
+    }
   }
   start();
 })();
