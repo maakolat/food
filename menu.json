@@ -116,7 +116,7 @@
     },
     {
       "id": "chicken-tray",
-      "name": "صينية الدجاج",
+      "name": "صينية الدجاج شوي",
       "desc": "مع الملحقات: طرشي وخضرة وتتبيلة الدجاج.",
       "category": "mains",
       "extrasKey": "chicken",
@@ -124,7 +124,7 @@
         "sofra",
         "extraPickles"
       ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/chicken-tray-1789817044734.jpg?v=1789817044734",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/chicken-tray-1789817044734.jpg",
       "unit": "",
       "variants": [
         {
@@ -351,5 +351,5 @@
     "assets/uploads/pastry-mix-1790098992558.jpg",
     "assets/uploads/kibbeh-burghul-1790099103791.jpg"
   ],
-  "updatedAt": 1790099103791
+  "updatedAt": 1790099148189
 }
