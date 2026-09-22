@@ -720,6 +720,7 @@
     const headerBtn = document.getElementById("install-app-btn");
     const close = document.getElementById("install-close");
     const text = document.getElementById("install-text");
+    const steps = document.getElementById("install-steps");
     if (!banner || !btn) return;
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || window.navigator.standalone === true;
@@ -729,78 +730,102 @@
     }
 
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const mobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+    const mobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
+      || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     let deferred = null;
-    const hideKey = "yam-install-hide";
+    const hideKey = "yam-install-popup";
 
-    function showBanner(force) {
-      if (!force && localStorage.getItem(hideKey) === "1") return;
+    function showPopup(force) {
+      if (!force && sessionStorage.getItem(hideKey) === "1") return;
       banner.hidden = false;
     }
 
-    function hideAll(permanent) {
+    function hidePopup(permanent) {
       banner.hidden = true;
+      sessionStorage.setItem(hideKey, "1");
       if (permanent) localStorage.setItem(hideKey, "1");
     }
 
+    function showSteps(items) {
+      if (!steps) return;
+      if (!items || !items.length) {
+        steps.hidden = true;
+        steps.innerHTML = "";
+        return;
+      }
+      steps.innerHTML = items.map((item) => `<li>${item}</li>`).join("");
+      steps.hidden = false;
+    }
+
     function setCopy(nativePrompt) {
-      if (!text) return;
       if (ios) {
-        text.textContent = "من زر المشاركة في سفاري اختر: إضافة إلى الشاشة الرئيسية.";
-        btn.textContent = "حسناً";
+        if (text) text.textContent = "ثبّته ليظهر مع التطبيقات على هاتفك:";
+        showSteps([
+          "اضغط زر المشاركة في سفاري",
+          "اختر إضافة إلى الشاشة الرئيسية",
+          "ثم اضغط إضافة"
+        ]);
+        btn.textContent = "حسناً، فهمت";
         return;
       }
       if (nativePrompt) {
-        text.textContent = "يثبّت على الكمبيوتر والجوال ويظهر مع البرامج مثل أي تطبيق.";
-        btn.textContent = "تثبيت";
+        if (text) text.textContent = "يثبت على الهاتف ويظهر مع التطبيقات، وتفتحه بدون المتصفح.";
+        showSteps([]);
+        btn.textContent = "تثبيت على الهاتف";
         return;
       }
-      text.textContent = "من كروم أو إيدج: أيقونة التثبيت في شريط العنوان، أو القائمة ⋮ ثم تثبيت التطبيق.";
-      btn.textContent = "شرح التثبيت";
+      if (text) text.textContent = "من متصفح كروم على الهاتف:";
+      showSteps([
+        "افتح القائمة ⋮ أعلى الصفحة",
+        "اضغط تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية",
+        "أكد التثبيت"
+      ]);
+      btn.textContent = "تثبيت على الهاتف";
     }
 
-    if (close) close.addEventListener("click", () => hideAll(true));
+    if (close) close.addEventListener("click", () => hidePopup(true));
+    banner.addEventListener("click", (e) => {
+      if (e.target === banner) hidePopup(true);
+    });
 
     async function tryInstall() {
       if (deferred) {
         deferred.prompt();
         await deferred.userChoice.catch(() => {});
         deferred = null;
-        hideAll(true);
+        hidePopup(true);
         return;
       }
       if (ios) {
-        hideAll(true);
+        hidePopup(true);
         return;
       }
-      showBanner(true);
       setCopy(false);
+      showPopup(true);
     }
 
     btn.addEventListener("click", tryInstall);
-    if (headerBtn) headerBtn.addEventListener("click", tryInstall);
-
-    if (ios) {
-      setCopy(false);
-      showBanner();
-      return;
-    }
+    if (headerBtn) headerBtn.addEventListener("click", () => {
+      setCopy(!!deferred);
+      showPopup(true);
+      if (deferred) tryInstall();
+    });
 
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferred = e;
       setCopy(true);
-      showBanner();
+      if (mobile) showPopup();
     });
 
     window.addEventListener("appinstalled", () => {
-      hideAll(true);
+      hidePopup(true);
       if (headerBtn) headerBtn.hidden = true;
     });
 
-    if (!mobile) {
+    if (mobile && localStorage.getItem(hideKey) !== "1") {
       setCopy(false);
-      setTimeout(showBanner, 1200);
+      setTimeout(() => showPopup(), 700);
     }
   }
   start();
