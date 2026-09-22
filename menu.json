@@ -247,36 +247,6 @@
       "extrasKey": "sweet"
     },
     {
-      "id": "layer-cake",
-      "category": "sweets",
-      "name": "كيك الطبقات",
-      "desc": "حسب عدد الطبقات من 3 إلى 10 آلاف.",
-      "image": "assets/cake-layer.jpg",
-      "extrasKey": "sweet",
-      "variants": [
-        {
-          "id": "c3",
-          "label": "طبقات خفيفة — 3,000 د.ع",
-          "price": 3000
-        },
-        {
-          "id": "c5",
-          "label": "وسط — 5,000 د.ع",
-          "price": 5000
-        },
-        {
-          "id": "c8",
-          "label": "كبير — 8,000 د.ع",
-          "price": 8000
-        },
-        {
-          "id": "c10",
-          "label": "فاخر — 10,000 د.ع",
-          "price": 10000
-        }
-      ]
-    },
-    {
       "id": "qatayef",
       "name": "قطايف بالقشطة",
       "desc": "10 قطع.",
@@ -374,5 +344,5 @@
     "assets/uploads/kleija-janna-1790098760111.jpg",
     "assets/uploads/basbousa-1790098789718.jpg"
   ],
-  "updatedAt": 1790098789718
+  "updatedAt": 1790098865825
 }
