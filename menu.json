@@ -197,14 +197,18 @@
     },
     {
       "id": "kleija-janna",
-      "category": "sweets",
       "name": "كليجة بدهن جنة",
       "desc": "السعر للكيلو.",
-      "price": 7000,
+      "category": "sweets",
+      "extrasKey": "sweet",
+      "extraIds": [
+        "sweetSofra",
+        "box"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kleija-janna-1790098760111.jpg?v=1790098760111",
       "unit": "كيلو",
       "step": 0.5,
-      "image": "assets/kleija-plain.jpg",
-      "extrasKey": "sweet"
+      "price": 7000
     },
     {
       "id": "basbousa",
@@ -362,7 +366,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kabsa-1790098173175.jpg?v=1790098173175",
     "assets/uploads/kibbeh-burghul-1790098385598.jpg",
     "assets/uploads/dolma-1790098475333.jpg",
-    "assets/uploads/kleija-free-fat-1790098642492.jpg"
+    "assets/uploads/kleija-free-fat-1790098642492.jpg",
+    "assets/uploads/kleija-janna-1790098760111.jpg"
   ],
-  "updatedAt": 1790098642491
+  "updatedAt": 1790098760111
 }
