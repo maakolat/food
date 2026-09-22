@@ -83,7 +83,7 @@
         "sofra",
         "pickles"
       ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kibbeh-burghul-1790098385598.jpg?v=1790098385598",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kibbeh-burghul-1790099103791.jpg?v=1790099103791",
       "unit": "",
       "variants": [
         {
@@ -348,7 +348,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kleija-free-fat-1790098642492.jpg?v=1790098642492",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kleija-janna-1790098760111.jpg?v=1790098760111",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/basbousa-1790098789718.jpg?v=1790098789718",
-    "assets/uploads/pastry-mix-1790098992558.jpg"
+    "assets/uploads/pastry-mix-1790098992558.jpg",
+    "assets/uploads/kibbeh-burghul-1790099103791.jpg"
   ],
-  "updatedAt": 1790098992557
+  "updatedAt": 1790099103791
 }
