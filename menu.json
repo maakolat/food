@@ -95,13 +95,19 @@
     },
     {
       "id": "kabsa",
-      "category": "mains",
       "name": "كبسة الدجاج والمقلوبة",
       "desc": "طبق رئيسي جاهز للسفرة.",
-      "price": 20000,
+      "category": "mains",
+      "extrasKey": "grill",
+      "extraIds": [
+        "sofra",
+        "pickles",
+        "rice",
+        "greens"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kabsa-1790098173175.jpg?v=1790098173175",
       "unit": "صينية",
-      "image": "assets/kabsa.jpg",
-      "extrasKey": "grill"
+      "price": 20000
     },
     {
       "id": "chicken-tray",
@@ -336,7 +342,9 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/grilled-fish-1789817022709.jpg?v=1789817022709",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/pastry-mix-1789829418332.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/pastry-mix-1789829418332.jpg?v=1789829418332",
-    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qouzi-1789885808845.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qouzi-1789885808845.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/qouzi-1789885808845.jpg?v=1789885808845",
+    "assets/uploads/kabsa-1790098173175.jpg"
   ],
-  "updatedAt": 1789885821150
+  "updatedAt": 1790098173171
 }
