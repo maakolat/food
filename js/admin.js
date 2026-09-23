@@ -226,7 +226,7 @@
     if (!Array.isArray(catalog.stories)) catalog.stories = [];
     const list = catalog.stories.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     if (!list.length) {
-      storiesEl.innerHTML = `<div class="empty-cart">لا يوجد ستوري حالياً. اضغط إضافة ستوري لرفع صورة رأي أو أكلة جديدة أو إعلان.</div>`;
+      storiesEl.innerHTML = `<div class="empty-cart">لا يوجد ستوري. اضغط إضافة ستوري وارفع صورة.</div>`;
       return;
     }
     storiesEl.innerHTML = list.map((s) => {
@@ -235,9 +235,8 @@
       <article class="admin-dish ${expired ? "admin-story-expired" : ""}">
         <img src="${esc(dishImage(s.image))}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
         <div>
-          <strong>${esc(s.title || STORY_KINDS[s.kind] || "ستوري")}</strong>
-          <p class="muted">${esc(STORY_KINDS[s.kind] || s.kind)} · ${esc(STORY_HOURS[s.durationHours] || "24 ساعة")}</p>
-          <p class="muted">${esc(storyRemaining(s.expiresAt))}</p>
+          <strong>${esc(s.title || "ستوري")}</strong>
+          <p class="muted">${esc(STORY_HOURS[s.durationHours] || "24 ساعة")} · ${esc(storyRemaining(s.expiresAt))}</p>
         </div>
         <div class="admin-dish-actions">
           <button class="btn btn-ghost" type="button" data-edit-story="${esc(s.id)}">تعديل</button>
@@ -266,9 +265,7 @@
     storyForm.reset();
     delete storyForm.dataset.uploadedImage;
     storyForm.elements.namedItem("id").value = story ? story.id : "";
-    storyForm.elements.namedItem("kind").value = story && STORY_KINDS[story.kind] ? story.kind : "review";
-    storyForm.elements.namedItem("title").value = story ? story.title || "" : "";
-    storyForm.elements.namedItem("caption").value = story ? story.caption || "" : "";
+    storyForm.elements.namedItem("title").value = story ? story.title || story.caption || "" : "";
     storyForm.elements.namedItem("durationHours").value = String((story && story.durationHours) || 24);
     showStoryPreview(story ? story.image : "");
     storyModal.classList.add("open");
@@ -712,11 +709,12 @@
     const hours = Number(storyForm.elements.namedItem("durationHours").value) || 24;
     const now = Date.now();
     const storyId = storyForm.elements.namedItem("id").value || ("story-" + now);
+    const note = storyForm.elements.namedItem("title").value.trim();
     const story = {
       id: storyId,
-      kind: storyForm.elements.namedItem("kind").value,
-      title: storyForm.elements.namedItem("title").value.trim(),
-      caption: storyForm.elements.namedItem("caption").value.trim(),
+      kind: "dish",
+      title: note,
+      caption: "",
       image,
       durationHours: hours,
       createdAt: editingStoryId

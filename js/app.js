@@ -195,7 +195,7 @@
           <span class="story-ring-frame">
             <img src="${dishImage(s.image)}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
           </span>
-          <small>${s.title || STORY_KIND_LABEL[s.kind] || "ستوري"}</small>
+          <small>${s.title || ""}</small>
         </button>`;
     }).join("");
   }
@@ -218,11 +218,12 @@
     const src = dishImage(s.image);
     photo.src = src;
     if (avatar) avatar.src = src;
-    document.getElementById("story-kind").textContent = (STORY_KIND_LABEL[s.kind] || "ستوري") + " · " + storyTimeLabel(s.createdAt);
-    document.getElementById("story-title").textContent = s.title || STORY_KIND_LABEL[s.kind] || "";
+    const label = (s.title || s.caption || "").trim();
+    document.getElementById("story-title").textContent = label;
+    document.getElementById("story-kind").textContent = storyTimeLabel(s.createdAt);
     const cap = document.getElementById("story-caption");
-    cap.textContent = s.caption || "";
-    cap.hidden = !s.caption;
+    cap.textContent = "";
+    cap.hidden = true;
   }
 
   function showStoryAt(index) {
