@@ -13,18 +13,18 @@
   <title>مأكولات الياقوت والمرجان | اطلب أطيب الأكلات البيتية</title>
   <meta name="description" content="مأكولات الياقوت والمرجان — كبة، دولمة، معجنات وحلويات بيتية. اطلب أونلاين ويصلك الطلب مباشرة على واتساب." />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="assets/app-icon.png?v=51" />
+  <link rel="apple-touch-icon" href="assets/app-icon.png?v=52" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="assets/app-icon.png?v=51" type="image/png" />
+  <link rel="icon" href="assets/app-icon.png?v=52" type="image/png" />
   <script>
     (function () {
       var theme = localStorage.getItem("yam-theme") || "dark";
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=51" />
+  <link rel="stylesheet" href="css/style.css?v=52" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -35,7 +35,7 @@
       <div class="container header-inner">
       <a class="brand" href="#top">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=51" alt="">
+          <img src="assets/logo.png?v=52" alt="">
         </span>
         <span class="brand-text">
           <strong>الياقوت والمرجان</strong>
@@ -130,7 +130,7 @@
         </div>
       </div>
       <div class="pay-note">
-        <img src="assets/qi-card.png?v=51" alt="كي كارد">
+        <img src="assets/qi-card.png?v=52" alt="كي كارد">
         <div>
           <strong>الدفع الإلكتروني متوفر</strong>
           <span>يمكنك الدفع عبر كي كارد عند تأكيد الطلب على واتساب.</span>
@@ -215,7 +215,7 @@
             <li><strong>مكان الوصول</strong><span>عنوان التسليم وموقع المستلم على الخريطة.</span></li>
             <li><strong>الرسم</strong><span>يُحسب تقريبياً حسب المسافة داخل المحافظة، ويُؤكد عبر واتساب.</span></li>
           </ol>
-          <p class="muted special-note">حدّد موقع الانطلاق وأنت في مكان أخذ الغرض إن أمكن، وموقع الوصول من مكان التسليم. الرسم تقديري حسب المسافة.</p>
+          <p class="muted special-note">مكان الوصول تختاره من الخريطة أو تكتب إحداثياته حتى لو كنت في مكان ثاني. الرسم تقديري حسب المسافة.</p>
         </div>
         <form class="special-card" id="delivery-form">
           <p class="eyebrow">طلب توصيلة</p>
@@ -237,8 +237,20 @@
               <strong>موقع الانطلاق على الخريطة</strong>
               <span class="location-status" id="delivery-from-status">لم يُحدَّد بعد</span>
             </div>
-            <p class="muted location-hint">ثبّت موقع أخذ الغرض بالـ GPS حتى يصل المندوب بدقة.</p>
-            <button class="btn btn-ghost btn-block" id="delivery-from-btn" type="button">تحديد موقع الانطلاق</button>
+            <p class="muted location-hint">موقعك الحالي، أو نقطة من الخريطة، أو إحداثيات.</p>
+            <div class="pin-actions">
+              <button class="btn btn-ghost" id="delivery-from-btn" type="button">موقعي الحالي</button>
+              <button class="btn btn-ghost" id="delivery-from-map" type="button">اختيار من الخريطة</button>
+            </div>
+            <div class="coord-row">
+              <label>خط العرض
+                <input id="delivery-from-lat" type="text" inputmode="decimal" placeholder="33.315241" autocomplete="off" />
+              </label>
+              <label>خط الطول
+                <input id="delivery-from-lng" type="text" inputmode="decimal" placeholder="44.366115" autocomplete="off" />
+              </label>
+            </div>
+            <button class="btn btn-ghost btn-block" id="delivery-from-coords" type="button">تثبيت الإحداثيات</button>
             <a class="location-preview" id="delivery-from-preview" href="#" target="_blank" rel="noopener">عرض موقع الانطلاق</a>
           </div>
           <label>اسم المستلم
@@ -255,14 +267,26 @@
               <strong>موقع الوصول على الخريطة</strong>
               <span class="location-status" id="delivery-to-status">لم يُحدَّد بعد</span>
             </div>
-            <p class="muted location-hint">ثبّت موقع التسليم بالـ GPS.</p>
-            <button class="btn btn-ghost btn-block" id="delivery-to-btn" type="button">تحديد موقع الوصول</button>
+            <p class="muted location-hint">اختر مكان التسليم من الخريطة أو اكتب إحداثياته، حتى لو كنت في مكان آخر.</p>
+            <div class="pin-actions">
+              <button class="btn btn-ghost" id="delivery-to-btn" type="button">موقعي الحالي</button>
+              <button class="btn btn-ghost" id="delivery-to-map" type="button">اختيار من الخريطة</button>
+            </div>
+            <div class="coord-row">
+              <label>خط العرض
+                <input id="delivery-to-lat" type="text" inputmode="decimal" placeholder="33.315241" autocomplete="off" />
+              </label>
+              <label>خط الطول
+                <input id="delivery-to-lng" type="text" inputmode="decimal" placeholder="44.366115" autocomplete="off" />
+              </label>
+            </div>
+            <button class="btn btn-ghost btn-block" id="delivery-to-coords" type="button">تثبيت الإحداثيات</button>
             <a class="location-preview" id="delivery-to-preview" href="#" target="_blank" rel="noopener">عرض موقع الوصول</a>
           </div>
           <label>ملاحظات (اختياري)
             <textarea name="note" rows="2" placeholder="وقت مناسب، تعليمات للمندوب..."></textarea>
           </label>
-          <div class="delivery-quote" id="delivery-quote">حدّد موقعي الانطلاق والوصول بالـ GPS لحساب رسم التوصيل.</div>
+          <div class="delivery-quote" id="delivery-quote">حدّد موقعي الانطلاق والوصول (من الخريطة أو بالإحداثيات) لحساب رسم التوصيل.</div>
           <button class="btn btn-primary btn-block" type="submit">إرسال التوصيلة عبر واتساب</button>
           <p class="muted special-foot">تصل البيانات إلى المندوبين على واتساب مع الموقعين والرسم التقريبي.</p>
         </form>
@@ -298,7 +322,7 @@
           </div>
           <p class="muted">بعد إتمام السلة ننقلك مباشرة إلى واتساب المأكولات والطلب مكتوب تلقائياً.</p>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=51" alt="كي كارد">
+            <img src="assets/qi-card.png?v=52" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد</span>
@@ -314,7 +338,7 @@
     <div class="container footer-inner">
       <div class="brand brand-footer">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=51" alt="">
+          <img src="assets/logo.png?v=52" alt="">
         </span>
         <span class="brand-text">
           <strong>مأكولات الياقوت والمرجان</strong>
@@ -348,6 +372,19 @@
   </div>
 
   <div class="overlay" id="overlay" hidden></div>
+
+  <div class="modal" id="map-modal" aria-hidden="true" role="dialog" aria-labelledby="map-modal-title">
+    <div class="modal-card map-card">
+      <button class="icon-btn modal-close" id="close-map" type="button" aria-label="إغلاق">×</button>
+      <div class="modal-body">
+        <h2 id="map-modal-title">اختيار الموقع من الخريطة</h2>
+        <p class="muted" id="map-modal-hint">حرّك الخريطة واضغط على المكان المطلوب، ثم ثبّت الموقع.</p>
+        <div id="delivery-map" class="delivery-map" dir="ltr"></div>
+        <p class="map-coord" id="map-coord">اضغط على الخريطة لتحديد النقطة</p>
+        <button class="btn btn-primary btn-block" id="map-confirm" type="button" disabled>تثبيت هذا الموقع</button>
+      </div>
+    </div>
+  </div>
 
   <aside class="drawer" id="cart-drawer" aria-hidden="true" aria-labelledby="cart-title">
     <div class="drawer-head">
@@ -417,7 +454,7 @@
           </label>
           <div class="checkout-summary" id="checkout-summary"></div>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=51" alt="كي كارد">
+            <img src="assets/qi-card.png?v=52" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد — عند تأكيد الطلب عبر واتساب.</span>
@@ -453,7 +490,7 @@
 
   <div class="install-overlay" id="install-banner" hidden>
     <div class="install-modal" role="dialog" aria-labelledby="install-title">
-      <img class="install-icon" src="assets/app-icon.png?v=51" alt="" />
+      <img class="install-icon" src="assets/app-icon.png?v=52" alt="" />
       <h3 id="install-title">ثبّت التطبيق على هاتفك</h3>
       <p id="install-text">يظهر مع التطبيقات وتفتحه مثل واتساب، بدون المتصفح.</p>
       <ol class="install-steps" id="install-steps" hidden></ol>
@@ -464,9 +501,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=51"></script>
-  <script src="js/menu-data.js?v=51"></script>
-  <script src="js/menu-store.js?v=51"></script>
-  <script src="js/app.js?v=51"></script>
+  <script src="js/config.js?v=52"></script>
+  <script src="js/menu-data.js?v=52"></script>
+  <script src="js/menu-store.js?v=52"></script>
+  <script src="js/app.js?v=52"></script>
 </body>
 </html>

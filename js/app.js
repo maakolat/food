@@ -580,6 +580,11 @@
     els.checkoutModal.setAttribute("aria-hidden", "true");
     els.cartDrawer.classList.remove("open");
     els.cartDrawer.setAttribute("aria-hidden", "true");
+    const mapModal = document.getElementById("map-modal");
+    if (mapModal) {
+      mapModal.classList.remove("open");
+      mapModal.setAttribute("aria-hidden", "true");
+    }
     els.overlay.hidden = true;
     document.body.style.overflow = "";
   }
@@ -880,6 +885,7 @@
     const url = mapsUrl(lat, lng);
     deliveryPins[kind] = { lat, lng, url };
     setPinStatus(kind, "تم تحديد الموقع", "ok");
+    fillCoordInputs(kind, lat, lng);
     const preview = document.getElementById("delivery-" + kind + "-preview");
     if (preview) {
       preview.href = url;
@@ -888,13 +894,61 @@
     updateDeliveryQuote();
   }
 
+  function fillCoordInputs(kind, lat, lng) {
+    const latEl = document.getElementById("delivery-" + kind + "-lat");
+    const lngEl = document.getElementById("delivery-" + kind + "-lng");
+    if (latEl) latEl.value = Number(lat).toFixed(6);
+    if (lngEl) lngEl.value = Number(lng).toFixed(6);
+  }
+
+  function arabicDigits(value) {
+    return String(value || "").replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+      .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+  }
+
+  function parseCoord(raw) {
+    const n = Number(arabicDigits(raw).trim().replace(",", "."));
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function splitPastedPair(kind) {
+    const latEl = document.getElementById("delivery-" + kind + "-lat");
+    const lngEl = document.getElementById("delivery-" + kind + "-lng");
+    if (!latEl) return;
+    const raw = arabicDigits(latEl.value).replace(/[،]/g, ",");
+    const m = raw.match(/(-?\d+(?:[.,]\d+)?)\s*[,;\s]+\s*(-?\d+(?:[.,]\d+)?)/);
+    if (!m) return;
+    latEl.value = m[1].replace(",", ".");
+    if (lngEl && !String(lngEl.value || "").trim()) lngEl.value = m[2].replace(",", ".");
+  }
+
+  function readCoords(kind) {
+    splitPastedPair(kind);
+    const lat = parseCoord(document.getElementById("delivery-" + kind + "-lat")?.value);
+    const lng = parseCoord(document.getElementById("delivery-" + kind + "-lng")?.value);
+    if (lat == null || lng == null) return null;
+    if (lat < 29 || lat > 38 || lng < 38 || lng > 49) return null;
+    return { lat, lng };
+  }
+
+  function pinFromCoords(kind) {
+    const pair = readCoords(kind);
+    if (!pair) {
+      toast("أدخل خط عرض وخط طول صحيحين داخل العراق");
+      setPinStatus(kind, "الإحداثيات غير صحيحة", "err");
+      return;
+    }
+    applyDeliveryPin(kind, pair.lat, pair.lng);
+    toast(kind === "from" ? "تم حفظ موقع الانطلاق" : "تم حفظ موقع الوصول");
+  }
+
   function updateDeliveryQuote() {
     const el = document.getElementById("delivery-quote");
     if (!el) return;
     if (!deliveryPins.from || !deliveryPins.to) {
       deliveryQuote = null;
       el.classList.remove("is-ready", "is-far");
-      el.innerHTML = "حدّد موقعي الانطلاق والوصول بالـ GPS لحساب رسم التوصيل.";
+      el.innerHTML = "حدّد موقعي الانطلاق والوصول (من الخريطة أو بالإحداثيات) لحساب رسم التوصيل.";
       return;
     }
     const s = deliverySettings();
@@ -911,7 +965,7 @@
     const btn = document.getElementById("delivery-" + kind + "-btn");
     if (!navigator.geolocation) {
       setPinStatus(kind, "المتصفح لا يدعم تحديد الموقع", "err");
-      toast("جهازك أو متصفحك لا يدعم تحديد الموقع");
+      toast("جهازك أو متصفحك لا يدعم تحديد الموقع. اختر من الخريطة أو أدخل الإحداثيات");
       return;
     }
     setPinStatus(kind, "جارٍ تحديد الموقع...", "");
@@ -925,13 +979,114 @@
       (err) => {
         if (btn) btn.disabled = false;
         const msg = err.code === 1
-          ? "المتصفح رفض صلاحية الموقع. اسمح بالموقع ثم أعد المحاولة"
-          : "تعذر تحديد الموقع. حاول مرة أخرى";
-        setPinStatus(kind, "لم يُحدَّد الموقع", "err");
+          ? "المتصفح رفض صلاحية الموقع. اختر من الخريطة أو أدخل الإحداثيات"
+          : "تعذر تحديد موقعك الحالي. اختر من الخريطة أو أدخل الإحداثيات";
+        setPinStatus(kind, "لم يُحدَّد الموقع الحالي", "err");
         toast(msg);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
+  }
+
+  let mapPicker = {
+    kind: "to",
+    pending: null,
+    map: null,
+    marker: null
+  };
+
+  function loadLeaflet() {
+    if (window.L) return Promise.resolve(window.L);
+    if (loadLeaflet.wait) return loadLeaflet.wait;
+    loadLeaflet.wait = new Promise((resolve, reject) => {
+      const css = document.createElement("link");
+      css.rel = "stylesheet";
+      css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(css);
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      script.onload = () => resolve(window.L);
+      script.onerror = () => reject(new Error("map"));
+      document.body.appendChild(script);
+    });
+    return loadLeaflet.wait;
+  }
+
+  function mapCenterFor(kind) {
+    if (deliveryPins[kind]) return [deliveryPins[kind].lat, deliveryPins[kind].lng];
+    const other = kind === "from" ? "to" : "from";
+    if (deliveryPins[other]) return [deliveryPins[other].lat, deliveryPins[other].lng];
+    return [33.3152, 44.3661];
+  }
+
+  function setPendingMapPin(lat, lng) {
+    mapPicker.pending = { lat, lng };
+    const coord = document.getElementById("map-coord");
+    const confirm = document.getElementById("map-confirm");
+    if (coord) coord.textContent = `خط العرض ${lat.toFixed(6)} — خط الطول ${lng.toFixed(6)}`;
+    if (confirm) confirm.disabled = false;
+    if (mapPicker.map) {
+      if (mapPicker.marker) mapPicker.marker.setLatLng([lat, lng]);
+      else mapPicker.marker = window.L.marker([lat, lng], { draggable: true }).addTo(mapPicker.map)
+        .on("dragend", (e) => {
+          const p = e.target.getLatLng();
+          setPendingMapPin(p.lat, p.lng);
+        });
+    }
+  }
+
+  async function openMapPicker(kind) {
+    const modal = document.getElementById("map-modal");
+    const title = document.getElementById("map-modal-title");
+    const hint = document.getElementById("map-modal-hint");
+    const confirm = document.getElementById("map-confirm");
+    const coord = document.getElementById("map-coord");
+    if (!modal) return;
+    mapPicker.kind = kind;
+    mapPicker.pending = deliveryPins[kind] ? { lat: deliveryPins[kind].lat, lng: deliveryPins[kind].lng } : null;
+    if (title) title.textContent = kind === "from" ? "اختيار موقع الانطلاق" : "اختيار موقع الوصول";
+    if (hint) hint.textContent = "حرّك الخريطة واضغط على المكان المطلوب، ثم ثبّت الموقع.";
+    if (coord) coord.textContent = mapPicker.pending
+      ? `خط العرض ${mapPicker.pending.lat.toFixed(6)} — خط الطول ${mapPicker.pending.lng.toFixed(6)}`
+      : "اضغط على الخريطة لتحديد النقطة";
+    if (confirm) confirm.disabled = !mapPicker.pending;
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+    els.overlay.hidden = false;
+    document.body.style.overflow = "hidden";
+    try {
+      const L = await loadLeaflet();
+      L.Icon.Default.imagePath = "https://unpkg.com/leaflet@1.9.4/dist/images/";
+      const start = mapCenterFor(kind);
+      if (!mapPicker.map) {
+        mapPicker.map = L.map("delivery-map", { zoomControl: true }).setView(start, 13);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "&copy; OpenStreetMap"
+        }).addTo(mapPicker.map);
+        mapPicker.map.on("click", (e) => setPendingMapPin(e.latlng.lat, e.latlng.lng));
+      } else {
+        mapPicker.map.setView(start, 13);
+      }
+      if (mapPicker.marker) {
+        mapPicker.map.removeLayer(mapPicker.marker);
+        mapPicker.marker = null;
+      }
+      if (mapPicker.pending) setPendingMapPin(mapPicker.pending.lat, mapPicker.pending.lng);
+      setTimeout(() => mapPicker.map.invalidateSize(), 80);
+    } catch (err) {
+      toast("تعذر فتح الخريطة. أدخل الإحداثيات يدوياً");
+    }
+  }
+
+  function confirmMapPin() {
+    if (!mapPicker.pending) {
+      toast("اضغط على الخريطة أولاً لتحديد النقطة");
+      return;
+    }
+    applyDeliveryPin(mapPicker.kind, mapPicker.pending.lat, mapPicker.pending.lng);
+    toast(mapPicker.kind === "from" ? "تم حفظ موقع الانطلاق" : "تم حفظ موقع الوصول");
+    closeModals();
   }
 
   function validPhone(value) {
@@ -963,12 +1118,14 @@
       `الهاتف: ${form.senderPhone.value.trim()}`,
       `عنوان الانطلاق: ${form.fromAddress.value.trim()}`,
       deliveryPins.from ? `موقع الانطلاق: ${deliveryPins.from.url}` : "موقع الانطلاق: لم يُحدَّد",
+      deliveryPins.from ? `إحداثيات الانطلاق: ${deliveryPins.from.lat.toFixed(6)}, ${deliveryPins.from.lng.toFixed(6)}` : "",
       "",
       "المستلم:",
       `الاسم: ${form.receiverName.value.trim()}`,
       `الهاتف: ${form.receiverPhone.value.trim()}`,
       `عنوان الوصول: ${form.toAddress.value.trim()}`,
       deliveryPins.to ? `موقع الوصول: ${deliveryPins.to.url}` : "موقع الوصول: لم يُحدَّد",
+      deliveryPins.to ? `إحداثيات الوصول: ${deliveryPins.to.lat.toFixed(6)}, ${deliveryPins.to.lng.toFixed(6)}` : "",
       ""
     ];
     if (deliveryQuote) {
@@ -983,11 +1140,14 @@
   }
 
   function bindDelivery() {
-    const fromBtn = document.getElementById("delivery-from-btn");
-    const toBtn = document.getElementById("delivery-to-btn");
+    ["from", "to"].forEach((kind) => {
+      document.getElementById("delivery-" + kind + "-btn")?.addEventListener("click", () => pinDelivery(kind));
+      document.getElementById("delivery-" + kind + "-map")?.addEventListener("click", () => openMapPicker(kind));
+      document.getElementById("delivery-" + kind + "-coords")?.addEventListener("click", () => pinFromCoords(kind));
+    });
+    document.getElementById("close-map")?.addEventListener("click", closeModals);
+    document.getElementById("map-confirm")?.addEventListener("click", confirmMapPin);
     const form = document.getElementById("delivery-form");
-    if (fromBtn) fromBtn.addEventListener("click", () => pinDelivery("from"));
-    if (toBtn) toBtn.addEventListener("click", () => pinDelivery("to"));
     if (!form) return;
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -1000,7 +1160,7 @@
         return;
       }
       if (!deliveryPins.from || !deliveryPins.to) {
-        toast("حدّد موقع الانطلاق وموقع الوصول بالـ GPS");
+        toast("حدّد موقع الانطلاق وموقع الوصول من الخريطة أو بالإحداثيات");
         return;
       }
       sendWhatsappText(buildDeliveryMessage(form));
