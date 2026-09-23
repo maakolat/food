@@ -380,9 +380,21 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/basbousa-1790098789718.jpg?v=1790098789718",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/pastry-mix-1790098992558.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kibbeh-burghul-1790099103791.jpg",
-    "assets/uploads/story-story-1790149635188-1790149635191.jpg"
+    "assets/uploads/story-story-1790149635188-1790149635191.jpg",
+    "assets/uploads/story-story-1790149813890-1790149813895.jpg"
   ],
   "stories": [
+    {
+      "id": "story-1790149813890",
+      "kind": "dish",
+      "title": "دجاج مشوي",
+      "caption": "",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790149813890-1790149813895.jpg?v=1790149813895",
+      "durationHours": 24,
+      "createdAt": 1790149813890,
+      "expiresAt": 1790236213890,
+      "updatedAt": 1790149813890
+    },
     {
       "id": "story-1790149635188",
       "kind": "review",
@@ -395,5 +407,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790149635190
+  "updatedAt": 1790149813895
 }
