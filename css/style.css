@@ -945,18 +945,10 @@ input[type="text"], input[type="tel"], textarea, select {
   border-radius: 14px;
   padding: 12px 14px;
   margin: 4px 0 12px;
-  display: grid;
-  gap: 4px;
   color: var(--muted);
   font-weight: 600;
   text-align: center;
 }
-.delivery-quote strong {
-  color: var(--ruby);
-  font-size: 1.2rem;
-}
-.delivery-quote.is-ready { border-color: var(--ruby); }
-.delivery-quote.is-far { border-color: var(--gold); }
 
 .toast {
   position: fixed;

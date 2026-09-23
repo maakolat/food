@@ -842,17 +842,6 @@
   }
 
   const deliveryPins = { from: null, to: null };
-  let deliveryQuote = null;
-
-  function deliverySettings() {
-    const d = (window.SITE_CONFIG || {}).delivery || {};
-    return {
-      minFee: Number(d.minFee) || 4000,
-      perKm: Number(d.perKm) || 1500,
-      includedKm: Number(d.includedKm) || 3,
-      maxKm: Number(d.maxKm) || 70
-    };
-  }
 
   function haversineKm(a, b) {
     const toRad = (x) => (x * Math.PI) / 180;
@@ -862,12 +851,6 @@
     const s = Math.sin(dLat / 2) * Math.sin(dLat / 2)
       + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
     return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
-  }
-
-  function estimateDeliveryFee(km) {
-    const s = deliverySettings();
-    const extra = Math.max(0, km - s.includedKm);
-    return Math.ceil((s.minFee + extra * s.perKm) / 500) * 500;
   }
 
   function setPinStatus(kind, text, state) {
@@ -891,7 +874,6 @@
       preview.href = url;
       preview.classList.add("is-visible");
     }
-    updateDeliveryQuote();
   }
 
   function fillCoordInputs(kind, lat, lng) {
@@ -928,25 +910,6 @@
     }
     applyDeliveryPin(kind, pair.lat, pair.lng);
     toast(kind === "from" ? "تم حفظ موقع الانطلاق" : "تم حفظ موقع الوصول");
-  }
-
-  function updateDeliveryQuote() {
-    const el = document.getElementById("delivery-quote");
-    if (!el) return;
-    if (!deliveryPins.from || !deliveryPins.to) {
-      deliveryQuote = null;
-      el.classList.remove("is-ready", "is-far");
-      el.innerHTML = "حدّد موقعي الانطلاق والوصول لحساب رسم التوصيل.";
-      return;
-    }
-    const s = deliverySettings();
-    const km = haversineKm(deliveryPins.from, deliveryPins.to);
-    const fee = estimateDeliveryFee(km);
-    const far = km > s.maxKm;
-    deliveryQuote = { km, fee, far };
-    el.classList.toggle("is-ready", !far);
-    el.classList.toggle("is-far", far);
-    el.innerHTML = `<strong>${money(fee)}</strong><span>المسافة التقريبية ${km.toFixed(1)} كم داخل المحافظة. ${far ? "المسافة بعيدة وقد يُؤكد سعر إضافي عبر واتساب." : "السعر تقديري حسب المكان ويُؤكد عند قبول المندوب."}</span>`;
   }
 
   function pinDelivery(kind) {
@@ -1116,11 +1079,10 @@
       deliveryPins.to ? `إحداثيات الوصول: ${deliveryPins.to.lat.toFixed(6)}, ${deliveryPins.to.lng.toFixed(6)}` : "",
       ""
     ];
-    if (deliveryQuote) {
-      lines.push(`المسافة التقريبية: ${deliveryQuote.km.toFixed(1)} كم`);
-      lines.push(`رسوم التوصيل التقديرية: ${deliveryQuote.fee.toLocaleString("ar-IQ")} د.ع`);
-      if (deliveryQuote.far) lines.push("ملاحظة السعر: المسافة بعيدة ويُؤكد عبر واتساب");
+    if (deliveryPins.from && deliveryPins.to) {
+      lines.push(`المسافة التقريبية: ${haversineKm(deliveryPins.from, deliveryPins.to).toFixed(1)} كم`);
     }
+    lines.push("السعر: يُحدد عبر واتساب");
     const note = form.note.value.trim();
     if (note) lines.push("", `ملاحظات: ${note}`);
     lines.push("", "الدفع الإلكتروني عبر كي كارد متوفر عند التأكيد.");
@@ -1159,7 +1121,6 @@
       }
       sendWhatsappText(buildDeliveryMessage(form));
     });
-    updateDeliveryQuote();
   }
 
   function applyTheme(theme) {
