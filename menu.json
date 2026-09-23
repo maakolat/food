@@ -384,9 +384,21 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790149813890-1790149813895.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/pastry-mix-1790098992558.jpg?v=1790098992558",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kibbeh-burghul-1790099103791.jpg?v=1790099103791",
-    "assets/uploads/story-story-1790150435089-1790150435092.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790150435089-1790150435092.jpg",
+    "assets/uploads/story-story-1790151638657-1790151638662.jpg"
   ],
   "stories": [
+    {
+      "id": "story-1790151638657",
+      "kind": "dish",
+      "title": "قوزي لحم",
+      "caption": "",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790151638657-1790151638662.jpg?v=1790151638662",
+      "durationHours": 24,
+      "createdAt": 1790151638657,
+      "expiresAt": 1790238038657,
+      "updatedAt": 1790151638657
+    },
     {
       "id": "story-1790150435089",
       "kind": "dish",
@@ -410,5 +422,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790150460718
+  "updatedAt": 1790151638661
 }
