@@ -186,18 +186,14 @@
     },
     {
       "id": "kleija-walnut",
-      "name": "كليچة الجوز",
-      "desc": "كليجة فاخرة بالجوز، السعر للكيلو.",
       "category": "sweets",
-      "extrasKey": "sweet",
-      "extraIds": [
-        "sweetSofra",
-        "box"
-      ],
-      "image": "assets/kleija-walnut.jpg",
+      "name": "كليجة الجوز",
+      "desc": "كليجة فاخرة بالجوز، السعر للكيلو.",
+      "price": 15000,
       "unit": "كيلو",
       "step": 0.5,
-      "price": 15000
+      "image": "assets/kleija-walnut.jpg",
+      "extrasKey": "sweet"
     },
     {
       "id": "kleija-janna",
@@ -382,13 +378,13 @@
     {
       "id": "story-1790179363124",
       "kind": "dish",
-      "title": "",
+      "title": "باچة غنم",
       "caption": "",
       "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790179363124-1790179363130.jpg?v=1790179363130",
       "durationHours": 24,
       "createdAt": 1790179363124,
-      "expiresAt": 1790265763124,
-      "updatedAt": 1790179363124
+      "expiresAt": 1790266853968,
+      "updatedAt": 1790180453968
     },
     {
       "id": "story-1790151998718",
@@ -424,5 +420,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790180414909
+  "updatedAt": 1790180453969
 }
