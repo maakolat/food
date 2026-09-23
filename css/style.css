@@ -506,6 +506,36 @@ html[data-theme="dark"] .hours-card {
   text-decoration: none;
   letter-spacing: 0.04em;
 }
+.social-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 14px;
+}
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.92rem;
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+.social-btn img {
+  width: 22px;
+  height: 22px;
+  display: block;
+  border-radius: 6px;
+}
+.social-row-footer .social-btn {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
 
 .site-footer {
   border-top: 1px solid var(--line);
