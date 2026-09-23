@@ -197,7 +197,7 @@
     },
     {
       "id": "kleija-janna",
-      "name": "كليجة بدهن جنة",
+      "name": "كليچة بدهن جنة",
       "desc": "السعر للكيلو.",
       "category": "sweets",
       "extrasKey": "sweet",
@@ -205,7 +205,7 @@
         "sweetSofra",
         "box"
       ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kleija-janna-1790098760111.jpg?v=1790098760111",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kleija-janna-1790098760111.jpg",
       "unit": "كيلو",
       "step": 0.5,
       "price": 7000
@@ -295,7 +295,7 @@
     {
       "id": "dish-1790179287045",
       "name": "باچة غنم",
-      "desc": "باچة كاملة مع أرجل ( حجز مسبق قبل يوم)",
+      "desc": "باچة كاملة مع أرجل",
       "category": "mains",
       "extrasKey": "custom",
       "extraIds": [
@@ -420,5 +420,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790180279834
+  "updatedAt": 1790180383339
 }
