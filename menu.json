@@ -186,14 +186,18 @@
     },
     {
       "id": "kleija-walnut",
-      "category": "sweets",
-      "name": "كليجة الجوز",
+      "name": "كليچة الجوز",
       "desc": "كليجة فاخرة بالجوز، السعر للكيلو.",
-      "price": 15000,
+      "category": "sweets",
+      "extrasKey": "sweet",
+      "extraIds": [
+        "sweetSofra",
+        "box"
+      ],
+      "image": "assets/kleija-walnut.jpg",
       "unit": "كيلو",
       "step": 0.5,
-      "image": "assets/kleija-walnut.jpg",
-      "extrasKey": "sweet"
+      "price": 15000
     },
     {
       "id": "kleija-janna",
@@ -420,5 +424,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790180383339
+  "updatedAt": 1790180414909
 }
