@@ -193,7 +193,9 @@
       return `
         <button class="story-ring ${unseen ? "unseen" : "seen"}" type="button" data-story-index="${i}">
           <span class="story-ring-frame">
-            <img src="${dishImage(s.image)}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
+            <span class="story-ring-photo">
+              <img src="${dishImage(s.image)}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
+            </span>
           </span>
           <small>${s.title || ""}</small>
         </button>`;
