@@ -291,6 +291,36 @@
       "unit": "",
       "step": 0.5,
       "price": null
+    },
+    {
+      "id": "layer-cake",
+      "category": "sweets",
+      "name": "كيك الطبقات",
+      "desc": "حسب عدد الطبقات من 3 إلى 10 آلاف.",
+      "image": "assets/cake-layer.jpg",
+      "extrasKey": "sweet",
+      "variants": [
+        {
+          "id": "c3",
+          "label": "طبقات خفيفة — 3,000 د.ع",
+          "price": 3000
+        },
+        {
+          "id": "c5",
+          "label": "وسط — 5,000 د.ع",
+          "price": 5000
+        },
+        {
+          "id": "c8",
+          "label": "كبير — 8,000 د.ع",
+          "price": 8000
+        },
+        {
+          "id": "c10",
+          "label": "فاخر — 10,000 د.ع",
+          "price": 10000
+        }
+      ]
     }
   ],
   "assets": [
@@ -348,8 +378,22 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kleija-free-fat-1790098642492.jpg?v=1790098642492",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kleija-janna-1790098760111.jpg?v=1790098760111",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/basbousa-1790098789718.jpg?v=1790098789718",
-    "assets/uploads/pastry-mix-1790098992558.jpg",
-    "assets/uploads/kibbeh-burghul-1790099103791.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/pastry-mix-1790098992558.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kibbeh-burghul-1790099103791.jpg",
+    "assets/uploads/story-story-1790149635188-1790149635191.jpg"
   ],
-  "updatedAt": 1790099148189
+  "stories": [
+    {
+      "id": "story-1790149635188",
+      "kind": "review",
+      "title": "آراء الزبائن",
+      "caption": "",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790149635188-1790149635191.jpg?v=1790149635191",
+      "durationHours": 24,
+      "createdAt": 1790149635188,
+      "expiresAt": 1790236035188,
+      "updatedAt": 1790149635188
+    }
+  ],
+  "updatedAt": 1790149635190
 }
