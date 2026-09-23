@@ -112,12 +112,24 @@ a { color: inherit; }
   text-decoration: none;
 }
 .brand-mark {
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: var(--ruby-deep);
+  overflow: hidden;
+  background: #ffb3ce;
   position: relative;
-  box-shadow: 0 0 0 3px var(--gold-soft);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px var(--gold-soft);
+}
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.brand-footer .brand-mark {
+  width: 54px;
+  height: 54px;
 }
 .gem {
   position: absolute;
@@ -1097,10 +1109,12 @@ body:has(#mobile-bar:not([hidden])) .wa-float { bottom: calc(86px + env(safe-are
   text-align: center;
 }
 .install-icon {
-  width: 72px;
-  height: 72px;
+  width: 76px;
+  height: 76px;
   margin: 0 auto 12px;
   border-radius: 18px;
+  object-fit: cover;
+  box-shadow: 0 8px 22px rgba(107, 18, 32, 0.22);
 }
 .install-modal h3 {
   margin: 0 0 8px;

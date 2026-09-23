@@ -1,4 +1,4 @@
-const CACHE = "yam-app-v46";
+const CACHE = "yam-app-v47";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
@@ -17,7 +17,7 @@ self.addEventListener("fetch", (event) => {
   let url;
   try { url = new URL(event.request.url); } catch (err) { return; }
   if (url.origin !== self.location.origin) return;
-  if (/manifest\.webmanifest$|\/sw\.js$|app-icon\.png$/i.test(url.pathname)) return;
+  if (/manifest\.webmanifest$|\/sw\.js$|app-icon|\/logo\.png$/i.test(url.pathname)) return;
   if (/menu\.json(\?|$)|\/assets\/uploads\//.test(url.pathname + url.search)) return;
 
   event.respondWith((async () => {
