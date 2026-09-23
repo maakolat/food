@@ -13,18 +13,18 @@
   <title>مأكولات الياقوت والمرجان | اطلب أطيب الأكلات البيتية</title>
   <meta name="description" content="مأكولات الياقوت والمرجان — كبة، دولمة، معجنات وحلويات بيتية. اطلب أونلاين ويصلك الطلب مباشرة على واتساب." />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="assets/app-icon.png?v=53" />
+  <link rel="apple-touch-icon" href="assets/app-icon.png?v=54" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="assets/app-icon.png?v=53" type="image/png" />
+  <link rel="icon" href="assets/app-icon.png?v=54" type="image/png" />
   <script>
     (function () {
       var theme = localStorage.getItem("yam-theme") || "dark";
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=53" />
+  <link rel="stylesheet" href="css/style.css?v=54" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -35,7 +35,7 @@
       <div class="container header-inner">
       <a class="brand" href="#top">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=53" alt="">
+          <img src="assets/logo.png?v=54" alt="">
         </span>
         <span class="brand-text">
           <strong>الياقوت والمرجان</strong>
@@ -130,7 +130,7 @@
         </div>
       </div>
       <div class="pay-note">
-        <img src="assets/qi-card.png?v=53" alt="كي كارد">
+        <img src="assets/qi-card.png?v=54" alt="كي كارد">
         <div>
           <strong>الدفع الإلكتروني متوفر</strong>
           <span>يمكنك الدفع عبر كي كارد عند تأكيد الطلب على واتساب.</span>
@@ -229,10 +229,10 @@
               <span class="location-status" id="delivery-from-status">لم يُحدَّد</span>
             </div>
             <div class="field-grid">
-              <label>اسم المسلم
+              <label>اسم المُسلِم
                 <input name="senderName" type="text" required placeholder="اسم من يسلّم الغرض" />
               </label>
-              <label>هاتف المسلم
+              <label>هاتف المُسلِم
                 <input name="senderPhone" type="tel" required inputmode="tel" placeholder="07xx xxx xxxx" />
               </label>
             </div>
@@ -245,14 +245,9 @@
             </div>
             <details class="coord-details">
               <summary>إدخال إحداثيات يدوياً</summary>
-              <div class="coord-row">
-                <label>خط العرض
-                  <input id="delivery-from-lat" type="text" inputmode="decimal" placeholder="33.315241" autocomplete="off" />
-                </label>
-                <label>خط الطول
-                  <input id="delivery-from-lng" type="text" inputmode="decimal" placeholder="44.366115" autocomplete="off" />
-                </label>
-              </div>
+              <label>الإحداثيات
+                <input id="delivery-from-pair" type="text" inputmode="decimal" dir="ltr" placeholder="32.609251, 44.015284" autocomplete="off" />
+              </label>
               <button class="btn btn-ghost btn-block" id="delivery-from-coords" type="button">تثبيت الإحداثيات</button>
             </details>
             <a class="location-preview" id="delivery-from-preview" href="#" target="_blank" rel="noopener">عرض موقع الانطلاق</a>
@@ -280,14 +275,9 @@
             </div>
             <details class="coord-details">
               <summary>إدخال إحداثيات يدوياً</summary>
-              <div class="coord-row">
-                <label>خط العرض
-                  <input id="delivery-to-lat" type="text" inputmode="decimal" placeholder="33.315241" autocomplete="off" />
-                </label>
-                <label>خط الطول
-                  <input id="delivery-to-lng" type="text" inputmode="decimal" placeholder="44.366115" autocomplete="off" />
-                </label>
-              </div>
+              <label>الإحداثيات
+                <input id="delivery-to-pair" type="text" inputmode="decimal" dir="ltr" placeholder="32.609251, 44.015284" autocomplete="off" />
+              </label>
               <button class="btn btn-ghost btn-block" id="delivery-to-coords" type="button">تثبيت الإحداثيات</button>
             </details>
             <a class="location-preview" id="delivery-to-preview" href="#" target="_blank" rel="noopener">عرض موقع الوصول</a>
@@ -333,7 +323,7 @@
           </div>
           <p class="muted">بعد إتمام السلة ننقلك مباشرة إلى واتساب والطلب مكتوب تلقائياً.</p>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=53" alt="كي كارد">
+            <img src="assets/qi-card.png?v=54" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد</span>
@@ -349,7 +339,7 @@
     <div class="container footer-inner">
       <div class="brand brand-footer">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=53" alt="">
+          <img src="assets/logo.png?v=54" alt="">
         </span>
         <span class="brand-text">
           <strong>مأكولات الياقوت والمرجان</strong>
@@ -465,7 +455,7 @@
           </label>
           <div class="checkout-summary" id="checkout-summary"></div>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=53" alt="كي كارد">
+            <img src="assets/qi-card.png?v=54" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد — عند تأكيد الطلب عبر واتساب.</span>
@@ -501,7 +491,7 @@
 
   <div class="install-overlay" id="install-banner" hidden>
     <div class="install-modal" role="dialog" aria-labelledby="install-title">
-      <img class="install-icon" src="assets/app-icon.png?v=53" alt="" />
+      <img class="install-icon" src="assets/app-icon.png?v=54" alt="" />
       <h3 id="install-title">ثبّت التطبيق على هاتفك</h3>
       <p id="install-text">يظهر مع التطبيقات وتفتحه مثل واتساب، بدون المتصفح.</p>
       <ol class="install-steps" id="install-steps" hidden></ol>
@@ -512,9 +502,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=53"></script>
-  <script src="js/menu-data.js?v=53"></script>
-  <script src="js/menu-store.js?v=53"></script>
-  <script src="js/app.js?v=53"></script>
+  <script src="js/config.js?v=54"></script>
+  <script src="js/menu-data.js?v=54"></script>
+  <script src="js/menu-store.js?v=54"></script>
+  <script src="js/app.js?v=54"></script>
 </body>
 </html>

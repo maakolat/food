@@ -921,13 +921,7 @@ input[type="text"], input[type="tel"], textarea, select {
   font-size: 0.88rem;
   margin-bottom: 8px;
 }
-.coord-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.coord-row label { margin-bottom: 10px; font-size: 0.86rem; }
-.form-block .coord-row label { font-weight: 700; }
+.coord-details input[dir="ltr"] { text-align: left; letter-spacing: 0.02em; }
 .map-card { width: min(720px, 100%); }
 .delivery-map {
   height: min(52vh, 420px);
@@ -1001,7 +995,7 @@ input[type="text"], input[type="tel"], textarea, select {
   .admin-toolbar { flex-direction: column; align-items: stretch; }
   .admin-dish { grid-template-columns: 72px 1fr; }
   .admin-dish-actions { grid-column: 1 / -1; }
-  .field-grid, .coord-row, .pin-actions { grid-template-columns: 1fr; }
+  .field-grid, .pin-actions { grid-template-columns: 1fr; }
   .service-pills { gap: 6px; }
 }
 

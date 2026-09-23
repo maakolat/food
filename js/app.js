@@ -895,10 +895,8 @@
   }
 
   function fillCoordInputs(kind, lat, lng) {
-    const latEl = document.getElementById("delivery-" + kind + "-lat");
-    const lngEl = document.getElementById("delivery-" + kind + "-lng");
-    if (latEl) latEl.value = Number(lat).toFixed(6);
-    if (lngEl) lngEl.value = Number(lng).toFixed(6);
+    const el = document.getElementById("delivery-" + kind + "-pair");
+    if (el) el.value = Number(lat).toFixed(6) + ", " + Number(lng).toFixed(6);
   }
 
   function arabicDigits(value) {
@@ -906,35 +904,25 @@
       .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
   }
 
-  function parseCoord(raw) {
-    const n = Number(arabicDigits(raw).trim().replace(",", "."));
-    return Number.isFinite(n) ? n : null;
-  }
-
-  function splitPastedPair(kind) {
-    const latEl = document.getElementById("delivery-" + kind + "-lat");
-    const lngEl = document.getElementById("delivery-" + kind + "-lng");
-    if (!latEl) return;
-    const raw = arabicDigits(latEl.value).replace(/[،]/g, ",");
-    const m = raw.match(/(-?\d+(?:[.,]\d+)?)\s*[,;\s]+\s*(-?\d+(?:[.,]\d+)?)/);
-    if (!m) return;
-    latEl.value = m[1].replace(",", ".");
-    if (lngEl && !String(lngEl.value || "").trim()) lngEl.value = m[2].replace(",", ".");
+  function parseCoordPair(raw) {
+    const s = arabicDigits(raw).replace(/[،]/g, ",").trim();
+    const m = s.match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+    if (!m) return null;
+    const lat = Number(m[1]);
+    const lng = Number(m[2]);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    if (lat < 29 || lat > 38 || lng < 38 || lng > 49) return null;
+    return { lat, lng };
   }
 
   function readCoords(kind) {
-    splitPastedPair(kind);
-    const lat = parseCoord(document.getElementById("delivery-" + kind + "-lat")?.value);
-    const lng = parseCoord(document.getElementById("delivery-" + kind + "-lng")?.value);
-    if (lat == null || lng == null) return null;
-    if (lat < 29 || lat > 38 || lng < 38 || lng > 49) return null;
-    return { lat, lng };
+    return parseCoordPair(document.getElementById("delivery-" + kind + "-pair")?.value);
   }
 
   function pinFromCoords(kind) {
     const pair = readCoords(kind);
     if (!pair) {
-      toast("أدخل خط عرض وخط طول صحيحين داخل العراق");
+      toast("أدخل الإحداثيات كاملة مثل 32.609251, 44.015284");
       setPinStatus(kind, "الإحداثيات غير صحيحة", "err");
       return;
     }
@@ -1144,6 +1132,12 @@
       document.getElementById("delivery-" + kind + "-btn")?.addEventListener("click", () => pinDelivery(kind));
       document.getElementById("delivery-" + kind + "-map")?.addEventListener("click", () => openMapPicker(kind));
       document.getElementById("delivery-" + kind + "-coords")?.addEventListener("click", () => pinFromCoords(kind));
+      document.getElementById("delivery-" + kind + "-pair")?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          pinFromCoords(kind);
+        }
+      });
     });
     document.getElementById("close-map")?.addEventListener("click", closeModals);
     document.getElementById("map-confirm")?.addEventListener("click", confirmMapPin);
