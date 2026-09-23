@@ -24,14 +24,15 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=38" />
+  <link rel="stylesheet" href="css/style.css?v=39" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
   <div class="page-ornament" aria-hidden="true"></div>
 
   <header class="site-header" id="top">
-    <div class="container header-inner">
+    <div class="header-bar">
+      <div class="container header-inner">
       <a class="brand" href="#top">
         <span class="brand-mark" aria-hidden="true">
           <span class="gem gem-ruby"></span>
@@ -67,14 +68,12 @@
         <span>السلة</span>
         <span class="cart-count" id="cart-count">0</span>
       </button>
+      </div>
     </div>
-  </header>
-
-  <section class="stories-strip" id="stories-strip" hidden>
-    <div class="container">
+    <section class="stories-strip" id="stories-strip" hidden>
       <div class="stories-row" id="stories-row"></div>
-    </div>
-  </section>
+    </section>
+  </header>
 
   <main>
     <section class="hero">
@@ -323,17 +322,20 @@
   </div>
 
   <div class="story-viewer" id="story-viewer" hidden>
-    <div class="story-stage">
-      <div class="story-progress" id="story-progress"></div>
-      <button class="story-close" id="story-close" type="button" aria-label="إغلاق">×</button>
-      <img class="story-photo" id="story-photo" alt="">
-      <div class="story-meta">
-        <span class="story-kind" id="story-kind"></span>
-        <strong id="story-title"></strong>
-        <p id="story-caption"></p>
+    <div class="story-stage" id="story-stage">
+      <div class="story-head">
+        <div class="story-progress" id="story-progress"></div>
+        <div class="story-user">
+          <img id="story-avatar" alt="">
+          <div>
+            <strong id="story-title"></strong>
+            <span id="story-kind"></span>
+          </div>
+        </div>
+        <button class="story-close" id="story-close" type="button" aria-label="إغلاق">×</button>
       </div>
-      <button class="story-hit story-hit-prev" id="story-prev" type="button" aria-label="السابق"></button>
-      <button class="story-hit story-hit-next" id="story-next" type="button" aria-label="التالي"></button>
+      <img class="story-photo" id="story-photo" alt="">
+      <p class="story-caption" id="story-caption"></p>
     </div>
   </div>
 
@@ -350,9 +352,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=38"></script>
-  <script src="js/menu-data.js?v=38"></script>
-  <script src="js/menu-store.js?v=38"></script>
-  <script src="js/app.js?v=38"></script>
+  <script src="js/config.js?v=39"></script>
+  <script src="js/menu-data.js?v=39"></script>
+  <script src="js/menu-store.js?v=39"></script>
+  <script src="js/app.js?v=39"></script>
 </body>
 </html>

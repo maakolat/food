@@ -191,11 +191,11 @@
     row.innerHTML = list.map((s, i) => {
       const unseen = !seen[s.id] || Number(seen[s.id]) < Number(s.updatedAt || s.createdAt || 0);
       return `
-        <button class="story-ring ${unseen ? "unseen" : "seen"} story-kind-${s.kind || "dish"}" type="button" data-story-index="${i}">
+        <button class="story-ring ${unseen ? "unseen" : "seen"}" type="button" data-story-index="${i}">
           <span class="story-ring-frame">
             <img src="${dishImage(s.image)}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
           </span>
-          <small>${STORY_KIND_LABEL[s.kind] || "ستوري"}</small>
+          <small>${s.title || STORY_KIND_LABEL[s.kind] || "ستوري"}</small>
         </button>`;
     }).join("");
   }
@@ -206,6 +206,25 @@
     ).join("");
   }
 
+  function storyTimeLabel(createdAt) {
+    const mins = Math.max(1, Math.round((Date.now() - Number(createdAt || Date.now())) / 60000));
+    if (mins < 60) return mins + " د";
+    return Math.round(mins / 60) + " س";
+  }
+
+  function fillStory(s) {
+    const photo = document.getElementById("story-photo");
+    const avatar = document.getElementById("story-avatar");
+    const src = dishImage(s.image);
+    photo.src = src;
+    if (avatar) avatar.src = src;
+    document.getElementById("story-kind").textContent = (STORY_KIND_LABEL[s.kind] || "ستوري") + " · " + storyTimeLabel(s.createdAt);
+    document.getElementById("story-title").textContent = s.title || STORY_KIND_LABEL[s.kind] || "";
+    const cap = document.getElementById("story-caption");
+    cap.textContent = s.caption || "";
+    cap.hidden = !s.caption;
+  }
+
   function showStoryAt(index) {
     const list = activeStories();
     const viewer = document.getElementById("story-viewer");
@@ -213,21 +232,33 @@
       closeStoryViewer();
       return;
     }
-    storyIndex = (index + list.length) % list.length;
+    if (index >= list.length) {
+      closeStoryViewer();
+      renderStories();
+      return;
+    }
+    if (index < 0) index = 0;
+    storyIndex = index;
     const s = list[storyIndex];
     markStorySeen(s.id);
     document.getElementById("story-progress").innerHTML = storyProgressHtml(list, storyIndex);
-    const photo = document.getElementById("story-photo");
-    photo.src = dishImage(s.image);
-    document.getElementById("story-kind").textContent = STORY_KIND_LABEL[s.kind] || "ستوري";
-    document.getElementById("story-title").textContent = s.title || STORY_KIND_LABEL[s.kind] || "";
-    const cap = document.getElementById("story-caption");
-    cap.textContent = s.caption || "";
-    cap.hidden = !s.caption;
+    fillStory(s);
     viewer.hidden = false;
     document.body.style.overflow = "hidden";
     restartStoryTimer();
     renderStories();
+  }
+
+  function nextStory() {
+    showStoryAt(storyIndex + 1);
+  }
+
+  function prevStory() {
+    if (storyIndex <= 0) {
+      restartStoryTimer();
+      return;
+    }
+    showStoryAt(storyIndex - 1);
   }
 
   function clearStoryTimer() {
@@ -248,7 +279,7 @@
       el.offsetHeight;
       el.style.animation = "";
     });
-    storyTimer = setTimeout(() => showStoryAt(storyIndex + 1), STORY_MS);
+    storyTimer = setTimeout(nextStory, STORY_MS);
   }
 
   function pauseStory() {
@@ -273,7 +304,7 @@
     document.querySelectorAll("#story-progress .story-bar.active i").forEach((el) => {
       el.style.animationPlayState = "running";
     });
-    storyTimer = setTimeout(() => showStoryAt(storyIndex + 1), left);
+    storyTimer = setTimeout(nextStory, left);
   }
 
   function closeStoryViewer() {
@@ -286,6 +317,7 @@
   function bindStories() {
     const row = document.getElementById("stories-row");
     const viewer = document.getElementById("story-viewer");
+    const stage = document.getElementById("story-stage") || viewer;
     if (row) {
       row.addEventListener("click", (e) => {
         const btn = e.target.closest("[data-story-index]");
@@ -294,21 +326,64 @@
       });
     }
     const closeBtn = document.getElementById("story-close");
-    const prevBtn = document.getElementById("story-prev");
-    const nextBtn = document.getElementById("story-next");
-    if (closeBtn) closeBtn.addEventListener("click", closeStoryViewer);
-    if (prevBtn) prevBtn.addEventListener("click", () => showStoryAt(storyIndex - 1));
-    if (nextBtn) nextBtn.addEventListener("click", () => showStoryAt(storyIndex + 1));
-    if (viewer) {
-      viewer.addEventListener("pointerdown", pauseStory);
-      viewer.addEventListener("pointerup", resumeStory);
-      viewer.addEventListener("pointercancel", resumeStory);
+    if (closeBtn) {
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeStoryViewer();
+      });
+      closeBtn.addEventListener("pointerdown", (e) => e.stopPropagation());
+    }
+    let pressX = 0;
+    let pressY = 0;
+    let pressT = 0;
+    let moved = false;
+    let holding = false;
+    if (stage) {
+      stage.addEventListener("pointerdown", (e) => {
+        if (e.target.closest && e.target.closest("#story-close")) return;
+        pressX = e.clientX;
+        pressY = e.clientY;
+        pressT = Date.now();
+        moved = false;
+        holding = true;
+        pauseStory();
+      });
+      stage.addEventListener("pointermove", (e) => {
+        if (!holding) return;
+        if (Math.abs(e.clientX - pressX) > 12 || Math.abs(e.clientY - pressY) > 12) moved = true;
+      });
+      stage.addEventListener("pointerup", (e) => {
+        if (!holding) return;
+        holding = false;
+        if (viewer.hidden) return;
+        const dx = e.clientX - pressX;
+        const dy = e.clientY - pressY;
+        const held = Date.now() - pressT;
+        if (moved && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+          if (dx < 0) nextStory();
+          else prevStory();
+          return;
+        }
+        if (!moved && held < 350) {
+          const rect = stage.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          if (x < rect.width * 0.32) prevStory();
+          else nextStory();
+          return;
+        }
+        resumeStory();
+      });
+      stage.addEventListener("pointercancel", () => {
+        holding = false;
+        resumeStory();
+      });
     }
     document.addEventListener("keydown", (e) => {
-      if (document.getElementById("story-viewer").hidden) return;
+      const open = document.getElementById("story-viewer");
+      if (!open || open.hidden) return;
       if (e.key === "Escape") closeStoryViewer();
-      if (e.key === "ArrowLeft") showStoryAt(storyIndex + 1);
-      if (e.key === "ArrowRight") showStoryAt(storyIndex - 1);
+      if (e.key === "ArrowLeft") nextStory();
+      if (e.key === "ArrowRight") prevStory();
     });
   }
 
