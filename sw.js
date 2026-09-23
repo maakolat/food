@@ -1,4 +1,4 @@
-const CACHE = "yam-app-v47";
+const CACHE = "yam-app-v48";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();

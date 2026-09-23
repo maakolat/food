@@ -321,11 +321,30 @@
     document.body.style.overflow = "";
   }
 
+  function storyImageLink(src) {
+    const s = String(src || "");
+    if (!s || s.indexOf("data:") === 0) return "";
+    if (window.MenuStore && window.MenuStore.mediaUrl) {
+      return window.MenuStore.mediaUrl(s).split("?")[0];
+    }
+    if (/^https?:\/\//i.test(s)) return s.split("?")[0];
+    return s.split("?")[0];
+  }
+
   function replyToStory() {
     const cfg = window.SITE_CONFIG || {};
     const input = document.getElementById("story-reply-input");
     const typed = input ? input.value.trim() : "";
-    const text = encodeURIComponent(typed ? ("رد على قصة\n" + typed) : "رد على قصة");
+    const current = activeStories()[storyIndex];
+    const lines = ["رد على قصة"];
+    if (current) {
+      const title = (current.title || current.caption || "").trim();
+      if (title) lines.push("العنوان: " + title);
+      const img = storyImageLink(current.image);
+      if (img) lines.push("الصورة: " + img);
+    }
+    if (typed) lines.push("", typed);
+    const text = encodeURIComponent(lines.join("\n"));
     const raw = String(cfg.whatsapp || "").replace(/[^\d]/g, "");
     window.location.assign(raw ? `https://wa.me/${raw}?text=${text}` : `https://wa.me/?text=${text}`);
   }
