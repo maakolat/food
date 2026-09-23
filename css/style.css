@@ -166,6 +166,18 @@ a { color: inherit; }
   color: var(--muted);
   font-weight: 600;
 }
+.nav-delivery,
+.btn-delivery {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-delivery svg,
+.btn-delivery svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
 .header-nav a:hover { color: var(--ruby); }
 
 .theme-toggle {
@@ -923,6 +935,52 @@ input[type="text"], input[type="tel"], textarea, select {
 }
 .coord-details input[dir="ltr"] { text-align: left; letter-spacing: 0.02em; }
 .map-card { width: min(720px, 100%); }
+.map-search {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+.map-search input {
+  width: 100%;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: var(--field);
+  color: var(--ink);
+  font-size: 1rem;
+}
+.map-search-results {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  max-height: 168px;
+  overflow: auto;
+  background: var(--paper);
+}
+.map-search-results[hidden] { display: none; }
+.map-search-results li + li { border-top: 1px solid var(--line); }
+.map-search-results button {
+  width: 100%;
+  text-align: right;
+  padding: 10px 12px;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.map-search-results button:hover { background: var(--field); }
+.map-search-results small {
+  display: block;
+  font-weight: 500;
+  color: var(--muted);
+  margin-top: 2px;
+}
 .delivery-map {
   height: min(52vh, 420px);
   width: 100%;

@@ -996,7 +996,7 @@
     mapPicker.kind = kind;
     mapPicker.pending = deliveryPins[kind] ? { lat: deliveryPins[kind].lat, lng: deliveryPins[kind].lng } : null;
     if (title) title.textContent = kind === "from" ? "اختيار موقع الانطلاق" : "اختيار موقع الوصول";
-    if (hint) hint.textContent = "حرّك الخريطة واضغط على المكان المطلوب، ثم ثبّت الموقع.";
+    if (hint) hint.textContent = "ابحث عن المنطقة أو اضغط على الخريطة، ثم ثبّت الموقع.";
     if (coord) coord.textContent = mapPicker.pending
       ? `خط العرض ${mapPicker.pending.lat.toFixed(6)} — خط الطول ${mapPicker.pending.lng.toFixed(6)}`
       : "اضغط على الخريطة لتحديد النقطة";
@@ -1024,15 +1024,119 @@
         mapPicker.marker = null;
       }
       if (mapPicker.pending) setPendingMapPin(mapPicker.pending.lat, mapPicker.pending.lng);
-      setTimeout(() => mapPicker.map.invalidateSize(), 80);
+      const search = document.getElementById("map-search");
+      const results = document.getElementById("map-search-results");
+      if (search) search.value = "";
+      if (results) {
+        results.innerHTML = "";
+        results.hidden = true;
+      }
+      setTimeout(() => {
+        mapPicker.map.invalidateSize();
+        if (search) search.focus();
+      }, 80);
     } catch (err) {
       toast("تعذر فتح الخريطة. أدخل الإحداثيات يدوياً");
     }
   }
 
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;"
+    }[c]));
+  }
+
+  function placeLabel(props) {
+    const p = props || {};
+    return [p.name, p.street, p.district, p.locality, p.city, p.state, p.county]
+      .filter(Boolean)
+      .filter((v, i, arr) => arr.indexOf(v) === i)
+      .join("، ");
+  }
+
+  async function searchIraqPlaces(query) {
+    const q = query.trim();
+    if (q.length < 2) return [];
+    try {
+      const photon = await fetch("https://photon.komoot.io/api/?q=" + encodeURIComponent(q) + "&lang=ar&limit=6&lat=33.3152&lon=44.3661");
+      if (photon.ok) {
+        const data = await photon.json();
+        const rows = (data.features || []).map((f) => {
+          const [lng, lat] = f.geometry.coordinates;
+          return { lat, lng, label: placeLabel(f.properties) || q };
+        }).filter((row) => row.lat > 29 && row.lat < 38 && row.lng > 38 && row.lng < 49);
+        if (rows.length) return rows;
+      }
+    } catch (err) {}
+    const nom = await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=iq&limit=6&accept-language=ar&q=" + encodeURIComponent(q));
+    if (!nom.ok) return [];
+    const list = await nom.json();
+    return (list || []).map((item) => ({
+      lat: Number(item.lat),
+      lng: Number(item.lon),
+      label: item.display_name || q
+    }));
+  }
+
+  function renderMapResults(rows) {
+    const box = document.getElementById("map-search-results");
+    if (!box) return;
+    if (!rows.length) {
+      box.innerHTML = "<li><button type=\"button\" disabled>لا توجد نتائج، جرّب اسم أوضح</button></li>";
+      box.hidden = false;
+      return;
+    }
+    box.innerHTML = rows.map((row, i) =>
+      `<li><button type="button" data-i="${i}">${escapeHtml(row.label)}<small>${row.lat.toFixed(5)}, ${row.lng.toFixed(5)}</small></button></li>`
+    ).join("");
+    box.hidden = false;
+    box.querySelectorAll("button[data-i]").forEach((btn) => {
+      btn.addEventListener("click", () => applyMapSearchResult(rows[Number(btn.dataset.i)]));
+    });
+  }
+
+  function applyMapSearchResult(row) {
+    if (!row) return;
+    if (mapPicker.map) mapPicker.map.setView([row.lat, row.lng], 16);
+    setPendingMapPin(row.lat, row.lng);
+    const field = document.querySelector(mapPicker.kind === "from" ? "[name=fromAddress]" : "[name=toAddress]");
+    if (field && row.label) field.value = row.label.split("،").slice(0, 3).join("،").trim();
+    const box = document.getElementById("map-search-results");
+    if (box) box.hidden = true;
+    toast("تم تحديد النقطة من البحث، ثبّت الموقع");
+  }
+
+  async function runMapSearch() {
+    const input = document.getElementById("map-search");
+    const q = (input && input.value || "").trim();
+    if (q.length < 2) {
+      toast("اكتب اسم المنطقة أو الشارع للبحث");
+      return;
+    }
+    const box = document.getElementById("map-search-results");
+    if (box) {
+      box.hidden = false;
+      box.innerHTML = "<li><button type=\"button\" disabled>جارٍ البحث...</button></li>";
+    }
+    const seq = (mapPicker.searchSeq = (mapPicker.searchSeq || 0) + 1);
+    try {
+      const rows = await searchIraqPlaces(q);
+      if (seq !== mapPicker.searchSeq) return;
+      renderMapResults(rows);
+    } catch (err) {
+      if (seq !== mapPicker.searchSeq) return;
+      toast("تعذر البحث، اضغط على الخريطة مباشرة");
+      if (box) box.hidden = true;
+    }
+  }
+
   function confirmMapPin() {
     if (!mapPicker.pending) {
-      toast("اضغط على الخريطة أولاً لتحديد النقطة");
+      toast("ابحث عن المكان أو اضغط على الخريطة أولاً");
       return;
     }
     applyDeliveryPin(mapPicker.kind, mapPicker.pending.lat, mapPicker.pending.lng);
@@ -1103,6 +1207,13 @@
     });
     document.getElementById("close-map")?.addEventListener("click", closeModals);
     document.getElementById("map-confirm")?.addEventListener("click", confirmMapPin);
+    const searchForm = document.getElementById("map-search-form");
+    if (searchForm) {
+      searchForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        runMapSearch();
+      });
+    }
     const form = document.getElementById("delivery-form");
     if (!form) return;
     form.addEventListener("submit", (e) => {
