@@ -833,14 +833,179 @@
   }
 
   function sendWhatsapp(data) {
+    sendWhatsappText(buildWhatsappMessage(data));
+  }
+
+  const deliveryPins = { from: null, to: null };
+  let deliveryQuote = null;
+
+  function deliverySettings() {
+    const d = (window.SITE_CONFIG || {}).delivery || {};
+    return {
+      minFee: Number(d.minFee) || 4000,
+      perKm: Number(d.perKm) || 1500,
+      includedKm: Number(d.includedKm) || 3,
+      maxKm: Number(d.maxKm) || 70
+    };
+  }
+
+  function haversineKm(a, b) {
+    const toRad = (x) => (x * Math.PI) / 180;
+    const R = 6371;
+    const dLat = toRad(b.lat - a.lat);
+    const dLng = toRad(b.lng - a.lng);
+    const s = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+      + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+  }
+
+  function estimateDeliveryFee(km) {
+    const s = deliverySettings();
+    const extra = Math.max(0, km - s.includedKm);
+    return Math.ceil((s.minFee + extra * s.perKm) / 500) * 500;
+  }
+
+  function setPinStatus(kind, text, state) {
+    const status = document.getElementById("delivery-" + kind + "-status");
+    const box = document.getElementById("delivery-" + kind + "-box");
+    if (status) {
+      status.textContent = text;
+      status.classList.remove("ok", "err");
+      if (state) status.classList.add(state);
+    }
+    if (box) box.classList.toggle("is-set", state === "ok");
+  }
+
+  function applyDeliveryPin(kind, lat, lng) {
+    const url = mapsUrl(lat, lng);
+    deliveryPins[kind] = { lat, lng, url };
+    setPinStatus(kind, "تم تحديد الموقع", "ok");
+    const preview = document.getElementById("delivery-" + kind + "-preview");
+    if (preview) {
+      preview.href = url;
+      preview.classList.add("is-visible");
+    }
+    updateDeliveryQuote();
+  }
+
+  function updateDeliveryQuote() {
+    const el = document.getElementById("delivery-quote");
+    if (!el) return;
+    if (!deliveryPins.from || !deliveryPins.to) {
+      deliveryQuote = null;
+      el.classList.remove("is-ready", "is-far");
+      el.innerHTML = "حدّد موقعي الانطلاق والوصول بالـ GPS لحساب رسم التوصيل.";
+      return;
+    }
+    const s = deliverySettings();
+    const km = haversineKm(deliveryPins.from, deliveryPins.to);
+    const fee = estimateDeliveryFee(km);
+    const far = km > s.maxKm;
+    deliveryQuote = { km, fee, far };
+    el.classList.toggle("is-ready", !far);
+    el.classList.toggle("is-far", far);
+    el.innerHTML = `<strong>${money(fee)}</strong><span>المسافة التقريبية ${km.toFixed(1)} كم داخل المحافظة. ${far ? "المسافة بعيدة وقد يُؤكد سعر إضافي عبر واتساب." : "السعر تقديري حسب المكان ويُؤكد عند قبول المندوب."}</span>`;
+  }
+
+  function pinDelivery(kind) {
+    const btn = document.getElementById("delivery-" + kind + "-btn");
+    if (!navigator.geolocation) {
+      setPinStatus(kind, "المتصفح لا يدعم تحديد الموقع", "err");
+      toast("جهازك أو متصفحك لا يدعم تحديد الموقع");
+      return;
+    }
+    setPinStatus(kind, "جارٍ تحديد الموقع...", "");
+    if (btn) btn.disabled = true;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        if (btn) btn.disabled = false;
+        applyDeliveryPin(kind, pos.coords.latitude, pos.coords.longitude);
+        toast(kind === "from" ? "تم حفظ موقع الانطلاق" : "تم حفظ موقع الوصول");
+      },
+      (err) => {
+        if (btn) btn.disabled = false;
+        const msg = err.code === 1
+          ? "المتصفح رفض صلاحية الموقع. اسمح بالموقع ثم أعد المحاولة"
+          : "تعذر تحديد الموقع. حاول مرة أخرى";
+        setPinStatus(kind, "لم يُحدَّد الموقع", "err");
+        toast(msg);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  }
+
+  function validPhone(value) {
+    const d = String(value || "").replace(/[^\d]/g, "");
+    return d.length >= 10 && d.length <= 14;
+  }
+
+  function sendWhatsappText(text) {
     const cfg = window.SITE_CONFIG || {};
-    const text = encodeURIComponent(buildWhatsappMessage(data));
+    const encoded = encodeURIComponent(text);
     const raw = String(cfg.whatsapp || "").replace(/[^\d]/g, "");
     const placeholder = !raw || raw.includes("0000000") || raw.length < 11;
     const url = placeholder
-      ? `https://wa.me/?text=${text}`
-      : `https://wa.me/${raw}?text=${text}`;
+      ? `https://wa.me/?text=${encoded}`
+      : `https://wa.me/${raw}?text=${encoded}`;
     window.location.assign(url);
+  }
+
+  function buildDeliveryMessage(form) {
+    const cfg = window.SITE_CONFIG || {};
+    const lines = [
+      "طلب توصيلة",
+      `من موقع ${cfg.businessName || "مأكولات الياقوت والمرجان"}`,
+      "",
+      `الغرض: ${form.item.value.trim()}`,
+      "",
+      "المسلم (أخذ الغرض):",
+      `الاسم: ${form.senderName.value.trim()}`,
+      `الهاتف: ${form.senderPhone.value.trim()}`,
+      `عنوان الانطلاق: ${form.fromAddress.value.trim()}`,
+      deliveryPins.from ? `موقع الانطلاق: ${deliveryPins.from.url}` : "موقع الانطلاق: لم يُحدَّد",
+      "",
+      "المستلم:",
+      `الاسم: ${form.receiverName.value.trim()}`,
+      `الهاتف: ${form.receiverPhone.value.trim()}`,
+      `عنوان الوصول: ${form.toAddress.value.trim()}`,
+      deliveryPins.to ? `موقع الوصول: ${deliveryPins.to.url}` : "موقع الوصول: لم يُحدَّد",
+      ""
+    ];
+    if (deliveryQuote) {
+      lines.push(`المسافة التقريبية: ${deliveryQuote.km.toFixed(1)} كم`);
+      lines.push(`رسوم التوصيل التقديرية: ${deliveryQuote.fee.toLocaleString("ar-IQ")} د.ع`);
+      if (deliveryQuote.far) lines.push("ملاحظة السعر: المسافة بعيدة ويُؤكد عبر واتساب");
+    }
+    const note = form.note.value.trim();
+    if (note) lines.push("", `ملاحظات: ${note}`);
+    lines.push("", "الدفع الإلكتروني عبر كي كارد متوفر عند التأكيد.");
+    return lines.join("\n");
+  }
+
+  function bindDelivery() {
+    const fromBtn = document.getElementById("delivery-from-btn");
+    const toBtn = document.getElementById("delivery-to-btn");
+    const form = document.getElementById("delivery-form");
+    if (fromBtn) fromBtn.addEventListener("click", () => pinDelivery("from"));
+    if (toBtn) toBtn.addEventListener("click", () => pinDelivery("to"));
+    if (!form) return;
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!form.item.value.trim()) {
+        toast("اكتب وصف الغرض أولاً");
+        return;
+      }
+      if (!validPhone(form.senderPhone.value) || !validPhone(form.receiverPhone.value)) {
+        toast("أدخل رقم هاتف صحيح للمسلم والمستلم");
+        return;
+      }
+      if (!deliveryPins.from || !deliveryPins.to) {
+        toast("حدّد موقع الانطلاق وموقع الوصول بالـ GPS");
+        return;
+      }
+      sendWhatsappText(buildDeliveryMessage(form));
+    });
+    updateDeliveryQuote();
   }
 
   function applyTheme(theme) {
@@ -892,6 +1057,8 @@
         if (item) openItem(item);
       });
     }
+
+    bindDelivery();
 
     const specialForm = document.getElementById("special-form");
     if (specialForm) {

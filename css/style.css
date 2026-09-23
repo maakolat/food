@@ -211,7 +211,7 @@ html[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
 }
 
 .hero { padding: 48px 0 20px; }
-#menu, #about, #contact, #featured, #special-order { scroll-margin-top: calc(var(--header) + 12px); }
+#menu, #about, #contact, #featured, #special-order, #delivery { scroll-margin-top: calc(var(--header) + 12px); }
 .hero-grid {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
@@ -833,6 +833,24 @@ input[type="text"], input[type="tel"], textarea, select {
   text-decoration: none;
 }
 .location-preview.is-visible { display: block; }
+
+.delivery-quote {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 4px 0 14px;
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.delivery-quote strong {
+  color: var(--ruby);
+  font-size: 1.2rem;
+}
+.delivery-quote.is-ready { border-color: var(--ruby); }
+.delivery-quote.is-far { border-color: var(--gold); }
 
 .toast {
   position: fixed;
