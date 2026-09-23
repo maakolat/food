@@ -17,7 +17,7 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=37" />
+  <link rel="stylesheet" href="css/style.css?v=38" />
 </head>
 <body class="admin-page">
   <div class="page-bg" aria-hidden="true"></div>
@@ -45,7 +45,7 @@
         </p>
         <p class="admin-error" id="file-origin-hint" hidden>
           لا تفتح هذه الصفحة من ملف الجهاز. استخدم رابط الموقع:
-          <a href="https://maakolat.github.io/food/admin.html?v=37">لوحة الإدارة على الإنترنت</a>
+          <a href="https://maakolat.github.io/food/admin.html?v=38">لوحة الإدارة على الإنترنت</a>
         </p>
       </form>
       <a class="muted" href="index.html">العودة للموقع</a>
@@ -71,6 +71,17 @@
     </header>
 
     <main class="container admin-main">
+      <div class="admin-toolbar">
+        <div>
+          <h2>الستوري</h2>
+          <p class="muted">صور تظهر للزبائن لمدة محدودة: آراء، أكلات جديدة، أو إعلانات تجارية.</p>
+        </div>
+        <div class="admin-toolbar-actions">
+          <button class="btn btn-primary" id="add-story" type="button">إضافة ستوري</button>
+        </div>
+      </div>
+      <div class="admin-list" id="admin-stories"></div>
+
       <div class="admin-toolbar">
         <div>
           <h2>الأصناف</h2>
@@ -144,12 +155,51 @@
     </div>
   </div>
 
+  <div class="modal" id="story-modal" aria-hidden="true">
+    <div class="modal-card checkout-card">
+      <button class="icon-btn modal-close" id="close-story" type="button" aria-label="إغلاق">×</button>
+      <div class="modal-body">
+        <p class="eyebrow" id="story-form-eyebrow">ستوري جديد</p>
+        <h2 id="story-form-title">إضافة ستوري</h2>
+        <form id="story-form">
+          <input type="hidden" name="id" />
+          <label>نوع الستوري
+            <select name="kind" required>
+              <option value="review">رأي زبون</option>
+              <option value="dish">أكلة جديدة</option>
+              <option value="ad">إعلان تجاري</option>
+            </select>
+          </label>
+          <label>العنوان
+            <input name="title" type="text" required placeholder="مثال: آراء الزبائن أو عرض اليوم" />
+          </label>
+          <label>نص قصير (اختياري)
+            <textarea name="caption" rows="2" placeholder="يظهر أسفل الصورة في الستوري"></textarea>
+          </label>
+          <label>مدة الظهور
+            <select name="durationHours" required>
+              <option value="24">24 ساعة</option>
+              <option value="48">48 ساعة</option>
+              <option value="72">72 ساعة</option>
+              <option value="168">أسبوع</option>
+            </select>
+          </label>
+          <label>صورة الستوري
+            <input name="imageFile" type="file" accept="image/*" />
+          </label>
+          <img class="admin-image-preview" id="story-image-preview" alt="معاينة الستوري" hidden />
+          <button class="btn btn-primary btn-block" type="submit">نشر الستوري</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div class="overlay" id="overlay" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=37"></script>
-  <script src="js/menu-data.js?v=37"></script>
-  <script src="js/menu-store.js?v=37"></script>
-  <script src="js/admin.js?v=37"></script>
+  <script src="js/config.js?v=38"></script>
+  <script src="js/menu-data.js?v=38"></script>
+  <script src="js/menu-store.js?v=38"></script>
+  <script src="js/admin.js?v=38"></script>
 </body>
 </html>

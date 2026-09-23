@@ -24,7 +24,7 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=37" />
+  <link rel="stylesheet" href="css/style.css?v=38" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -69,6 +69,12 @@
       </button>
     </div>
   </header>
+
+  <section class="stories-strip" id="stories-strip" hidden>
+    <div class="container">
+      <div class="stories-row" id="stories-row"></div>
+    </div>
+  </section>
 
   <main>
     <section class="hero">
@@ -316,6 +322,21 @@
     </div>
   </div>
 
+  <div class="story-viewer" id="story-viewer" hidden>
+    <div class="story-stage">
+      <div class="story-progress" id="story-progress"></div>
+      <button class="story-close" id="story-close" type="button" aria-label="إغلاق">×</button>
+      <img class="story-photo" id="story-photo" alt="">
+      <div class="story-meta">
+        <span class="story-kind" id="story-kind"></span>
+        <strong id="story-title"></strong>
+        <p id="story-caption"></p>
+      </div>
+      <button class="story-hit story-hit-prev" id="story-prev" type="button" aria-label="السابق"></button>
+      <button class="story-hit story-hit-next" id="story-next" type="button" aria-label="التالي"></button>
+    </div>
+  </div>
+
   <div class="install-overlay" id="install-banner" hidden>
     <div class="install-modal" role="dialog" aria-labelledby="install-title">
       <img class="install-icon" src="assets/app-icon.png" alt="" />
@@ -329,9 +350,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=37"></script>
-  <script src="js/menu-data.js?v=37"></script>
-  <script src="js/menu-store.js?v=37"></script>
-  <script src="js/app.js?v=37"></script>
+  <script src="js/config.js?v=38"></script>
+  <script src="js/menu-data.js?v=38"></script>
+  <script src="js/menu-store.js?v=38"></script>
+  <script src="js/app.js?v=38"></script>
 </body>
 </html>

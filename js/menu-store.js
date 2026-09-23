@@ -8,7 +8,8 @@ window.MenuStore = {
     return {
       categories: src.categories.map((c) => Object.assign({}, c)),
       menu: src.menu.map((item) => JSON.parse(JSON.stringify(item))),
-      assets: (src.assets || []).slice()
+      assets: (src.assets || []).slice(),
+      stories: Array.isArray(src.stories) ? src.stories.map((s) => Object.assign({}, s)) : []
     };
   },
   repo() {
@@ -64,12 +65,34 @@ window.MenuStore = {
     if (!url) return url;
     return url + (url.indexOf("?") >= 0 ? "&" : "?") + "t=" + Date.now();
   },
+  cleanStories(list) {
+    return (Array.isArray(list) ? list : []).map((s) => {
+      if (!s || !s.id) return null;
+      const hours = Number(s.durationHours) === 168 || Number(s.durationHours) === 72 || Number(s.durationHours) === 48
+        ? Number(s.durationHours)
+        : 24;
+      const createdAt = Number(s.createdAt) || Date.now();
+      const expiresAt = Number(s.expiresAt) || (createdAt + hours * 3600000);
+      const kind = s.kind === "review" || s.kind === "ad" ? s.kind : "dish";
+      return {
+        id: String(s.id),
+        kind,
+        title: String(s.title || "").trim(),
+        caption: String(s.caption || "").trim(),
+        image: this.mediaUrl(s.image),
+        durationHours: hours,
+        createdAt,
+        expiresAt,
+        updatedAt: Number(s.updatedAt) || createdAt
+      };
+    }).filter((s) => s && s.image);
+  },
   normalize(data) {
     if (!data) return null;
     const inner = data.data && Array.isArray(data.data.menu) ? data.data : data;
     if (!inner || !Array.isArray(inner.menu) || !inner.menu.length) return null;
     const fallback = window.YAM_DEFAULT || {};
-    return {
+    const out = {
       categories: Array.isArray(inner.categories) && inner.categories.length
         ? inner.categories
         : (fallback.categories || []),
@@ -84,6 +107,8 @@ window.MenuStore = {
         : (fallback.assets || [])).map((src) => this.mediaUrl(src)),
       updatedAt: inner.updatedAt || 0
     };
+    if (Array.isArray(inner.stories)) out.stories = this.cleanStories(inner.stories);
+    return out;
   },
   payload(data) {
     const cleanMenu = (data.menu || []).map((item) => {
@@ -96,6 +121,7 @@ window.MenuStore = {
       categories: data.categories || [],
       menu: cleanMenu,
       assets: data.assets || [],
+      stories: this.cleanStories(data.stories),
       updatedAt: Date.now()
     };
   },
@@ -125,19 +151,29 @@ window.MenuStore = {
     return this.loadPublished() || this.defaultData();
   },
   fingerprint(data) {
-    return JSON.stringify((data && data.menu || []).map((item) => ({
-      id: item.id,
-      name: item.name,
-      desc: item.desc,
-      image: String(item.image || "").length + ":" + String(item.image || "").slice(-48),
-      price: item.price,
-      unit: item.unit,
-      step: item.step,
-      extrasKey: item.extrasKey,
-      extraIds: item.extraIds || null,
-      customExtras: item.customExtras || null,
-      variants: item.variants || null
-    })));
+    return JSON.stringify({
+      menu: (data && data.menu || []).map((item) => ({
+        id: item.id,
+        name: item.name,
+        desc: item.desc,
+        image: String(item.image || "").length + ":" + String(item.image || "").slice(-48),
+        price: item.price,
+        unit: item.unit,
+        step: item.step,
+        extrasKey: item.extrasKey,
+        extraIds: item.extraIds || null,
+        customExtras: item.customExtras || null,
+        variants: item.variants || null
+      })),
+      stories: (data && data.stories || []).map((s) => ({
+        id: s.id,
+        kind: s.kind,
+        title: s.title,
+        image: String(s.image || "").length + ":" + String(s.image || "").slice(-48),
+        durationHours: s.durationHours,
+        expiresAt: s.expiresAt
+      }))
+    });
   },
   overlay(remote, local) {
     if (!remote) return local;
@@ -161,10 +197,25 @@ window.MenuStore = {
     (secondary.assets || []).concat(secondary.menu.map((i) => i.image)).forEach((src) => {
       if (src && assets.indexOf(src) < 0 && String(src).indexOf("data:") !== 0) assets.push(src);
     });
+    const sourceStories = Array.isArray(primary.stories)
+      ? primary.stories
+      : (Array.isArray(secondary.stories) ? secondary.stories : []);
+    const otherStories = Array.isArray(primary.stories) ? (secondary.stories || []) : [];
+    const storyById = {};
+    otherStories.forEach((s) => { if (s && s.id) storyById[s.id] = s; });
+    sourceStories.forEach((s) => { if (s && s.id) storyById[s.id] = s; });
+    const stories = sourceStories.map((s) => storyById[s.id] || s).filter((s) => s && s.id);
+    (primary.stories || []).concat(secondary.stories || []).forEach((s) => {
+      if (s && s.image && String(s.image).indexOf("data:") !== 0 && assets.indexOf(s.image) < 0) {
+        const path = String(s.image).split("?")[0];
+        if (path.indexOf("assets/") === 0 && assets.indexOf(path) < 0) assets.push(path);
+      }
+    });
     return {
       categories: (primary.categories && primary.categories.length) ? primary.categories : secondary.categories,
       menu,
       assets,
+      stories,
       updatedAt: Math.max(Number(remote.updatedAt || 0), Number(local.updatedAt || 0))
     };
   },
@@ -321,7 +372,33 @@ window.MenuStore = {
       }
       menu.push(item);
     }
-    return { data: Object.assign({}, data, { menu, assets }), stripped };
+    const stories = [];
+    for (let i = 0; i < (data.stories || []).length; i++) {
+      const story = Object.assign({}, data.stories[i]);
+      const keep = story._keepImage || "";
+      delete story._keepImage;
+      if (story.image && String(story.image).slice(0, 5) === "data:") {
+        try {
+          const stamp = Date.now();
+          const path = "assets/uploads/story-" + story.id + "-" + stamp + ".jpg";
+          const b64 = await this.dataUrlToBase64(story.image);
+          await this.putFile(path, b64, "Update story photo", { newFile: true });
+          story.image = this.mediaUrl(path, stamp);
+          if (assets.indexOf(path) < 0) assets.push(path);
+        } catch (err) {
+          console.warn("MenuStore.publishImages story", story.id, err);
+          stripped = true;
+          if (keep && String(keep).indexOf("data:") !== 0) story.image = keep;
+          else continue;
+        }
+      } else if (story.image) {
+        story.image = this.mediaUrl(story.image);
+        const path = String(story.image).split("?")[0];
+        if (path.indexOf("assets/") === 0 && assets.indexOf(path) < 0) assets.push(path);
+      }
+      if (story.image && String(story.image).slice(0, 5) !== "data:") stories.push(story);
+    }
+    return { data: Object.assign({}, data, { menu, assets, stories }), stripped };
   },
   async saveRemote(data) {
     if (!this.token()) return null;

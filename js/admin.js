@@ -16,8 +16,13 @@
   const variantRows = document.getElementById("variant-rows");
 
   let catalog = window.MenuStore.load();
+  if (!Array.isArray(catalog.stories)) catalog.stories = [];
   let editingId = null;
+  let editingStoryId = null;
   const publishStatus = document.getElementById("publish-status");
+  const storyModal = document.getElementById("story-modal");
+  const storyForm = document.getElementById("story-form");
+  const storiesEl = document.getElementById("admin-stories");
 
   function imageKey(src) {
     return String(src || "").split("?")[0];
@@ -150,6 +155,7 @@
     adminApp.hidden = false;
     fillSelects();
     renderList();
+    renderStories();
   }
 
   function showLogin() {
@@ -199,6 +205,92 @@
     `).join("");
   }
 
+  const STORY_KINDS = {
+    review: "رأي زبون",
+    dish: "أكلة جديدة",
+    ad: "إعلان تجاري"
+  };
+  const STORY_HOURS = { 24: "24 ساعة", 48: "48 ساعة", 72: "72 ساعة", 168: "أسبوع" };
+
+  function storyRemaining(expiresAt) {
+    const ms = Number(expiresAt) - Date.now();
+    if (ms <= 0) return "منتهٍ — لن يظهر للزبائن";
+    const hours = Math.ceil(ms / 3600000);
+    if (hours < 24) return "متبقي " + hours + " ساعة";
+    const days = Math.ceil(hours / 24);
+    return "متبقي " + days + " يوم";
+  }
+
+  function renderStories() {
+    if (!storiesEl) return;
+    if (!Array.isArray(catalog.stories)) catalog.stories = [];
+    const list = catalog.stories.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    if (!list.length) {
+      storiesEl.innerHTML = `<div class="empty-cart">لا يوجد ستوري حالياً. اضغط إضافة ستوري لرفع صورة رأي أو أكلة جديدة أو إعلان.</div>`;
+      return;
+    }
+    storiesEl.innerHTML = list.map((s) => {
+      const expired = Number(s.expiresAt) <= Date.now();
+      return `
+      <article class="admin-dish ${expired ? "admin-story-expired" : ""}">
+        <img src="${esc(dishImage(s.image))}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
+        <div>
+          <strong>${esc(s.title || STORY_KINDS[s.kind] || "ستوري")}</strong>
+          <p class="muted">${esc(STORY_KINDS[s.kind] || s.kind)} · ${esc(STORY_HOURS[s.durationHours] || "24 ساعة")}</p>
+          <p class="muted">${esc(storyRemaining(s.expiresAt))}</p>
+        </div>
+        <div class="admin-dish-actions">
+          <button class="btn btn-ghost" type="button" data-edit-story="${esc(s.id)}">تعديل</button>
+          <button class="remove-item" type="button" data-del-story="${esc(s.id)}">حذف</button>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  function showStoryPreview(src) {
+    const img = document.getElementById("story-image-preview");
+    if (!img) return;
+    if (!src) {
+      img.hidden = true;
+      img.removeAttribute("src");
+      return;
+    }
+    img.hidden = false;
+    img.src = dishImage(src);
+  }
+
+  function openStoryModal(story) {
+    editingStoryId = story ? story.id : null;
+    document.getElementById("story-form-eyebrow").textContent = story ? "تعديل" : "ستوري جديد";
+    document.getElementById("story-form-title").textContent = story ? "تعديل الستوري" : "إضافة ستوري";
+    storyForm.reset();
+    delete storyForm.dataset.uploadedImage;
+    storyForm.elements.namedItem("id").value = story ? story.id : "";
+    storyForm.elements.namedItem("kind").value = story && STORY_KINDS[story.kind] ? story.kind : "review";
+    storyForm.elements.namedItem("title").value = story ? story.title || "" : "";
+    storyForm.elements.namedItem("caption").value = story ? story.caption || "" : "";
+    storyForm.elements.namedItem("durationHours").value = String((story && story.durationHours) || 24);
+    showStoryPreview(story ? story.image : "");
+    storyModal.classList.add("open");
+    storyModal.setAttribute("aria-hidden", "false");
+    overlay.hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeStoryModal() {
+    if (!storyModal) return;
+    storyModal.classList.remove("open");
+    storyModal.setAttribute("aria-hidden", "true");
+    overlay.hidden = true;
+    document.body.style.overflow = "";
+    editingStoryId = null;
+  }
+
+  function closeAnyModal() {
+    if (storyModal && storyModal.classList.contains("open")) closeStoryModal();
+    else closeModal();
+  }
+
   function variantRow(v = {}) {
     const wrap = document.createElement("div");
     wrap.className = "admin-variant-row";
@@ -242,8 +334,10 @@
   function closeModal() {
     modal.classList.remove("open");
     modal.setAttribute("aria-hidden", "true");
-    overlay.hidden = true;
-    document.body.style.overflow = "";
+    if (!storyModal || !storyModal.classList.contains("open")) {
+      overlay.hidden = true;
+      document.body.style.overflow = "";
+    }
   }
 
   function extraCheckRow(id, label, checked, custom) {
@@ -325,8 +419,10 @@
   async function persist() {
     const result = await window.MenuStore.save(catalog);
     if (result.data) catalog = result.data;
+    if (!Array.isArray(catalog.stories)) catalog.stories = [];
     fillSelects();
     renderList();
+    renderStories();
     setPublishStatus(!!result.remote);
     return result;
   }
@@ -417,8 +513,10 @@
 
   document.getElementById("add-dish").addEventListener("click", () => openModal(null));
   document.getElementById("close-dish").addEventListener("click", closeModal);
-  overlay.addEventListener("click", closeModal);
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+  document.getElementById("add-story").addEventListener("click", () => openStoryModal(null));
+  document.getElementById("close-story").addEventListener("click", closeStoryModal);
+  overlay.addEventListener("click", closeAnyModal);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAnyModal(); });
 
   document.getElementById("add-variant").addEventListener("click", () => {
     variantRows.appendChild(variantRow());
@@ -438,11 +536,12 @@
 
   document.getElementById("reset-menu").addEventListener("click", async () => {
     if (!confirm("استعادة القائمة الأصلية؟ ستُحذف الأصناف التي أضفتها من لوحة التحكم.")) return;
-    catalog = await window.MenuStore.reset();
-    fillSelects();
-    renderList();
-    setPublishStatus(true);
-    toast("تمت استعادة القائمة الأصلية");
+    const keptStories = Array.isArray(catalog.stories) ? catalog.stories.slice() : [];
+    catalog = window.MenuStore.defaultData();
+    catalog.stories = keptStories;
+    const result = await persist();
+    setPublishStatus(!!result.remote);
+    toast("تمت استعادة القائمة الأصلية مع الإبقاء على الستوري");
   });
 
   listEl.addEventListener("click", async (e) => {
@@ -460,17 +559,32 @@
     }
   });
 
-  function compressImage(dataUrl) {
+  storiesEl.addEventListener("click", async (e) => {
+    const editId = e.target.dataset.editStory;
+    const delId = e.target.dataset.delStory;
+    if (editId) {
+      openStoryModal((catalog.stories || []).find((s) => s.id === editId) || null);
+    }
+    if (delId) {
+      const story = (catalog.stories || []).find((s) => s.id === delId);
+      if (!story || !confirm(`حذف ستوري «${story.title || STORY_KINDS[story.kind] || ""}»؟`)) return;
+      catalog.stories = (catalog.stories || []).filter((s) => s.id !== delId);
+      const result = await persist();
+      toast(result.remote ? "تم حذف الستوري من الموقع" : "تم الحذف على هذا الجهاز فقط");
+    }
+  });
+
+  function compressImage(dataUrl, maxEdge) {
     return new Promise((resolve) => {
       const img = new Image();
       img.onload = () => {
-        const max = 900;
+        const max = maxEdge || 900;
         const scale = Math.min(1, max / img.width, max / img.height);
         const canvas = document.createElement("canvas");
         canvas.width = Math.max(1, Math.round(img.width * scale));
         canvas.height = Math.max(1, Math.round(img.height * scale));
         canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.72));
+        resolve(canvas.toDataURL("image/jpeg", maxEdge && maxEdge > 1000 ? 0.78 : 0.72));
       };
       img.onerror = () => resolve(dataUrl);
       img.src = dataUrl;
@@ -566,6 +680,74 @@
     reader.readAsDataURL(file);
   });
 
+  storyForm.elements.namedItem("imageFile").addEventListener("change", () => {
+    const file = storyForm.elements.namedItem("imageFile").files[0];
+    if (!file) return;
+    if (file.size > 8000000) {
+      toast("الصورة كبيرة. اختَر صورة أصغر من 8 ميغابايت");
+      storyForm.elements.namedItem("imageFile").value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      storyForm.dataset.uploadedImage = await compressImage(reader.result, 1280);
+      showStoryPreview(storyForm.dataset.uploadedImage);
+      toast("تم تجهيز صورة الستوري");
+    };
+    reader.readAsDataURL(file);
+  });
+
+  storyForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const submitBtn = storyForm.querySelector('[type="submit"]');
+    const previous = ((catalog.stories || []).find((s) => s.id === storyForm.elements.namedItem("id").value) || {}).image || "";
+    let image = storyForm.dataset.uploadedImage || previous;
+    if (!image) {
+      toast("ارفع صورة للستوري");
+      return;
+    }
+    if (String(image).slice(0, 5) === "data:") {
+      image = await compressImage(image, 1280);
+    }
+    const hours = Number(storyForm.elements.namedItem("durationHours").value) || 24;
+    const now = Date.now();
+    const storyId = storyForm.elements.namedItem("id").value || ("story-" + now);
+    const story = {
+      id: storyId,
+      kind: storyForm.elements.namedItem("kind").value,
+      title: storyForm.elements.namedItem("title").value.trim(),
+      caption: storyForm.elements.namedItem("caption").value.trim(),
+      image,
+      durationHours: hours,
+      createdAt: editingStoryId
+        ? Number(((catalog.stories || []).find((s) => s.id === editingStoryId) || {}).createdAt) || now
+        : now,
+      expiresAt: now + hours * 3600000,
+      updatedAt: now
+    };
+    if (storyForm.dataset.uploadedImage) story._keepImage = previous;
+    if (!Array.isArray(catalog.stories)) catalog.stories = [];
+    const idx = catalog.stories.findIndex((s) => s.id === story.id);
+    if (idx >= 0) catalog.stories[idx] = story;
+    else catalog.stories.unshift(story);
+    delete storyForm.dataset.uploadedImage;
+    if (submitBtn) submitBtn.disabled = true;
+    let result;
+    try {
+      result = await persist();
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+    closeStoryModal();
+    if (result.remote === "images-stripped") {
+      toast("حُفظ الستوري. الصورة لم تُرفع — جرّب صورة أصغر");
+    } else if (result.remote) {
+      toast("تم نشر الستوري للزبائن");
+    } else {
+      toast("حُفظ على هذا الجهاز فقط. تحقق من الإنترنت واحفظ مرة ثانية");
+    }
+  });
+
   async function init() {
     showFileOriginHint();
     catalog = window.MenuStore.load();
@@ -573,10 +755,12 @@
     else showLogin();
     try {
       catalog = await window.MenuStore.loadAsync();
+      if (!Array.isArray(catalog.stories)) catalog.stories = [];
       setPublishStatus(true);
       if (isAuthed()) {
         fillSelects();
         renderList();
+        renderStories();
       }
     } catch (err) {
       console.warn("admin init", err);

@@ -6,6 +6,7 @@
 
   let categories = [];
   let menu = [];
+  let stories = [];
 
   const els = {
     grid: document.getElementById("menu-grid"),
@@ -57,6 +58,8 @@
   function applyCatalog(data) {
     categories = (data && data.categories || []).slice();
     menu = (data && data.menu || []).map(hydrateItem);
+    stories = (data && data.stories || []).slice();
+    renderStories();
   }
 
   function loadCatalog() {
@@ -145,6 +148,168 @@
         </div>
       </button>
     `).join("");
+  }
+
+  const STORY_KIND_LABEL = { review: "رأي زبون", dish: "أكلة جديدة", ad: "إعلان" };
+  const STORY_SEEN_KEY = "yam-story-seen-v1";
+  const STORY_MS = 5500;
+  let storyIndex = 0;
+  let storyTimer = null;
+  let storyPaused = false;
+  let storyStartedAt = 0;
+  let storyElapsed = 0;
+
+  function readStorySeen() {
+    try { return JSON.parse(localStorage.getItem(STORY_SEEN_KEY) || "{}") || {}; }
+    catch (err) { return {}; }
+  }
+
+  function markStorySeen(id) {
+    const seen = readStorySeen();
+    seen[id] = Date.now();
+    try { localStorage.setItem(STORY_SEEN_KEY, JSON.stringify(seen)); } catch (err) {}
+  }
+
+  function activeStories() {
+    const now = Date.now();
+    return (stories || [])
+      .filter((s) => s && s.image && Number(s.expiresAt || 0) > now)
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  }
+
+  function renderStories() {
+    const strip = document.getElementById("stories-strip");
+    const row = document.getElementById("stories-row");
+    if (!strip || !row) return;
+    const list = activeStories();
+    strip.hidden = !list.length;
+    if (!list.length) {
+      row.innerHTML = "";
+      return;
+    }
+    const seen = readStorySeen();
+    row.innerHTML = list.map((s, i) => {
+      const unseen = !seen[s.id] || Number(seen[s.id]) < Number(s.updatedAt || s.createdAt || 0);
+      return `
+        <button class="story-ring ${unseen ? "unseen" : "seen"} story-kind-${s.kind || "dish"}" type="button" data-story-index="${i}">
+          <span class="story-ring-frame">
+            <img src="${dishImage(s.image)}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
+          </span>
+          <small>${STORY_KIND_LABEL[s.kind] || "ستوري"}</small>
+        </button>`;
+    }).join("");
+  }
+
+  function storyProgressHtml(list, index) {
+    return list.map((_, i) =>
+      `<span class="story-bar ${i < index ? "done" : ""} ${i === index ? "active" : ""}"><i></i></span>`
+    ).join("");
+  }
+
+  function showStoryAt(index) {
+    const list = activeStories();
+    const viewer = document.getElementById("story-viewer");
+    if (!viewer || !list.length) {
+      closeStoryViewer();
+      return;
+    }
+    storyIndex = (index + list.length) % list.length;
+    const s = list[storyIndex];
+    markStorySeen(s.id);
+    document.getElementById("story-progress").innerHTML = storyProgressHtml(list, storyIndex);
+    const photo = document.getElementById("story-photo");
+    photo.src = dishImage(s.image);
+    document.getElementById("story-kind").textContent = STORY_KIND_LABEL[s.kind] || "ستوري";
+    document.getElementById("story-title").textContent = s.title || STORY_KIND_LABEL[s.kind] || "";
+    const cap = document.getElementById("story-caption");
+    cap.textContent = s.caption || "";
+    cap.hidden = !s.caption;
+    viewer.hidden = false;
+    document.body.style.overflow = "hidden";
+    restartStoryTimer();
+    renderStories();
+  }
+
+  function clearStoryTimer() {
+    if (storyTimer) {
+      clearTimeout(storyTimer);
+      storyTimer = null;
+    }
+  }
+
+  function restartStoryTimer() {
+    clearStoryTimer();
+    storyPaused = false;
+    storyElapsed = 0;
+    storyStartedAt = Date.now();
+    const bars = document.querySelectorAll("#story-progress .story-bar.active i");
+    bars.forEach((el) => {
+      el.style.animation = "none";
+      el.offsetHeight;
+      el.style.animation = "";
+    });
+    storyTimer = setTimeout(() => showStoryAt(storyIndex + 1), STORY_MS);
+  }
+
+  function pauseStory() {
+    if (storyPaused) return;
+    const viewer = document.getElementById("story-viewer");
+    if (!viewer || viewer.hidden) return;
+    storyPaused = true;
+    storyElapsed += Date.now() - storyStartedAt;
+    clearStoryTimer();
+    document.querySelectorAll("#story-progress .story-bar.active i").forEach((el) => {
+      el.style.animationPlayState = "paused";
+    });
+  }
+
+  function resumeStory() {
+    if (!storyPaused) return;
+    const viewer = document.getElementById("story-viewer");
+    if (!viewer || viewer.hidden) return;
+    storyPaused = false;
+    storyStartedAt = Date.now();
+    const left = Math.max(80, STORY_MS - storyElapsed);
+    document.querySelectorAll("#story-progress .story-bar.active i").forEach((el) => {
+      el.style.animationPlayState = "running";
+    });
+    storyTimer = setTimeout(() => showStoryAt(storyIndex + 1), left);
+  }
+
+  function closeStoryViewer() {
+    clearStoryTimer();
+    const viewer = document.getElementById("story-viewer");
+    if (viewer) viewer.hidden = true;
+    document.body.style.overflow = "";
+  }
+
+  function bindStories() {
+    const row = document.getElementById("stories-row");
+    const viewer = document.getElementById("story-viewer");
+    if (row) {
+      row.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-story-index]");
+        if (!btn) return;
+        showStoryAt(Number(btn.getAttribute("data-story-index")) || 0);
+      });
+    }
+    const closeBtn = document.getElementById("story-close");
+    const prevBtn = document.getElementById("story-prev");
+    const nextBtn = document.getElementById("story-next");
+    if (closeBtn) closeBtn.addEventListener("click", closeStoryViewer);
+    if (prevBtn) prevBtn.addEventListener("click", () => showStoryAt(storyIndex - 1));
+    if (nextBtn) nextBtn.addEventListener("click", () => showStoryAt(storyIndex + 1));
+    if (viewer) {
+      viewer.addEventListener("pointerdown", pauseStory);
+      viewer.addEventListener("pointerup", resumeStory);
+      viewer.addEventListener("pointercancel", resumeStory);
+    }
+    document.addEventListener("keydown", (e) => {
+      if (document.getElementById("story-viewer").hidden) return;
+      if (e.key === "Escape") closeStoryViewer();
+      if (e.key === "ArrowLeft") showStoryAt(storyIndex + 1);
+      if (e.key === "ArrowRight") showStoryAt(storyIndex - 1);
+    });
   }
 
   function selectedPrice(item, form) {
@@ -758,8 +923,10 @@
     renderCategories();
     renderFeatured();
     renderMenu();
+    renderStories();
     renderCart();
     bind();
+    bindStories();
     if (window.MenuStore && window.MenuStore.refreshPublished) {
       const applyLive = (data) => {
         if (!data || !data.menu || !data.menu.length) return;
