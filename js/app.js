@@ -322,15 +322,10 @@
   }
 
   function replyToStory() {
-    const list = activeStories();
-    const s = list[storyIndex];
     const cfg = window.SITE_CONFIG || {};
     const input = document.getElementById("story-reply-input");
     const typed = input ? input.value.trim() : "";
-    const lines = ["هلا، أرد على الستوري"];
-    if (s && (s.title || s.caption)) lines.push("الستوري: " + (s.title || s.caption));
-    if (typed) lines.push("", typed);
-    const text = encodeURIComponent(lines.join("\n"));
+    const text = encodeURIComponent(typed || "رد");
     const raw = String(cfg.whatsapp || "").replace(/[^\d]/g, "");
     window.location.assign(raw ? `https://wa.me/${raw}?text=${text}` : `https://wa.me/?text=${text}`);
   }
