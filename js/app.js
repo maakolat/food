@@ -325,7 +325,7 @@
     const cfg = window.SITE_CONFIG || {};
     const input = document.getElementById("story-reply-input");
     const typed = input ? input.value.trim() : "";
-    const text = encodeURIComponent(typed || "رد");
+    const text = encodeURIComponent(typed ? ("رد على قصة\n" + typed) : "رد على قصة");
     const raw = String(cfg.whatsapp || "").replace(/[^\d]/g, "");
     window.location.assign(raw ? `https://wa.me/${raw}?text=${text}` : `https://wa.me/?text=${text}`);
   }
