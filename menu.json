@@ -291,36 +291,6 @@
       "unit": "",
       "step": 0.5,
       "price": null
-    },
-    {
-      "id": "layer-cake",
-      "category": "sweets",
-      "name": "كيك الطبقات",
-      "desc": "حسب عدد الطبقات من 3 إلى 10 آلاف.",
-      "image": "assets/cake-layer.jpg",
-      "extrasKey": "sweet",
-      "variants": [
-        {
-          "id": "c3",
-          "label": "طبقات خفيفة — 3,000 د.ع",
-          "price": 3000
-        },
-        {
-          "id": "c5",
-          "label": "وسط — 5,000 د.ع",
-          "price": 5000
-        },
-        {
-          "id": "c8",
-          "label": "كبير — 8,000 د.ع",
-          "price": 8000
-        },
-        {
-          "id": "c10",
-          "label": "فاخر — 10,000 د.ع",
-          "price": 10000
-        }
-      ]
     }
   ],
   "assets": [
@@ -386,7 +356,7 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/kibbeh-burghul-1790099103791.jpg?v=1790099103791",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790150435089-1790150435092.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790151638657-1790151638662.jpg",
-    "assets/uploads/story-story-1790151998718-1790151998721.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790151998718-1790151998721.jpg"
   ],
   "stories": [
     {
@@ -423,5 +393,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790151998720
+  "updatedAt": 1790152290334
 }
