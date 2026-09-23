@@ -110,7 +110,7 @@ window.MenuStore = {
     if (Array.isArray(inner.stories)) out.stories = this.cleanStories(inner.stories);
     return out;
   },
-  payload(data) {
+  payload(data, opts) {
     const cleanMenu = (data.menu || []).map((item) => {
       const copy = Object.assign({}, item);
       delete copy.extras;
@@ -122,7 +122,7 @@ window.MenuStore = {
       menu: cleanMenu,
       assets: data.assets || [],
       stories: this.cleanStories(data.stories),
-      updatedAt: Date.now()
+      updatedAt: (opts && opts.touch) ? Date.now() : (Number(data.updatedAt) || Date.now())
     };
   },
   readKey(key) {
@@ -181,18 +181,7 @@ window.MenuStore = {
     const remoteNewer = Number(remote.updatedAt || 0) >= Number(local.updatedAt || 0);
     const primary = remoteNewer ? remote : local;
     const secondary = remoteNewer ? local : remote;
-    const byId = {};
-    secondary.menu.forEach((item) => { byId[item.id] = item; });
-    primary.menu.forEach((item) => { byId[item.id] = item; });
-    const seen = {};
-    const menu = [];
-    primary.menu.forEach((item) => {
-      menu.push(byId[item.id]);
-      seen[item.id] = true;
-    });
-    secondary.menu.forEach((item) => {
-      if (item && item.id && !seen[item.id]) menu.push(item);
-    });
+    const menu = (primary.menu || []).slice();
     const assets = (primary.assets || []).slice();
     (secondary.assets || []).concat(secondary.menu.map((i) => i.image)).forEach((src) => {
       if (src && assets.indexOf(src) < 0 && String(src).indexOf("data:") !== 0) assets.push(src);
@@ -403,7 +392,7 @@ window.MenuStore = {
   async saveRemote(data) {
     if (!this.token()) return null;
     try {
-      const prepared = await this.publishImages(this.payload(data));
+      const prepared = await this.publishImages(this.payload(data, { touch: true }));
       const json = JSON.stringify(prepared.data, null, 2);
       await this.putFile("menu.json", this.utf8ToBase64(json), "Publish menu from admin");
       return prepared;
@@ -424,22 +413,15 @@ window.MenuStore = {
   async loadAsync() {
     const remote = await this.loadRemote();
     const local = this.loadLocal();
-    const merged = this.overlay(remote, local) || local || this.defaultData();
-    const localNewer = local && Number(local.updatedAt || 0) > Number(remote && remote.updatedAt || 0);
-    if (localNewer && this.fingerprint(merged) !== this.fingerprint(remote || { menu: [] })) {
-      const prepared = await this.saveRemote(merged);
-      if (prepared && prepared.data) {
-        this.saveLocal(prepared.data);
-        this.savePublished(prepared.data);
-        return prepared.data;
-      }
+    if (remote) {
+      this.saveLocal(remote);
+      this.savePublished(remote);
+      return remote;
     }
-    this.saveLocal(merged);
-    this.savePublished(merged);
-    return merged;
+    return local || this.defaultData();
   },
   async save(data) {
-    const clean = this.payload(data);
+    const clean = this.payload(data, { touch: true });
     this.saveLocal(clean);
     const prepared = await this.saveRemote(clean);
     if (prepared && prepared.data) {
