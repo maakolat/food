@@ -13,18 +13,18 @@
   <title>مأكولات الياقوت والمرجان | اطلب أطيب الأكلات البيتية</title>
   <meta name="description" content="مأكولات الياقوت والمرجان — كبة، دولمة، معجنات وحلويات بيتية. اطلب أونلاين ويصلك الطلب مباشرة على واتساب." />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="assets/app-icon.png?v=52" />
+  <link rel="apple-touch-icon" href="assets/app-icon.png?v=53" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="assets/app-icon.png?v=52" type="image/png" />
+  <link rel="icon" href="assets/app-icon.png?v=53" type="image/png" />
   <script>
     (function () {
       var theme = localStorage.getItem("yam-theme") || "dark";
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=52" />
+  <link rel="stylesheet" href="css/style.css?v=53" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -35,7 +35,7 @@
       <div class="container header-inner">
       <a class="brand" href="#top">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=52" alt="">
+          <img src="assets/logo.png?v=53" alt="">
         </span>
         <span class="brand-text">
           <strong>الياقوت والمرجان</strong>
@@ -130,7 +130,7 @@
         </div>
       </div>
       <div class="pay-note">
-        <img src="assets/qi-card.png?v=52" alt="كي كارد">
+        <img src="assets/qi-card.png?v=53" alt="كي كارد">
         <div>
           <strong>الدفع الإلكتروني متوفر</strong>
           <span>يمكنك الدفع عبر كي كارد عند تأكيد الطلب على واتساب.</span>
@@ -170,136 +170,147 @@
       </div>
     </section>
 
-    <section class="special-section" id="special-order">
-      <div class="container special-wrap">
-        <div class="special-intro">
-          <p class="eyebrow">CUSTOM ORDER</p>
-          <h2>طلب أكل خاص</h2>
-          <p>إذا ما حصلت طلبك في القائمة، اكتب لنا الأكل كما تريده. نراجع التفاصيل، نؤكد الكمية والسعر عبر واتساب، ثم نجهّزه حسب طلبك.</p>
-          <ol class="special-steps">
-            <li><strong>اكتب طلبك</strong><span>نوع الأكل، الكمية، وأي تفاصيل مهمة.</span></li>
-            <li><strong>نراجع معك</strong><span>نتواصل عبر واتساب لتأكيد الإمكانية والسعر.</span></li>
-            <li><strong>التحضير</strong><span>بعد التأكيد نبدأ التجهيز لوقت التسليم.</span></li>
-          </ol>
-          <p class="muted special-note">السعر يظهر حسب الكمية والمكونات، ويُؤكد قبل التحضير. يُفضّل الطلب قبل الموعد بوقت كافٍ خاصة للعزائم.</p>
+    <section class="service-section" id="special-order">
+      <div class="container">
+        <header class="service-head">
+          <p class="eyebrow">طلب خاص</p>
+          <h2>أكل على ذوقك</h2>
+          <p>إذا ما حصلت طلبك بالقائمة، اكتبه كما تريده. نأكد الكمية والسعر عبر واتساب ثم نجهّزه.</p>
+        </header>
+        <div class="service-pills" aria-hidden="true">
+          <div><b>1</b><span>تكتب الطلب</span></div>
+          <div><b>2</b><span>نأكد السعر</span></div>
+          <div><b>3</b><span>نبدأ التحضير</span></div>
         </div>
-        <form class="special-card" id="special-form">
-          <p class="eyebrow">اكتب طلبك هنا</p>
+        <form class="service-card" id="special-form">
           <h3 id="special-form-title">أكل غير موجود في القائمة</h3>
           <label>ماذا تريد أن نحضّر؟
-            <textarea name="desc" rows="4" required placeholder="مثال: صينية كبة لـ 10 أشخاص، أو أكل بمواصفات خاصة للمناسبة..."></textarea>
+            <textarea name="desc" rows="3" required placeholder="مثال: صينية كبة لـ 10 أشخاص، أو أكل بمواصفات خاصة..."></textarea>
           </label>
-          <label>الكمية / عدد الأشخاص
-            <input name="servings" type="text" placeholder="مثال: لـ 8 أشخاص، صينيتان، 3 كيلو..." />
-          </label>
-          <label>المناسبة (اختياري)
-            <input name="occasion" type="text" placeholder="سفرة بيت، عزيمة، مناسبة..." />
-          </label>
+          <div class="field-grid">
+            <label>الكمية / عدد الأشخاص
+              <input name="servings" type="text" placeholder="لـ 8 أشخاص، صينيتان، 3 كيلو..." />
+            </label>
+            <label>المناسبة (اختياري)
+              <input name="occasion" type="text" placeholder="سفرة بيت، عزيمة..." />
+            </label>
+          </div>
           <label>ملاحظات إضافية
-            <textarea name="note" rows="2" placeholder="وقت التسليم، ملاحظات على المذاق أو التقديم..."></textarea>
+            <textarea name="note" rows="2" placeholder="وقت التسليم، أو ملاحظات على المذاق والتقديم..."></textarea>
           </label>
           <button class="btn btn-primary btn-block" id="special-submit" type="submit">أضف الطلب الخاص إلى السلة</button>
-          <p class="muted special-foot">يُضاف إلى السلة ثم تكمل الطلب كالعادة مع الموقع .</p>
+          <p class="muted special-foot">يُضاف إلى السلة، ثم تكمل الطلب كالعادة مع الموقع.</p>
         </form>
       </div>
     </section>
 
-    <section class="special-section delivery-section" id="delivery">
-      <div class="container special-wrap">
-        <div class="special-intro">
-          <p class="eyebrow">توصيل مندوبين</p>
-          <h2>توصيلة</h2>
-          <p>عندك غرض تريد توصله من مكان إلى مكان داخل المحافظة؟ حدّد مكان أخذ الغرض ومكان التسليم، والمندوب يستلمه ويوصله.</p>
-          <ol class="special-steps">
-            <li><strong>مكان الانطلاق</strong><span>عنوان أخذ الغرض مع تثبيت الموقع على الخريطة.</span></li>
-            <li><strong>مكان الوصول</strong><span>عنوان التسليم وموقع المستلم على الخريطة.</span></li>
-            <li><strong>الرسم</strong><span>يُحسب تقريبياً حسب المسافة داخل المحافظة، ويُؤكد عبر واتساب.</span></li>
-          </ol>
-          <p class="muted special-note">مكان الوصول تختاره من الخريطة أو تكتب إحداثياته حتى لو كنت في مكان ثاني. الرسم تقديري حسب المسافة.</p>
+    <section class="service-section" id="delivery">
+      <div class="container">
+        <header class="service-head">
+          <p class="eyebrow">توصيلة</p>
+          <h2>مندوب يوصل الغرض</h2>
+          <p>حدّد مكان أخذ الغرض ومكان التسليم من الخريطة. الرسم حسب المسافة داخل المحافظة، ويُؤكد عبر واتساب.</p>
+        </header>
+        <div class="service-pills" aria-hidden="true">
+          <div><b>1</b><span>الانطلاق</span></div>
+          <div><b>2</b><span>الوصول</span></div>
+          <div><b>3</b><span>إرسال واتساب</span></div>
         </div>
-        <form class="special-card" id="delivery-form">
-          <p class="eyebrow">طلب توصيلة</p>
-          <h3>بيانات الغرض والمواقع</h3>
-          <label>ما هو الغرض؟
-            <input name="item" type="text" required placeholder="ظرف، كيس، أغراض بيت، وثائق..." />
-          </label>
-          <label>اسم المسلم
-            <input name="senderName" type="text" required placeholder="اسم من يسلّم الغرض" />
-          </label>
-          <label>هاتف المسلم
-            <input name="senderPhone" type="tel" required inputmode="tel" placeholder="07xx xxx xxxx" />
-          </label>
-          <label>عنوان الانطلاق (أخذ الغرض)
-            <input name="fromAddress" type="text" required placeholder="المنطقة، أقرب نقطة دالة" />
-          </label>
-          <div class="location-box" id="delivery-from-box">
-            <div class="location-head">
-              <strong>موقع الانطلاق على الخريطة</strong>
-              <span class="location-status" id="delivery-from-status">لم يُحدَّد بعد</span>
+        <form class="service-card" id="delivery-form">
+          <div class="form-block">
+            <label>ما هو الغرض؟
+              <input name="item" type="text" required placeholder="ظرف، كيس، أغراض بيت، وثائق..." />
+            </label>
+          </div>
+
+          <div class="form-block location-box" id="delivery-from-box">
+            <div class="form-block-head">
+              <p class="form-block-title">الانطلاق — أخذ الغرض</p>
+              <span class="location-status" id="delivery-from-status">لم يُحدَّد</span>
             </div>
-            <p class="muted location-hint">موقعك الحالي، أو نقطة من الخريطة، أو إحداثيات.</p>
+            <div class="field-grid">
+              <label>اسم المسلم
+                <input name="senderName" type="text" required placeholder="اسم من يسلّم الغرض" />
+              </label>
+              <label>هاتف المسلم
+                <input name="senderPhone" type="tel" required inputmode="tel" placeholder="07xx xxx xxxx" />
+              </label>
+            </div>
+            <label>العنوان
+              <input name="fromAddress" type="text" required placeholder="المنطقة، أقرب نقطة دالة" />
+            </label>
             <div class="pin-actions">
+              <button class="btn btn-primary" id="delivery-from-map" type="button">اختيار من الخريطة</button>
               <button class="btn btn-ghost" id="delivery-from-btn" type="button">موقعي الحالي</button>
-              <button class="btn btn-ghost" id="delivery-from-map" type="button">اختيار من الخريطة</button>
             </div>
-            <div class="coord-row">
-              <label>خط العرض
-                <input id="delivery-from-lat" type="text" inputmode="decimal" placeholder="33.315241" autocomplete="off" />
-              </label>
-              <label>خط الطول
-                <input id="delivery-from-lng" type="text" inputmode="decimal" placeholder="44.366115" autocomplete="off" />
-              </label>
-            </div>
-            <button class="btn btn-ghost btn-block" id="delivery-from-coords" type="button">تثبيت الإحداثيات</button>
+            <details class="coord-details">
+              <summary>إدخال إحداثيات يدوياً</summary>
+              <div class="coord-row">
+                <label>خط العرض
+                  <input id="delivery-from-lat" type="text" inputmode="decimal" placeholder="33.315241" autocomplete="off" />
+                </label>
+                <label>خط الطول
+                  <input id="delivery-from-lng" type="text" inputmode="decimal" placeholder="44.366115" autocomplete="off" />
+                </label>
+              </div>
+              <button class="btn btn-ghost btn-block" id="delivery-from-coords" type="button">تثبيت الإحداثيات</button>
+            </details>
             <a class="location-preview" id="delivery-from-preview" href="#" target="_blank" rel="noopener">عرض موقع الانطلاق</a>
           </div>
-          <label>اسم المستلم
-            <input name="receiverName" type="text" required placeholder="اسم من يستلم الغرض" />
-          </label>
-          <label>هاتف المستلم
-            <input name="receiverPhone" type="tel" required inputmode="tel" placeholder="07xx xxx xxxx" />
-          </label>
-          <label>عنوان الوصول (التسليم)
-            <input name="toAddress" type="text" required placeholder="المنطقة، أقرب نقطة دالة" />
-          </label>
-          <div class="location-box" id="delivery-to-box">
-            <div class="location-head">
-              <strong>موقع الوصول على الخريطة</strong>
-              <span class="location-status" id="delivery-to-status">لم يُحدَّد بعد</span>
+
+          <div class="form-block location-box" id="delivery-to-box">
+            <div class="form-block-head">
+              <p class="form-block-title">الوصول — التسليم</p>
+              <span class="location-status" id="delivery-to-status">لم يُحدَّد</span>
             </div>
-            <p class="muted location-hint">اختر مكان التسليم من الخريطة أو اكتب إحداثياته، حتى لو كنت في مكان آخر.</p>
+            <div class="field-grid">
+              <label>اسم المستلم
+                <input name="receiverName" type="text" required placeholder="اسم من يستلم الغرض" />
+              </label>
+              <label>هاتف المستلم
+                <input name="receiverPhone" type="tel" required inputmode="tel" placeholder="07xx xxx xxxx" />
+              </label>
+            </div>
+            <label>العنوان
+              <input name="toAddress" type="text" required placeholder="المنطقة، أقرب نقطة دالة" />
+            </label>
             <div class="pin-actions">
+              <button class="btn btn-primary" id="delivery-to-map" type="button">اختيار من الخريطة</button>
               <button class="btn btn-ghost" id="delivery-to-btn" type="button">موقعي الحالي</button>
-              <button class="btn btn-ghost" id="delivery-to-map" type="button">اختيار من الخريطة</button>
             </div>
-            <div class="coord-row">
-              <label>خط العرض
-                <input id="delivery-to-lat" type="text" inputmode="decimal" placeholder="33.315241" autocomplete="off" />
-              </label>
-              <label>خط الطول
-                <input id="delivery-to-lng" type="text" inputmode="decimal" placeholder="44.366115" autocomplete="off" />
-              </label>
-            </div>
-            <button class="btn btn-ghost btn-block" id="delivery-to-coords" type="button">تثبيت الإحداثيات</button>
+            <details class="coord-details">
+              <summary>إدخال إحداثيات يدوياً</summary>
+              <div class="coord-row">
+                <label>خط العرض
+                  <input id="delivery-to-lat" type="text" inputmode="decimal" placeholder="33.315241" autocomplete="off" />
+                </label>
+                <label>خط الطول
+                  <input id="delivery-to-lng" type="text" inputmode="decimal" placeholder="44.366115" autocomplete="off" />
+                </label>
+              </div>
+              <button class="btn btn-ghost btn-block" id="delivery-to-coords" type="button">تثبيت الإحداثيات</button>
+            </details>
             <a class="location-preview" id="delivery-to-preview" href="#" target="_blank" rel="noopener">عرض موقع الوصول</a>
           </div>
-          <label>ملاحظات (اختياري)
-            <textarea name="note" rows="2" placeholder="وقت مناسب، تعليمات للمندوب..."></textarea>
-          </label>
-          <div class="delivery-quote" id="delivery-quote">حدّد موقعي الانطلاق والوصول (من الخريطة أو بالإحداثيات) لحساب رسم التوصيل.</div>
-          <button class="btn btn-primary btn-block" type="submit">إرسال التوصيلة عبر واتساب</button>
-          <p class="muted special-foot">تصل البيانات إلى المندوبين على واتساب مع الموقعين والرسم التقريبي.</p>
+
+          <div class="form-block">
+            <label>ملاحظات (اختياري)
+              <textarea name="note" rows="2" placeholder="وقت مناسب، تعليمات للمندوب..."></textarea>
+            </label>
+            <div class="delivery-quote" id="delivery-quote">حدّد موقعي الانطلاق والوصول لحساب رسم التوصيل.</div>
+            <button class="btn btn-primary btn-block" type="submit">إرسال التوصيلة عبر واتساب</button>
+          </div>
         </form>
       </div>
     </section>
 
     <section class="about-section" id="about">
       <div class="container about-grid">
-        <div>
+        <div class="about-copy">
           <p class="eyebrow">قصتنا</p>
           <h2>أكل بيت، بهيبة المناسبات</h2>
           <p>من الكبة والدولمة إلى الكليجة والقطايف، نحضّر أكلات تناسب السفرة اليومية والعزائم. كل طلب يصلنا مرتباً على واتساب.</p>
-          <ul class="about-list">
+          <ul class="about-pills">
             <li>تجهيز للصواني والعزائم</li>
             <li>حلويات بالكيلو حسب طلبك</li>
             <li>قوزي وسمك شوي حسب الكمية</li>
@@ -320,15 +331,15 @@
               <span>إنستغرام</span>
             </a>
           </div>
-          <p class="muted">بعد إتمام السلة ننقلك مباشرة إلى واتساب المأكولات والطلب مكتوب تلقائياً.</p>
+          <p class="muted">بعد إتمام السلة ننقلك مباشرة إلى واتساب والطلب مكتوب تلقائياً.</p>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=52" alt="كي كارد">
+            <img src="assets/qi-card.png?v=53" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد</span>
             </div>
           </div>
-          <button class="btn btn-primary" id="open-cart-2" type="button">متابعة الطلب</button>
+          <button class="btn btn-primary btn-block" id="open-cart-2" type="button">متابعة الطلب</button>
         </aside>
       </div>
     </section>
@@ -338,14 +349,14 @@
     <div class="container footer-inner">
       <div class="brand brand-footer">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=52" alt="">
+          <img src="assets/logo.png?v=53" alt="">
         </span>
         <span class="brand-text">
           <strong>مأكولات الياقوت والمرجان</strong>
           <small>طلب سهل · توصيل عبر واتساب</small>
         </span>
       </div>
-      <p> الأصناف ذات السعر «حسب الكمية» تُحدَّد عند تأكيد الطلب.</p>
+      <p>الأصناف ذات السعر «حسب الكمية» تُحدَّد عند تأكيد الطلب.</p>
       <div class="social-row social-row-footer">
         <a class="social-btn" href="https://www.facebook.com/share/1Dg7D5X6h8/" target="_blank" rel="noopener">
           <img src="assets/facebook.svg" alt="">
@@ -454,7 +465,7 @@
           </label>
           <div class="checkout-summary" id="checkout-summary"></div>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=52" alt="كي كارد">
+            <img src="assets/qi-card.png?v=53" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد — عند تأكيد الطلب عبر واتساب.</span>
@@ -490,7 +501,7 @@
 
   <div class="install-overlay" id="install-banner" hidden>
     <div class="install-modal" role="dialog" aria-labelledby="install-title">
-      <img class="install-icon" src="assets/app-icon.png?v=52" alt="" />
+      <img class="install-icon" src="assets/app-icon.png?v=53" alt="" />
       <h3 id="install-title">ثبّت التطبيق على هاتفك</h3>
       <p id="install-text">يظهر مع التطبيقات وتفتحه مثل واتساب، بدون المتصفح.</p>
       <ol class="install-steps" id="install-steps" hidden></ol>
@@ -501,9 +512,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=52"></script>
-  <script src="js/menu-data.js?v=52"></script>
-  <script src="js/menu-store.js?v=52"></script>
-  <script src="js/app.js?v=52"></script>
+  <script src="js/config.js?v=53"></script>
+  <script src="js/menu-data.js?v=53"></script>
+  <script src="js/menu-store.js?v=53"></script>
+  <script src="js/app.js?v=53"></script>
 </body>
 </html>

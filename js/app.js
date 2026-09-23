@@ -948,7 +948,7 @@
     if (!deliveryPins.from || !deliveryPins.to) {
       deliveryQuote = null;
       el.classList.remove("is-ready", "is-far");
-      el.innerHTML = "حدّد موقعي الانطلاق والوصول (من الخريطة أو بالإحداثيات) لحساب رسم التوصيل.";
+      el.innerHTML = "حدّد موقعي الانطلاق والوصول لحساب رسم التوصيل.";
       return;
     }
     const s = deliverySettings();
