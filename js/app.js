@@ -224,8 +224,12 @@
     document.getElementById("story-title").textContent = label;
     document.getElementById("story-kind").textContent = storyTimeLabel(s.createdAt);
     const cap = document.getElementById("story-caption");
-    cap.textContent = "";
-    cap.hidden = true;
+    if (cap) {
+      cap.textContent = "";
+      cap.hidden = true;
+    }
+    const input = document.getElementById("story-reply-input");
+    if (input) input.value = "";
   }
 
   function showStoryAt(index) {
@@ -317,6 +321,20 @@
     document.body.style.overflow = "";
   }
 
+  function replyToStory() {
+    const list = activeStories();
+    const s = list[storyIndex];
+    const cfg = window.SITE_CONFIG || {};
+    const input = document.getElementById("story-reply-input");
+    const typed = input ? input.value.trim() : "";
+    const lines = ["هلا، أرد على الستوري"];
+    if (s && (s.title || s.caption)) lines.push("الستوري: " + (s.title || s.caption));
+    if (typed) lines.push("", typed);
+    const text = encodeURIComponent(lines.join("\n"));
+    const raw = String(cfg.whatsapp || "").replace(/[^\d]/g, "");
+    window.location.assign(raw ? `https://wa.me/${raw}?text=${text}` : `https://wa.me/?text=${text}`);
+  }
+
   function bindStories() {
     const row = document.getElementById("stories-row");
     const viewer = document.getElementById("story-viewer");
@@ -336,6 +354,20 @@
       });
       closeBtn.addEventListener("pointerdown", (e) => e.stopPropagation());
     }
+    const reply = document.getElementById("story-reply");
+    if (reply) {
+      ["pointerdown", "pointerup", "pointermove", "click"].forEach((ev) => {
+        reply.addEventListener(ev, (e) => e.stopPropagation());
+      });
+      reply.addEventListener("pointerdown", pauseStory);
+      reply.addEventListener("submit", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        replyToStory();
+      });
+      const input = document.getElementById("story-reply-input");
+      if (input) input.addEventListener("focus", pauseStory);
+    }
     let pressX = 0;
     let pressY = 0;
     let pressT = 0;
@@ -343,7 +375,7 @@
     let holding = false;
     if (stage) {
       stage.addEventListener("pointerdown", (e) => {
-        if (e.target.closest && e.target.closest("#story-close")) return;
+        if (e.target.closest && (e.target.closest("#story-close") || e.target.closest("#story-reply"))) return;
         pressX = e.clientX;
         pressY = e.clientY;
         pressT = Date.now();

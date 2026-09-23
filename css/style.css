@@ -1328,13 +1328,49 @@ html[data-theme="dark"] .story-ring.seen .story-ring-frame {
 .story-caption {
   position: absolute;
   inset-inline: 16px;
-  bottom: calc(24px + env(safe-area-inset-bottom));
+  bottom: calc(76px + env(safe-area-inset-bottom));
   z-index: 4;
   margin: 0;
   color: #fff;
   font-weight: 700;
   text-shadow: 0 1px 8px rgba(0,0,0,0.6);
   pointer-events: none;
+}
+.story-caption[hidden] { display: none; }
+.story-reply {
+  position: absolute;
+  inset-inline: 12px;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  z-index: 6;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  pointer-events: auto;
+}
+.story-reply input {
+  flex: 1;
+  height: 46px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.55);
+  background: rgba(0,0,0,0.28);
+  color: #fff;
+  padding: 0 16px;
+  outline: none;
+  font-size: 0.95rem;
+}
+.story-reply input::placeholder {
+  color: rgba(255,255,255,0.78);
+}
+.story-reply button {
+  height: 46px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: #25d366;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
 }
 .story-caption[hidden] { display: none; }
 .admin-story-expired { opacity: 0.58; }

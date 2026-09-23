@@ -24,7 +24,7 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=41" />
+  <link rel="stylesheet" href="css/style.css?v=42" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -336,6 +336,10 @@
       </div>
       <img class="story-photo" id="story-photo" alt="">
       <p class="story-caption" id="story-caption"></p>
+      <form class="story-reply" id="story-reply">
+        <input id="story-reply-input" type="text" maxlength="200" placeholder="رد على الستوري..." autocomplete="off" />
+        <button type="submit" aria-label="إرسال الرد على واتساب">إرسال</button>
+      </form>
     </div>
   </div>
 
@@ -352,9 +356,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=41"></script>
-  <script src="js/menu-data.js?v=41"></script>
-  <script src="js/menu-store.js?v=41"></script>
-  <script src="js/app.js?v=41"></script>
+  <script src="js/config.js?v=42"></script>
+  <script src="js/menu-data.js?v=42"></script>
+  <script src="js/menu-store.js?v=42"></script>
+  <script src="js/app.js?v=42"></script>
 </body>
 </html>
