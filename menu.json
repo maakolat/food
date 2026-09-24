@@ -375,7 +375,7 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790179363124-1790179363130.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790253576861-1790253576863.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790254884743-1790254884746.jpg",
-    "assets/uploads/story-story-1790260854167-1790260854169.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790260854167-1790260854169.jpg"
   ],
   "stories": [
     {
@@ -445,18 +445,8 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790260854169,
+  "updatedAt": 1790263584575,
   "alerts": [
-    {
-      "id": "alert-1790259048619",
-      "kind": "now",
-      "title": "توفّرت «دولمة» الآن",
-      "body": "يا هلا، «دولمة» صارت جاهزة والحجز مباشر. اطلبها قبل ما تخلص — الياقوت والمرجان.",
-      "dish": "دولمة",
-      "hours": 24,
-      "createdAt": 1790259048619,
-      "expiresAt": 1790345448619
-    },
     {
       "id": "alert-1790258237699",
       "kind": "tomorrow",
@@ -469,13 +459,13 @@
     }
   ],
   "alert": {
-    "id": "alert-1790259048619",
-    "kind": "now",
-    "title": "توفّرت «دولمة» الآن",
-    "body": "يا هلا، «دولمة» صارت جاهزة والحجز مباشر. اطلبها قبل ما تخلص — الياقوت والمرجان.",
-    "dish": "دولمة",
+    "id": "alert-1790258237699",
+    "kind": "tomorrow",
+    "title": "غداً تتوفر «قطايف بالقشطة»",
+    "body": "بشارة لطيفة: غداً إن شاء الله «قطايف بالقشطة» بطعم البيت. احجز من اليوم حتى ما يفوتك.",
+    "dish": "قطايف بالقشطة",
     "hours": 24,
-    "createdAt": 1790259048619,
-    "expiresAt": 1790345448619
+    "createdAt": 1790258237699,
+    "expiresAt": 1790344637699
   }
 }
