@@ -1451,6 +1451,7 @@
         renderCategories();
         renderFeatured();
         renderMenu();
+        renderStories();
       };
       window.MenuStore.refreshPublished().then(applyLive).catch((err) => console.warn("refreshPublished", err));
       setTimeout(() => {
@@ -1458,9 +1459,11 @@
       }, 8000);
     }
     setupInstall();
+    setupNotify();
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js").catch((err) => console.warn("sw", err));
+      navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch((err) => console.warn("sw", err));
     }
+    setTimeout(consumeOpenParam, 400);
   }
 
   function setupInstall() {
@@ -1610,5 +1613,157 @@
       setTimeout(() => showPopup(), 700);
     }
   }
+
+  function consumeOpenParam(raw) {
+    let open = raw;
+    if (!open) {
+      try { open = new URLSearchParams(location.search).get("open") || ""; }
+      catch (err) { open = ""; }
+    }
+    if (open === "stories") {
+      const list = activeStories();
+      if (list.length) showStoryAt(0);
+      const strip = document.getElementById("stories-strip");
+      if (strip) strip.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else if (open === "menu") {
+      const section = document.getElementById("menu");
+      if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function setupNotify() {
+    const bar = document.getElementById("notify-bar");
+    const allowBtn = document.getElementById("notify-allow");
+    const laterBtn = document.getElementById("notify-later");
+    const enableBtn = document.getElementById("notify-enable");
+    const text = document.getElementById("notify-text");
+    const laterKey = "yam-notify-later";
+    const denyKey = "yam-notify-deny";
+    const supported = "Notification" in window && "serviceWorker" in navigator;
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const standalone = window.matchMedia("(display-mode: standalone)").matches
+      || window.navigator.standalone === true;
+
+    function askSwCheck() {
+      if (!navigator.serviceWorker || !navigator.serviceWorker.controller) return;
+      navigator.serviceWorker.controller.postMessage({ type: "yam-check", reason: "page" });
+    }
+
+    async function enablePeriodic() {
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        if (reg.periodicSync) {
+          await reg.periodicSync.register("yam-updates", { minInterval: 15 * 60 * 1000 });
+        }
+      } catch (err) {}
+    }
+
+    function hideBar(until) {
+      if (!bar) return;
+      bar.hidden = true;
+      if (until === "later") {
+        try { localStorage.setItem(laterKey, String(Date.now() + 5 * 24 * 3600000)); } catch (err) {}
+      }
+      if (until === "deny") {
+        try { localStorage.setItem(denyKey, "1"); } catch (err) {}
+      }
+    }
+
+    function laterActive() {
+      try {
+        if (localStorage.getItem(denyKey) === "1") return true;
+        const until = Number(localStorage.getItem(laterKey) || 0);
+        return until > Date.now();
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function showBar() {
+      if (!bar || !supported) return;
+      if (Notification.permission !== "default") return;
+      if (laterActive()) return;
+      const install = document.getElementById("install-banner");
+      if (install && !install.hidden) return;
+      if (ios && !standalone) {
+        if (text) text.textContent = "على الآيفون: ثبّت التطبيق أولاً، ثم اضغط تفعيل الإشعارات.";
+      } else if (text) {
+        text.textContent = "فعّل الإشعارات ليصلك خبر الستوري والأصناف الجديدة فور نشرها.";
+      }
+      bar.hidden = false;
+    }
+
+    async function requestPermission() {
+      if (!supported) {
+        toast("هذا المتصفح لا يدعم الإشعارات");
+        return;
+      }
+      if (ios && !standalone) {
+        toast("ثبّت التطبيق على الشاشة الرئيسية أولاً، ثم فعّل الإشعارات");
+        showBar();
+        return;
+      }
+      let perm = Notification.permission;
+      if (perm === "default") {
+        try { perm = await Notification.requestPermission(); }
+        catch (err) { perm = Notification.permission; }
+      }
+      if (perm === "granted") {
+        hideBar();
+        if (enableBtn) enableBtn.hidden = true;
+        await enablePeriodic();
+        askSwCheck();
+        toast("تم تفعيل الإشعارات");
+      } else {
+        hideBar("deny");
+        toast("تم رفض الإشعارات من إعدادات المتصفح");
+      }
+    }
+
+    if (enableBtn) {
+      if (!supported || Notification.permission === "granted") enableBtn.hidden = true;
+      enableBtn.addEventListener("click", requestPermission);
+    }
+    if (allowBtn) allowBtn.addEventListener("click", requestPermission);
+    if (laterBtn) laterBtn.addEventListener("click", () => hideBar("later"));
+
+    if (supported && Notification.permission === "granted") {
+      enablePeriodic();
+      setTimeout(askSwCheck, 1200);
+    } else {
+      setTimeout(showBar, 4200);
+    }
+
+    setInterval(() => {
+      if (document.visibilityState === "visible") askSwCheck();
+    }, 90000);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") askSwCheck();
+    });
+
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        const data = event.data || {};
+        if (data.type === "yam-open") {
+          const url = String(data.url || "");
+          if (url.indexOf("open=stories") >= 0) consumeOpenParam("stories");
+          else if (url.indexOf("open=menu") >= 0) consumeOpenParam("menu");
+        }
+        if (data.type === "yam-news") {
+          if (data.stories && data.stories.length) {
+            renderStories();
+            toast(data.stories.length === 1 ? "ستوري جديد — اضغط الدائرة للمشاهدة" : "ستوريات جديدة وصلت");
+          }
+          if (data.dishes && data.dishes.length) {
+            toast(data.dishes.length === 1 ? "صنف جديد في القائمة" : "أصناف جديدة في القائمة");
+          }
+        }
+      });
+      navigator.serviceWorker.ready.then(() => setTimeout(askSwCheck, 1600));
+      navigator.serviceWorker.addEventListener("controllerchange", () => askSwCheck());
+    }
+  }
+
   start();
 })();

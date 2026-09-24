@@ -1400,6 +1400,62 @@ body:has(#mobile-bar:not([hidden])) .wa-float { bottom: calc(86px + env(safe-are
 }
 .install-steps[hidden] { display: none; }
 .install-modal .btn { margin-top: 8px; }
+.notify-bar {
+  position: fixed;
+  z-index: 70;
+  inset-inline: 12px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 12px 12px 12px 14px;
+  box-shadow: var(--shadow);
+}
+.notify-bar[hidden] { display: none; }
+.notify-bar-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.notify-bar-copy strong {
+  font-size: 0.98rem;
+  font-weight: 800;
+}
+.notify-bar-copy span {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+.notify-bar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.notify-bar-actions .btn {
+  padding: 8px 14px;
+  margin: 0;
+  white-space: nowrap;
+}
+body:has(#mobile-bar:not([hidden])) .notify-bar {
+  bottom: calc(90px + env(safe-area-inset-bottom));
+}
+body:has(.install-overlay:not([hidden])) .notify-bar {
+  display: none !important;
+}
+@media (min-width: 720px) {
+  .notify-bar {
+    inset-inline: auto 18px;
+    width: min(420px, calc(100% - 36px));
+  }
+  .notify-bar-actions { flex-direction: row; }
+}
 @media (min-width: 901px) {
   .install-overlay {
     align-items: center;
