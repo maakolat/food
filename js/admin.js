@@ -568,9 +568,22 @@
       toast("تم إيقاف الحفظ: القائمة فارغة حتى لا تُحذف أصناف الزبائن");
       return { local: false, remote: false, data: catalog, blocked: true };
     }
+    const keptAlerts = window.MenuStore && window.MenuStore.liveAlerts
+      ? window.MenuStore.liveAlerts(catalog)
+      : (catalog.alerts || []).slice();
     const result = await window.MenuStore.save(catalog);
     if (result.data) catalog = result.data;
     if (!Array.isArray(catalog.stories)) catalog.stories = [];
+    if (keptAlerts.length) {
+      const merged = window.MenuStore && window.MenuStore.liveAlerts
+        ? window.MenuStore.liveAlerts({
+          alerts: keptAlerts.concat(catalog.alerts || []),
+          alert: catalog.alert
+        })
+        : keptAlerts;
+      catalog.alerts = merged;
+      if (merged[0]) catalog.alert = merged[0];
+    }
     fillSelects();
     renderList();
     renderStories();
@@ -747,9 +760,10 @@
       };
       const current = window.MenuStore && window.MenuStore.liveAlerts
         ? window.MenuStore.liveAlerts(catalog)
-        : [];
+        : (catalog.alerts || []).slice();
+      if (catalog.alert && !current.some((a) => a.id === catalog.alert.id)) current.unshift(catalog.alert);
       catalog.alerts = [item].concat(current.filter((a) => a.id !== item.id)).slice(0, 8);
-      catalog.alert = item;
+      catalog.alert = catalog.alerts[0];
       const sendBtn = document.getElementById("send-alert");
       if (sendBtn) sendBtn.disabled = true;
       let result;

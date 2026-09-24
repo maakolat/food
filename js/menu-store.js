@@ -169,7 +169,11 @@ window.MenuStore = {
       stories: this.cleanStories(data.stories),
       updatedAt: (opts && opts.touch) ? Date.now() : (Number(data.updatedAt) || Date.now())
     };
-    this.attachAlerts(out, data);
+    const alerts = this.liveAlerts(data);
+    if (alerts.length) {
+      out.alerts = alerts;
+      out.alert = alerts[0];
+    }
     return out;
   },
   readKey(key) {
@@ -257,8 +261,8 @@ window.MenuStore = {
       updatedAt: Math.max(Number(remote.updatedAt || 0), Number(local.updatedAt || 0))
     };
     this.attachAlerts(merged, {
-      alert: primary.alert || secondary.alert,
-      alerts: (primary.alerts || []).concat(secondary.alerts || [])
+      alerts: [].concat(primary.alerts || [], secondary.alerts || []),
+      alert: primary.alert || secondary.alert
     });
     return merged;
   },
@@ -443,10 +447,21 @@ window.MenuStore = {
     }
     return { data: Object.assign({}, data, { menu, assets, stories }), stripped };
   },
-  async saveRemote(data) {
+  async saveRemote(data, keptAlerts) {
     if (!this.token()) return null;
     try {
       const prepared = await this.publishImages(this.payload(data, { touch: true }));
+      const alerts = this.liveAlerts({
+        alerts: [].concat(keptAlerts || [], data.alerts || [], prepared.data.alerts || []),
+        alert: data.alert || prepared.data.alert
+      });
+      if (alerts.length) {
+        prepared.data.alerts = alerts;
+        prepared.data.alert = alerts[0];
+      } else {
+        delete prepared.data.alerts;
+        delete prepared.data.alert;
+      }
       const json = JSON.stringify(prepared.data, null, 2);
       await this.putFile("menu.json", this.utf8ToBase64(json), "Publish menu from admin");
       return prepared;
@@ -475,10 +490,22 @@ window.MenuStore = {
     return local || this.defaultData();
   },
   async save(data) {
+    const keptAlerts = this.liveAlerts(data);
     const clean = this.payload(data, { touch: true });
+    if (keptAlerts.length) {
+      clean.alerts = keptAlerts;
+      clean.alert = keptAlerts[0];
+    }
     this.saveLocal(clean);
-    const prepared = await this.saveRemote(clean);
+    const prepared = await this.saveRemote(clean, keptAlerts);
     if (prepared && prepared.data) {
+      if (keptAlerts.length) {
+        prepared.data.alerts = this.liveAlerts({
+          alerts: keptAlerts.concat(prepared.data.alerts || []),
+          alert: prepared.data.alert
+        });
+        if (prepared.data.alerts[0]) prepared.data.alert = prepared.data.alerts[0];
+      }
       this.saveLocal(prepared.data);
       this.savePublished(prepared.data);
       return {
