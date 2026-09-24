@@ -1560,6 +1560,11 @@ body:has(#mobile-bar:not([hidden])) .wa-float { bottom: calc(86px + env(safe-are
 .install-app-btn {
   white-space: nowrap;
 }
+html[data-native-app] .install-app-btn,
+html[data-native-app] .install-overlay,
+html[data-native-app] #android-apk-btn {
+  display: none !important;
+}
 .install-overlay {
   position: fixed;
   inset: 0;

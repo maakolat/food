@@ -1593,17 +1593,22 @@
     const close = document.getElementById("install-close");
     const text = document.getElementById("install-text");
     const steps = document.getElementById("install-steps");
-    if (!banner || !btn) return;
+    const apkBtn = document.getElementById("android-apk-btn");
+    const nativeApp = /AlyaqoutApp/i.test(navigator.userAgent || "");
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || window.navigator.standalone === true;
-    if (standalone) {
+    if (nativeApp || standalone) {
+      try { document.documentElement.setAttribute("data-native-app", "1"); } catch (err) {}
+      if (banner) banner.hidden = true;
       if (headerBtn) headerBtn.hidden = true;
+      if (apkBtn) apkBtn.hidden = true;
+      window.addEventListener("beforeinstallprompt", (e) => e.preventDefault());
       return;
     }
+    if (!banner || !btn) return;
 
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const android = /android/i.test(navigator.userAgent);
-    const apkBtn = document.getElementById("android-apk-btn");
     if (apkBtn) apkBtn.hidden = !android;
     const mobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
       || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
