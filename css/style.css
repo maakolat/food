@@ -1688,6 +1688,30 @@ body:has(.install-overlay:not([hidden])) .notify-bar {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold), transparent);
 }
+.legal-links {
+  margin: 10px 0 0;
+}
+.legal-links a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.legal-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 18px 80px;
+}
+.legal-page h1 {
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+}
+.legal-page h2 {
+  font-size: 1.15rem;
+  margin: 28px 0 8px;
+}
+.legal-page p, .legal-page li {
+  color: var(--muted);
+}
 
 .empty-search {
   grid-column: 1 / -1;

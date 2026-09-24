@@ -1,4 +1,4 @@
-const CACHE = "yam-app-v71";
+const CACHE = "yam-app-v72";
 const IDB_NAME = "yam-notify-v1";
 const IDB_STORE = "state";
 const VAPID_PUBLIC = "BEfFV9lMNzSY-Z9xW8zr_ISpD5BYdkQMUpOOCf29MZEP6X6_6cOdEOzpX5wl-jdMvg88wgUXYEhbwuvWjnhxO-M";
