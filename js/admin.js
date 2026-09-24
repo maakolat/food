@@ -799,22 +799,6 @@
     if (input) input.value = "";
   });
 
-  document.getElementById("reset-menu").addEventListener("click", async () => {
-    const typed = window.prompt("هذا يستبدل الأصناف الحالية بالنسخة الأصلية. اكتبي كلمة تأكيد للمتابعة:");
-    if (String(typed || "").trim() !== "تأكيد") {
-      toast("تم إلغاء العملية. القائمة الحالية كما هي");
-      return;
-    }
-    const keptStories = Array.isArray(catalog.stories) ? catalog.stories.slice() : [];
-    const keptAlert = catalog.alert || null;
-    catalog = window.MenuStore.defaultData();
-    catalog.stories = keptStories;
-    if (keptAlert) catalog.alert = keptAlert;
-    const result = await persist();
-    setPublishStatus(!!result.remote);
-    toast("تمت استعادة القائمة الأصلية مع الإبقاء على الستوري");
-  });
-
   listEl.addEventListener("click", async (e) => {
     const editId = e.target.dataset.edit;
     const delId = e.target.dataset.del;

@@ -1183,17 +1183,6 @@ input[type="text"], input[type="tel"], textarea, select {
 .admin-stat strong {
   font-size: 1.35rem;
 }
-.admin-danger {
-  margin-top: 18px;
-  border: 1px dashed var(--line);
-  border-radius: 16px;
-  padding: 8px 14px 14px;
-}
-.admin-danger summary {
-  cursor: pointer;
-  font-weight: 800;
-  padding: 8px 0;
-}
 @media (max-width: 720px) {
   .admin-status-grid { grid-template-columns: 1fr; }
 }
