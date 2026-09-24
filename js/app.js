@@ -35,6 +35,8 @@
     locationStatus: document.getElementById("location-status"),
     locationPreview: document.getElementById("location-preview"),
     shareLocation: document.getElementById("share-location"),
+    profileModal: document.getElementById("profile-modal"),
+    profileForm: document.getElementById("profile-form"),
     toast: document.getElementById("toast"),
     hours: document.getElementById("hours-text")
   };
@@ -48,6 +50,66 @@
   const cart = JSON.parse(localStorage.getItem("yam-cart") || "[]");
 
   const saveCart = () => localStorage.setItem("yam-cart", JSON.stringify(cart));
+  const PROFILE_KEY = "yam-profile-v1";
+
+  function readProfile() {
+    try {
+      const data = JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}");
+      return data && typeof data === "object" ? data : {};
+    } catch (err) {
+      return {};
+    }
+  }
+
+  function writeProfile(data) {
+    const loc = data && data.location && data.location.lat != null && data.location.lng != null
+      ? {
+          lat: Number(data.location.lat),
+          lng: Number(data.location.lng),
+          url: data.location.url || mapsUrl(data.location.lat, data.location.lng)
+        }
+      : null;
+    const next = {
+      name: String((data && data.name) || "").trim(),
+      phone: String((data && data.phone) || "").trim(),
+      address: String((data && data.address) || "").trim(),
+      location: loc
+    };
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(next)); } catch (err) {}
+    markProfileBtn(next);
+    return next;
+  }
+
+  function profileComplete(profile) {
+    return !!(profile && profile.name && profile.phone && profile.address);
+  }
+
+  function markProfileBtn(profile) {
+    const btn = document.getElementById("open-profile");
+    if (!btn) return;
+    btn.classList.toggle("is-saved", profileComplete(profile || readProfile()));
+  }
+
+  function fillNamedForm(form, profile) {
+    if (!form || !profile) return false;
+    let filled = false;
+    ["name", "phone", "address"].forEach((key) => {
+      if (!form.elements[key] || !profile[key]) return;
+      form.elements[key].value = profile[key];
+      filled = true;
+    });
+    return filled;
+  }
+
+  function snapshotNamedForm(form) {
+    if (!form) return {};
+    return {
+      name: form.elements.name ? form.elements.name.value : "",
+      phone: form.elements.phone ? form.elements.phone.value : "",
+      address: form.elements.address ? form.elements.address.value : "",
+      location: customerLocation
+    };
+  }
   const cartQty = () => cart.reduce((s, i) => s + i.qty, 0);
   const cartSum = () => cart.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
 
@@ -694,6 +756,10 @@
       mapModal.classList.remove("open");
       mapModal.setAttribute("aria-hidden", "true");
     }
+    if (els.profileModal) {
+      els.profileModal.classList.remove("open");
+      els.profileModal.setAttribute("aria-hidden", "true");
+    }
     els.overlay.hidden = true;
     document.body.style.overflow = "";
   }
@@ -705,6 +771,10 @@
     els.overlay.hidden = false;
     els.itemModal.classList.remove("open");
     els.checkoutModal.classList.remove("open");
+    if (els.profileModal) {
+      els.profileModal.classList.remove("open");
+      els.profileModal.setAttribute("aria-hidden", "true");
+    }
     document.body.style.overflow = "hidden";
   }
 
@@ -860,22 +930,33 @@
   }
 
   function setLocationStatus(text, kind) {
-    if (!els.locationStatus) return;
-    els.locationStatus.textContent = text;
-    els.locationStatus.classList.remove("ok", "err");
-    if (kind) els.locationStatus.classList.add(kind);
-    if (els.locationBox) els.locationBox.classList.toggle("is-set", kind === "ok");
+    [
+      { status: els.locationStatus, box: els.locationBox },
+      {
+        status: document.getElementById("profile-location-status"),
+        box: document.getElementById("profile-location-box")
+      }
+    ].forEach((slot) => {
+      if (!slot.status) return;
+      slot.status.textContent = text;
+      slot.status.classList.remove("ok", "err");
+      if (kind) slot.status.classList.add(kind);
+      if (slot.box) slot.box.classList.toggle("is-set", kind === "ok");
+    });
   }
 
   function applyLocation(lat, lng) {
     const url = mapsUrl(lat, lng);
     customerLocation = { lat, lng, url };
     setLocationStatus("تم تحديد الموقع", "ok");
-    if (els.locationPreview) {
-      els.locationPreview.href = url;
-      els.locationPreview.classList.add("is-visible");
-    }
+    [els.locationPreview, document.getElementById("profile-location-preview")].forEach((preview) => {
+      if (!preview) return;
+      preview.href = url;
+      preview.classList.add("is-visible");
+    });
     if (els.shareLocation) els.shareLocation.textContent = "إعادة تحديد موقعي";
+    const profileShare = document.getElementById("profile-share-location");
+    if (profileShare) profileShare.textContent = "إعادة تحديد موقعي";
   }
 
   function requestLocation() {
@@ -885,15 +966,16 @@
       return;
     }
     setLocationStatus("جارٍ تحديد الموقع...", "");
-    if (els.shareLocation) els.shareLocation.disabled = true;
+    const buttons = [els.shareLocation, document.getElementById("profile-share-location")];
+    buttons.forEach((btn) => { if (btn) btn.disabled = true; });
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        if (els.shareLocation) els.shareLocation.disabled = false;
+        buttons.forEach((btn) => { if (btn) btn.disabled = false; });
         applyLocation(pos.coords.latitude, pos.coords.longitude);
-        toast("تم حفظ موقعك مع الطلب");
+        toast("تم حفظ موقعك");
       },
       (err) => {
-        if (els.shareLocation) els.shareLocation.disabled = false;
+        buttons.forEach((btn) => { if (btn) btn.disabled = false; });
         const msg = err.code === 1
           ? "المتصفح رفض صلاحية الموقع. اسمح بالموقع ثم أعد المحاولة"
           : "تعذر تحديد الموقع. حاول مرة أخرى";
@@ -1509,15 +1591,57 @@
       els.cartDrawer.classList.remove("open");
       els.cartDrawer.setAttribute("aria-hidden", "true");
       els.itemModal.classList.remove("open");
+      if (els.profileModal) {
+        els.profileModal.classList.remove("open");
+        els.profileModal.setAttribute("aria-hidden", "true");
+      }
+      const profile = readProfile();
+      const filled = fillNamedForm(els.checkoutForm, profile);
+      const hint = document.getElementById("checkout-profile-hint");
+      if (hint) hint.hidden = !filled;
       els.checkoutModal.classList.add("open");
       els.checkoutModal.setAttribute("aria-hidden", "false");
       els.overlay.hidden = false;
       document.body.style.overflow = "hidden";
-      if (customerLocation) applyLocation(customerLocation.lat, customerLocation.lng);
+      const loc = customerLocation || profile.location;
+      if (loc) applyLocation(loc.lat, loc.lng);
       else requestLocation();
     });
 
     if (els.shareLocation) els.shareLocation.addEventListener("click", requestLocation);
+    const profileShare = document.getElementById("profile-share-location");
+    if (profileShare) profileShare.addEventListener("click", requestLocation);
+
+    function openProfile() {
+      const profile = readProfile();
+      fillNamedForm(els.profileForm, profile);
+      const loc = customerLocation || profile.location;
+      if (loc) applyLocation(loc.lat, loc.lng);
+      els.cartDrawer.classList.remove("open");
+      els.cartDrawer.setAttribute("aria-hidden", "true");
+      els.itemModal.classList.remove("open");
+      els.checkoutModal.classList.remove("open");
+      if (els.profileModal) {
+        els.profileModal.classList.add("open");
+        els.profileModal.setAttribute("aria-hidden", "false");
+      }
+      els.overlay.hidden = false;
+      document.body.style.overflow = "hidden";
+      const first = els.profileForm && els.profileForm.elements.name;
+      if (first) setTimeout(() => first.focus(), 80);
+    }
+
+    document.getElementById("open-profile")?.addEventListener("click", openProfile);
+    document.getElementById("close-profile")?.addEventListener("click", closeModals);
+    if (els.profileForm) {
+      els.profileForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const saved = writeProfile(snapshotNamedForm(els.profileForm));
+        fillNamedForm(els.checkoutForm, saved);
+        closeModals();
+        toast("تم حفظ ملفك. سيُملأ الطلب تلقائياً");
+      });
+    }
 
     els.checkoutForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -1541,11 +1665,21 @@
         notes: form.get("notes").trim(),
         locationUrl: customerLocation.url
       });
+      writeProfile(snapshotNamedForm(els.checkoutForm));
     });
   }
 
   function start() {
     loadCatalog();
+    const savedProfile = readProfile();
+    markProfileBtn(savedProfile);
+    if (savedProfile.location && savedProfile.location.lat != null) {
+      customerLocation = {
+        lat: Number(savedProfile.location.lat),
+        lng: Number(savedProfile.location.lng),
+        url: savedProfile.location.url || mapsUrl(savedProfile.location.lat, savedProfile.location.lng)
+      };
+    }
     renderCategories();
     renderFeatured();
     renderMenu();
@@ -1776,17 +1910,7 @@
   }
 
   function setupNotify() {
-    const bar = document.getElementById("notify-bar");
-    const allowBtn = document.getElementById("notify-allow");
-    const laterBtn = document.getElementById("notify-later");
-    const enableBtn = document.getElementById("notify-enable");
-    const text = document.getElementById("notify-text");
-    const laterKey = "yam-notify-later";
-    const denyKey = "yam-notify-deny";
     const supported = "Notification" in window && "serviceWorker" in navigator;
-    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const standalone = window.matchMedia("(display-mode: standalone)").matches
-      || window.navigator.standalone === true;
     const cfg = window.SITE_CONFIG || {};
 
     function urlBase64ToUint8Array(base64String) {
@@ -1850,92 +1974,16 @@
       }
     }
 
-    function hideBar(until) {
-      if (!bar) return;
-      bar.hidden = true;
-      if (until === "later") {
-        try { localStorage.setItem(laterKey, String(Date.now() + 12 * 3600000)); } catch (err) {}
-      }
-      if (until === "deny") {
-        try { localStorage.setItem(denyKey, "1"); } catch (err) {}
-      }
-    }
-
-    function laterActive() {
-      try {
-        if (localStorage.getItem(denyKey) === "1") return true;
-        const until = Number(localStorage.getItem(laterKey) || 0);
-        return until > Date.now();
-      } catch (err) {
-        return false;
-      }
-    }
-
-    function showBar() {
-      if (!bar || !supported) return;
-      if (Notification.permission !== "default") return;
-      if (laterActive()) return;
-      const install = document.getElementById("install-banner");
-      if (install && !install.hidden) {
-        setTimeout(showBar, 2500);
-        return;
-      }
-      if (ios && !standalone) {
-        if (text) text.textContent = "على الآيفون: ثبّت التطبيق أولاً من المشاركة ثم إضافة للشاشة الرئيسية، وبعدها فعّل الإشعارات حتى تصلك والتطبيق مغلق.";
-      } else if (text) {
-        text.textContent = "فعّل الإشعارات وثبّت التطبيق ليصلك الخبر بجرس حتى لو التطبيق مغلق.";
-      }
-      bar.hidden = false;
-    }
-
-    async function requestPermission() {
-      if (!supported) {
-        toast("هذا المتصفح لا يدعم الإشعارات");
-        return;
-      }
-      if (ios && !standalone) {
-        toast("ثبّت التطبيق على الشاشة الرئيسية أولاً، ثم فعّل الإشعارات");
-        showBar();
-        return;
-      }
-      let perm = Notification.permission;
-      if (perm === "default") {
-        try { perm = await Notification.requestPermission(); }
-        catch (err) { perm = Notification.permission; }
-      }
-      if (perm === "granted") {
-        hideBar();
-        if (enableBtn) enableBtn.hidden = true;
-        await enablePeriodic();
-        try { await registerPush(); } catch (err) { console.warn("push subscribe", err); }
-        askSwCheck();
-        toast("تم تفعيل الإشعارات. سيصلك الخبر على الهاتف حتى والتطبيق مغلق");
-      } else {
-        hideBar("deny");
-        toast("تم رفض الإشعارات من إعدادات المتصفح");
-      }
-    }
-
-    if (enableBtn) {
-      if (!supported || Notification.permission === "granted") enableBtn.hidden = true;
-      enableBtn.addEventListener("click", requestPermission);
-    }
-    if (allowBtn) allowBtn.addEventListener("click", requestPermission);
-    if (laterBtn) laterBtn.addEventListener("click", () => hideBar("later"));
-    window.addEventListener("yam-install-closed", showBar);
-
     if (supported && Notification.permission === "granted") {
       enablePeriodic();
       registerPush().catch(() => {});
       setTimeout(askSwCheck, 800);
-    } else {
-      setTimeout(showBar, 1200);
     }
 
     setInterval(() => {
       if (document.visibilityState === "visible") {
         askSwCheck();
-        if (Notification.permission === "granted") registerPush().catch(() => {});
+        if (supported && Notification.permission === "granted") registerPush().catch(() => {});
       }
     }, 45000);
 
@@ -1991,6 +2039,5 @@
       navigator.serviceWorker.addEventListener("controllerchange", () => askSwCheck());
     }
   }
-
   start();
 })();

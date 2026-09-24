@@ -13,11 +13,11 @@
   <title>مأكولات الياقوت والمرجان | اطلب أطيب الأكلات البيتية</title>
   <meta name="description" content="مأكولات الياقوت والمرجان — كبة، دولمة، معجنات وحلويات بيتية. اطلب أونلاين ويصلك الطلب مباشرة على واتساب." />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="assets/app-icon.png?v=72" />
+  <link rel="apple-touch-icon" href="assets/app-icon.png?v=73" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="assets/app-icon.png?v=72" type="image/png" />
+  <link rel="icon" href="assets/app-icon.png?v=73" type="image/png" />
   <script>
     (function () {
       var theme = localStorage.getItem("yam-theme") || "dark";
@@ -27,7 +27,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=72" />
+  <link rel="stylesheet" href="css/style.css?v=73" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -38,7 +38,7 @@
       <div class="container header-inner">
       <a class="brand" href="#top">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=72" alt="">
+          <img src="assets/logo.png?v=73" alt="">
         </span>
         <span class="brand-text">
           <strong>الياقوت والمرجان</strong>
@@ -58,6 +58,11 @@
       </nav>
 
       <button class="btn btn-ghost install-app-btn" id="install-app-btn" type="button">تثبيت التطبيق</button>
+      <button class="profile-btn" id="open-profile" type="button" aria-label="ملفك الشخصي">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12zm0 2c-3.6 0-8 1.8-8 5.4V22h16v-2.6c0-3.6-4.4-5.4-8-5.4z"/>
+        </svg>
+      </button>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="الوضع الفاتح">
         <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="currentColor" d="M21 14.3A9 9 0 0 1 9.7 3a7 7 0 1 0 11.3 11.3z"/>
@@ -153,7 +158,7 @@
         </div>
       </div>
       <div class="pay-note">
-        <img src="assets/qi-card.png?v=72" alt="كي كارد">
+        <img src="assets/qi-card.png?v=73" alt="كي كارد">
         <div>
           <strong>الدفع الإلكتروني متوفر</strong>
           <span>يمكنك الدفع عبر كي كارد عند تأكيد الطلب على واتساب.</span>
@@ -346,14 +351,13 @@
           </div>
           <p class="muted">بعد إتمام السلة ننقلك مباشرة إلى واتساب والطلب مكتوب تلقائياً.</p>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=72" alt="كي كارد">
+            <img src="assets/qi-card.png?v=73" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد</span>
             </div>
           </div>
           <button class="btn btn-primary btn-block" id="open-cart-2" type="button">متابعة الطلب</button>
-          <button class="btn btn-ghost btn-block" id="notify-enable" type="button">تفعيل إشعارات الستوري والأصناف</button>
         </aside>
       </div>
     </section>
@@ -363,7 +367,7 @@
     <div class="container footer-inner">
       <div class="brand brand-footer">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=72" alt="">
+          <img src="assets/logo.png?v=73" alt="">
         </span>
         <span class="brand-text">
           <strong>مأكولات الياقوت والمرجان</strong>
@@ -451,6 +455,7 @@
         <p class="eyebrow">الخطوة الأخيرة</p>
         <h2 id="checkout-title">بيانات الطلب</h2>
         <p class="muted">نكتب طلبك تلقائياً ونفتح واتساب المأكولات لإرساله.</p>
+        <p class="muted" id="checkout-profile-hint" hidden>تم ملء بياناتك من ملفك الشخصي. يمكنك تعديلها هنا أو من حسابي.</p>
         <form id="checkout-form">
           <label>الاسم الكامل
             <input name="name" type="text" required autocomplete="name" placeholder="اسمك الكريم" />
@@ -485,7 +490,7 @@
           </label>
           <div class="checkout-summary" id="checkout-summary"></div>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=72" alt="كي كارد">
+            <img src="assets/qi-card.png?v=73" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد — عند تأكيد الطلب عبر واتساب.</span>
@@ -521,7 +526,7 @@
 
   <div class="install-overlay" id="install-banner" hidden>
     <div class="install-modal" role="dialog" aria-labelledby="install-title">
-      <img class="install-icon" src="assets/app-icon.png?v=72" alt="" />
+      <img class="install-icon" src="assets/app-icon.png?v=73" alt="" />
       <h3 id="install-title">ثبّت التطبيق على هاتفك</h3>
       <p id="install-text">يظهر مع التطبيقات وتفتحه مثل واتساب، بدون المتصفح.</p>
       <ol class="install-steps" id="install-steps" hidden></ol>
@@ -531,22 +536,43 @@
     </div>
   </div>
 
-  <div class="notify-bar" id="notify-bar" hidden>
-    <div class="notify-bar-copy">
-      <strong>وصلك الستوري والأصناف الجديدة؟</strong>
-      <span id="notify-text">فعّل الإشعارات وثبّت التطبيق ليصلك الخبر بجرس حتى لو التطبيق مغلق.</span>
-    </div>
-    <div class="notify-bar-actions">
-      <button class="btn btn-primary" id="notify-allow" type="button">تفعيل</button>
-      <button class="btn btn-ghost" id="notify-later" type="button">لاحقاً</button>
+  <div class="modal" id="profile-modal" aria-hidden="true" role="dialog" aria-labelledby="profile-title">
+    <div class="modal-card checkout-card">
+      <button class="icon-btn modal-close" id="close-profile" type="button" aria-label="إغلاق">×</button>
+      <div class="modal-body">
+        <p class="eyebrow">حساب الزبون</p>
+        <h2 id="profile-title">ملفك الشخصي</h2>
+        <p class="muted">احفظ اسمك ورقم هاتفك وعنوانك مرة واحدة، وتدخل تلقائياً عند كل طلب. يمكنك تعديلها في أي وقت.</p>
+        <form id="profile-form">
+          <label>الاسم الكامل
+            <input name="name" type="text" required autocomplete="name" placeholder="اسمك الكريم" />
+          </label>
+          <label>رقم الهاتف
+            <input name="phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="07xx xxx xxxx" />
+          </label>
+          <label>العنوان
+            <input name="address" type="text" required autocomplete="street-address" placeholder="المنطقة، أقرب نقطة دالة" />
+          </label>
+          <div class="location-box" id="profile-location-box">
+            <div class="location-head">
+              <strong>موقع التوصيل الافتراضي</strong>
+              <span class="location-status" id="profile-location-status">لم يُحدَّد بعد</span>
+            </div>
+            <p class="muted location-hint">يُحفظ مع ملفك ويُرسل مع الطلب حتى يصل التوصيل بدقة.</p>
+            <button class="btn btn-ghost btn-block" id="profile-share-location" type="button">تحديد موقعي الآن</button>
+            <a class="location-preview" id="profile-location-preview" href="#" target="_blank" rel="noopener">عرض الموقع على الخريطة</a>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">حفظ الملف الشخصي</button>
+        </form>
+      </div>
     </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=72"></script>
-  <script src="js/menu-data.js?v=72"></script>
-  <script src="js/menu-store.js?v=72"></script>
-  <script src="js/app.js?v=72"></script>
+  <script src="js/config.js?v=73"></script>
+  <script src="js/menu-data.js?v=73"></script>
+  <script src="js/menu-store.js?v=73"></script>
+  <script src="js/app.js?v=73"></script>
 </body>
 </html>

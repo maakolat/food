@@ -214,6 +214,25 @@ html[data-theme="light"] .theme-toggle .icon-moon,
 html:not([data-theme]) .theme-toggle .icon-moon { display: block; }
 html[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
 
+.profile-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+.profile-btn svg { width: 20px; height: 20px; }
+.profile-btn.is-saved {
+  border-color: var(--gold);
+  color: var(--ruby);
+}
+
 .cart-btn, .btn, .icon-btn {
   border: 0;
   cursor: pointer;
