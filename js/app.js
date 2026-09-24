@@ -1,4 +1,7 @@
 (function () {
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js", { scope: "./", updateViaCache: "none" }).catch(() => {});
+  }
   const money = (n) => {
     if (n == null) return "حسب الكمية";
     return `${Number(n).toLocaleString("ar-IQ")} د.ع`;
@@ -1578,7 +1581,7 @@
       });
     }
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch((err) => console.warn("sw", err));
+      navigator.serviceWorker.register("sw.js", { scope: "./", updateViaCache: "none" }).catch((err) => console.warn("sw", err));
     }
     setTimeout(consumeOpenParam, 400);
   }
@@ -1799,11 +1802,23 @@
     async function registerPush() {
       if (!cfg.vapidPublic || !("PushManager" in window)) return;
       const reg = await navigator.serviceWorker.ready;
+      const key = urlBase64ToUint8Array(cfg.vapidPublic);
       let sub = await reg.pushManager.getSubscription();
+      let same = false;
+      try {
+        const got = sub && sub.options && sub.options.applicationServerKey
+          ? new Uint8Array(sub.options.applicationServerKey)
+          : null;
+        same = !!(got && got.length === key.length && got.every((b, i) => b === key[i]));
+      } catch (err) {}
+      if (sub && !same) {
+        try { await sub.unsubscribe(); } catch (err) {}
+        sub = null;
+      }
       if (!sub) {
         sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(cfg.vapidPublic)
+          applicationServerKey: key
         });
       }
       const payload = JSON.stringify(sub.toJSON());
@@ -1848,9 +1863,9 @@
         return;
       }
       if (ios && !standalone) {
-        if (text) text.textContent = "على الآيفون: ثبّت التطبيق أولاً، ثم اضغط تفعيل الإشعارات.";
+        if (text) text.textContent = "على الآيفون: ثبّت التطبيق أولاً من المشاركة ثم إضافة للشاشة الرئيسية، وبعدها فعّل الإشعارات حتى تصلك والتطبيق مغلق.";
       } else if (text) {
-        text.textContent = "فعّل الإشعارات ليصلك الستوري والأصناف الجديدة حتى لو الموقع مغلق.";
+        text.textContent = "فعّل الإشعارات وثبّت التطبيق ليصلك الخبر بجرس حتى لو التطبيق مغلق.";
       }
       bar.hidden = false;
     }
@@ -1876,7 +1891,7 @@
         await enablePeriodic();
         try { await registerPush(); } catch (err) { console.warn("push subscribe", err); }
         askSwCheck();
-        toast("تم تفعيل الإشعارات. سيصلك الستوري والأصناف الجديدة على الهاتف");
+        toast("تم تفعيل الإشعارات. سيصلك الخبر على الهاتف حتى والتطبيق مغلق");
       } else {
         hideBar("deny");
         toast("تم رفض الإشعارات من إعدادات المتصفح");

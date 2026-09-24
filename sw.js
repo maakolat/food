@@ -1,6 +1,8 @@
-const CACHE = "yam-app-v67";
+const CACHE = "yam-app-v68";
 const IDB_NAME = "yam-notify-v1";
 const IDB_STORE = "state";
+const VAPID_PUBLIC = "BEfFV9lMNzSY-Z9xW8zr_ISpD5BYdkQMUpOOCf29MZEP6X6_6cOdEOzpX5wl-jdMvg88wgUXYEhbwuvWjnhxO-M";
+const NTFY_TOPIC = "yam-alyaqout-n7p4w2";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
@@ -10,7 +12,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))
-    ).then(() => self.clients.claim()).then(() => checkForNews("activate"))
+    ).then(() => self.clients.claim()).then(() => ensurePush()).then(() => checkForNews("activate"))
   );
 });
 
@@ -44,12 +46,12 @@ self.addEventListener("periodicsync", (event) => {
 
 self.addEventListener("push", (event) => {
   event.waitUntil((async () => {
-    let payload = null;
-    try { if (event.data) payload = event.data.json(); } catch (err) {}
+    const payload = readPushPayload(event);
     if (payload && payload.title) {
       await showNote(payload.title, payload.body || "", payload.url || "./", payload.tag || "yam-news", {
         urgent: !!payload.urgent
       });
+      await markPayloadSeen(payload);
       if (payload.urgent) {
         await notifyClients({
           type: "yam-urgent",
@@ -60,8 +62,15 @@ self.addEventListener("push", (event) => {
       }
       return;
     }
-    await checkForNews("push");
+    const shown = await checkForNews("push");
+    if (!shown) {
+      await showNote("تحديث من الياقوت والمرجان", "افتح التطبيق لرؤية الجديد", "./", "yam-news");
+    }
   })());
+});
+
+self.addEventListener("pushsubscriptionchange", (event) => {
+  event.waitUntil(ensurePush());
 });
 
 self.addEventListener("message", (event) => {
@@ -76,6 +85,77 @@ self.addEventListener("notificationclick", (event) => {
   const target = (event.notification.data && event.notification.data.url) || "./";
   event.waitUntil(openTarget(target));
 });
+
+function urlB64ToU8(base64String) {
+  const padding = "=".repeat((4 - (String(base64String).length % 4)) % 4);
+  const base64 = (String(base64String) + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(base64);
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+
+function keysMatch(sub, expected) {
+  if (!sub || !sub.options || !sub.options.applicationServerKey || !expected) return false;
+  const got = new Uint8Array(sub.options.applicationServerKey);
+  if (got.length !== expected.length) return false;
+  for (let i = 0; i < got.length; i++) if (got[i] !== expected[i]) return false;
+  return true;
+}
+
+async function publishSub(sub) {
+  if (!sub || !NTFY_TOPIC) return;
+  await fetch("https://ntfy.sh/" + encodeURIComponent(NTFY_TOPIC), {
+    method: "POST",
+    headers: { Title: "sub", "Content-Type": "text/plain" },
+    body: JSON.stringify(sub.toJSON())
+  });
+}
+
+async function ensurePush() {
+  try {
+    if (!self.registration || !self.registration.pushManager) return;
+    const key = urlB64ToU8(VAPID_PUBLIC);
+    let sub = await self.registration.pushManager.getSubscription();
+    if (sub && !keysMatch(sub, key)) {
+      try { await sub.unsubscribe(); } catch (err) {}
+      sub = null;
+    }
+    if (!sub) {
+      sub = await self.registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: key
+      });
+    }
+    await publishSub(sub);
+  } catch (err) {}
+}
+
+function readPushPayload(event) {
+  if (!event || !event.data) return null;
+  try { return event.data.json(); } catch (err) {}
+  try {
+    const text = event.data.text();
+    if (!text) return null;
+    return JSON.parse(text);
+  } catch (err) {}
+  return null;
+}
+
+async function markPayloadSeen(payload) {
+  if (!payload || !payload.id) return;
+  try {
+    const seen = await loadSeen();
+    if (!seen.alertIds) seen.alertIds = {};
+    if (!seen.dishes) seen.dishes = {};
+    if (!seen.stories) seen.stories = {};
+    if (payload.tag === "yam-urgent" || payload.urgent) seen.alertIds[payload.id] = 1;
+    else if (payload.tag === "yam-story") seen.stories[payload.id] = 1;
+    else if (payload.tag === "yam-menu") seen.dishes[payload.id] = 1;
+    seen.primed = true;
+    await saveSeen(seen);
+  } catch (err) {}
+}
 
 function openDb() {
   return new Promise((resolve, reject) => {
@@ -152,6 +232,7 @@ async function showNote(title, body, url, tag, opts) {
     renotify: true,
     requireInteraction: urgent,
     silent: false,
+    timestamp: Date.now(),
     vibrate: urgent
       ? [70, 40, 70, 40, 90, 120, 240, 70, 240, 70, 380]
       : [160, 80, 160],
@@ -176,9 +257,9 @@ async function openTarget(target) {
 
 async function checkForNews(reason) {
   try {
-    if (!self.registration || typeof self.registration.showNotification !== "function") return;
+    if (!self.registration || typeof self.registration.showNotification !== "function") return false;
     const data = await fetchCatalog();
-  if (!data || !Array.isArray(data.menu)) return;
+  if (!data || !Array.isArray(data.menu)) return false;
   const now = Date.now();
   const dishes = data.menu.filter((item) => item && item.id);
   const stories = (data.stories || []).filter((s) => s && s.id && s.image && Number(s.expiresAt || 0) > now);
@@ -216,7 +297,7 @@ async function checkForNews(reason) {
   const newDishes = dishes.filter((d) => !seen.dishes[d.id]);
   const newStories = stories.filter((s) => !seen.stories[s.id]);
   const newAlerts = liveAlerts.filter((a) => !seen.alertIds[a.id]);
-  if (!newDishes.length && !newStories.length && !newAlerts.length) return;
+  if (!newDishes.length && !newStories.length && !newAlerts.length) return false;
   newDishes.forEach((d) => { seen.dishes[d.id] = 1; });
   newStories.forEach((s) => { seen.stories[s.id] = 1; });
   newAlerts.forEach((a) => { seen.alertIds[a.id] = 1; });
@@ -266,6 +347,8 @@ async function checkForNews(reason) {
         url: "./?open=alert"
       });
     }
+    return true;
   } catch (err) {}
   } catch (err) {}
+  return false;
 }

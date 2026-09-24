@@ -7,6 +7,7 @@
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "gcm_sender_id": "103953800507",
   "background_color": "#ffb3ce",
   "theme_color": "#6b1220",
   "prefer_related_applications": false,

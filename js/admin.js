@@ -641,7 +641,8 @@
           title: opts.title || (opts.notify === "story" ? "ستوري جديد" : "صنف جديد في القائمة"),
           body: opts.body || "من مأكولات الياقوت والمرجان",
           url: opts.notify === "story" ? "./?open=stories" : "./?open=menu",
-          tag: opts.notify === "story" ? "yam-story" : "yam-menu"
+          tag: opts.notify === "story" ? "yam-story" : "yam-menu",
+          id: opts.id || ""
         });
       } catch (err) {
         console.warn("notify", err);
@@ -820,7 +821,8 @@
             title,
             body,
             url: "./?open=alert",
-            tag: "yam-urgent"
+            tag: "yam-urgent",
+            id: item.id
           });
         }
         result.pushed = pushed;
@@ -999,7 +1001,8 @@
       result = await persist(isNew ? {
         notify: "dish",
         title: "صنف جديد في القائمة",
-        body: item.name || "تمت إضافة صنف جديد"
+        body: item.name || "تمت إضافة صنف جديد",
+        id: item.id
       } : undefined);
     } finally {
       if (submitBtn) submitBtn.disabled = false;
@@ -1094,7 +1097,8 @@
       result = await persist({
         notify: "story",
         title: "ستوري جديد",
-        body: note || "افتح التطبيق لمشاهدة القصة"
+        body: note || "افتح التطبيق لمشاهدة القصة",
+        id: story.id
       });
     } finally {
       if (submitBtn) submitBtn.disabled = false;

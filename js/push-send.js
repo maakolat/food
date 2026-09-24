@@ -112,7 +112,7 @@
     const cek = await hkdf(ikm, salt, strBytes("Content-Encoding: aes128gcm\0"), 16);
     const nonce = await hkdf(ikm, salt, strBytes("Content-Encoding: nonce\0"), 12);
     const aes = await crypto.subtle.importKey("raw", cek, "AES-GCM", false, ["encrypt"]);
-    const padded = concat(new Uint8Array([2]), payloadBytes);
+    const padded = concat(payloadBytes, new Uint8Array([2]));
     const cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, aes, padded));
     return concat(salt, u32be(4096), new Uint8Array([asPub.length]), asPub, cipher);
   }
@@ -178,12 +178,25 @@
     await window.MenuStore.putFile(SUBS_PATH, window.MenuStore.utf8ToBase64(json), "Update notify subscribers");
   }
 
+  function pushTargets(endpoint) {
+    const urls = [];
+    const mozilla = /mozilla\.(com|org)|firefox/i.test(endpoint);
+    if (mozilla) urls.push(endpoint);
+    const q = new URLSearchParams({
+      cors: JSON.stringify({
+        url: endpoint,
+        deleteRequestHeaders: ["Origin", "Sec-Fetch-Mode", "Referer"]
+      })
+    });
+    urls.push("https://cors.jimmywarting.deno.net/?" + q);
+    urls.push("https://corsproxy.io/?" + encodeURIComponent(endpoint));
+    urls.push("https://corsproxy.org/?" + encodeURIComponent(endpoint));
+    if (!mozilla) urls.push(endpoint);
+    return urls;
+  }
+
   async function postPush(endpoint, headers, body) {
-    const attempts = [
-      endpoint,
-      "https://corsproxy.io/?" + encodeURIComponent(endpoint),
-      "https://corsproxy.org/?" + encodeURIComponent(endpoint)
-    ];
+    const attempts = pushTargets(endpoint);
     for (let i = 0; i < attempts.length; i++) {
       try {
         const res = await fetch(attempts[i], {
@@ -191,7 +204,9 @@
           headers: headers,
           body: body || undefined
         });
-        if (res.status) return res.status;
+        if (res.status >= 200 && res.status < 300) return res.status;
+        if (res.status === 404 || res.status === 410) return res.status;
+        if (res.status && i === attempts.length - 1) return res.status;
       } catch (err) {}
     }
     return 0;
@@ -247,7 +262,8 @@
       body: opts.body || "افتح التطبيق",
       url: opts.url || "./",
       tag: opts.tag || "yam-news",
-      urgent: !!opts.urgent
+      urgent: !!opts.urgent,
+      id: opts.id || ""
     }));
 
     let sent = 0;
