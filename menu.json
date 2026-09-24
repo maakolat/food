@@ -374,7 +374,7 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790179287045-1790179287105.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790179363124-1790179363130.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790253576861-1790253576863.jpg",
-    "assets/uploads/story-story-1790254884743-1790254884746.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790254884743-1790254884746.jpg"
   ],
   "stories": [
     {
@@ -433,5 +433,15 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790254884746
+  "updatedAt": 1790255568938,
+  "alert": {
+    "id": "alert-1790255568937",
+    "kind": "tomorrow",
+    "title": "غداً تتوفر «دولمة»",
+    "body": "غداً إن شاء الله «دولمة» بطعم البيت. احجز من اليوم حتى ما يفوتك.",
+    "dish": "دولمة",
+    "hours": 24,
+    "createdAt": 1790255568937,
+    "expiresAt": 1790341968937
+  }
 }
