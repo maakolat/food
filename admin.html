@@ -17,7 +17,7 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=61" />
+  <link rel="stylesheet" href="css/style.css?v=62" />
 </head>
 <body class="admin-page">
   <div class="page-bg" aria-hidden="true"></div>
@@ -45,7 +45,7 @@
         </p>
         <p class="admin-error" id="file-origin-hint" hidden>
           لا تفتح هذه الصفحة من ملف الجهاز. استخدم رابط الموقع:
-          <a href="https://maakolat.github.io/food/admin.html?v=61">لوحة الإدارة على الإنترنت</a>
+          <a href="https://maakolat.github.io/food/admin.html?v=62">لوحة الإدارة على الإنترنت</a>
         </p>
       </form>
       <a class="muted" href="index.html">العودة للموقع</a>
@@ -57,11 +57,11 @@
       <div class="container header-inner">
         <a class="brand" href="index.html">
           <span class="brand-mark" aria-hidden="true">
-            <img src="assets/logo.png?v=61" alt="">
+            <img src="assets/logo.png?v=62" alt="">
           </span>
           <span class="brand-text">
-            <strong>إدارة القائمة</strong>
-            <small>إضافة وتعديل الأصناف</small>
+            <strong>لوحة الإدارة</strong>
+            <small>كل شيء بمكانه — القائمة محفوظة</small>
           </span>
         </a>
         <a class="btn btn-ghost" href="index.html">عرض الموقع</a>
@@ -69,70 +69,133 @@
       </div>
     </header>
 
+    <div class="admin-tabs-wrap">
+      <div class="container">
+        <nav class="admin-tabs" role="tablist" aria-label="أقسام لوحة الإدارة">
+          <button class="admin-tab active" type="button" role="tab" id="tab-btn-dishes" data-tab="dishes" aria-selected="true" aria-controls="tab-dishes">
+            الأصناف <span class="tab-count" id="tab-dish-count"></span>
+          </button>
+          <button class="admin-tab" type="button" role="tab" id="tab-btn-stories" data-tab="stories" aria-selected="false" aria-controls="tab-stories">
+            الستوري <span class="tab-count" id="tab-story-count"></span>
+          </button>
+          <button class="admin-tab" type="button" role="tab" id="tab-btn-alerts" data-tab="alerts" aria-selected="false" aria-controls="tab-alerts">
+            إشعارات
+          </button>
+          <button class="admin-tab" type="button" role="tab" id="tab-btn-status" data-tab="status" aria-selected="false" aria-controls="tab-status">
+            الحالة
+          </button>
+        </nav>
+      </div>
+    </div>
+
     <main class="container admin-main">
-      <section class="admin-alert-card" aria-labelledby="alert-heading">
+      <p class="admin-guide" id="admin-guide">اختاري تبويب الأصناف لإضافة أو تعديل أكلة. الحفظ يحدّث هذا الصنف فقط ولا يمسح القائمة.</p>
+
+      <section class="admin-tab-panel" id="tab-dishes" role="tabpanel" aria-labelledby="tab-btn-dishes">
         <div class="admin-toolbar">
           <div>
-            <h2 id="alert-heading">إشعار عاجل للزبائن</h2>
-            <p class="muted">يصل للهاتف بجرس مميز، ويظهر شريط أنيق أعلى الموقع.</p>
+            <h2>الأصناف</h2>
+            <p class="muted" id="dish-count"></p>
+            <p class="muted">عدّلي صنفاً واحداً في كل مرة. باقي الأصناف تبقى كما هي.</p>
+          </div>
+          <div class="admin-toolbar-actions">
+            <button class="btn btn-primary" id="add-dish" type="button">إضافة صنف</button>
           </div>
         </div>
-        <form id="alert-form">
-          <div class="alert-chips" role="group" aria-label="نوع الرسالة">
-            <button class="alert-chip active" type="button" data-alert-kind="now">توفّرت الآن</button>
-            <button class="alert-chip" type="button" data-alert-kind="tomorrow">غداً متوفر</button>
-            <button class="alert-chip" type="button" data-alert-kind="book">حجز مباشر</button>
-            <button class="alert-chip" type="button" data-alert-kind="custom">رسالة خاصة</button>
-          </div>
-          <label>اسم الأكلة <span class="muted">(اختياري — يُدرج في الرسالة)</span>
-            <input id="alert-dish" name="dish" type="text" list="alert-dish-list" placeholder="مثال: دولمة، كبة حلبية" maxlength="60" />
-            <datalist id="alert-dish-list"></datalist>
-          </label>
-          <label>عنوان الإشعار
-            <input id="alert-title" name="title" type="text" required maxlength="80" placeholder="توفّرت الآن على السفرة" />
-          </label>
-          <label>نص الرسالة
-            <textarea id="alert-body" name="body" rows="3" required maxlength="280" placeholder="رسالة دافئة تصل للزبون على الهاتف"></textarea>
-          </label>
-          <label>مدة ظهور الشريط في الموقع
-            <select id="alert-hours" name="hours">
-              <option value="6">6 ساعات</option>
-              <option value="12">12 ساعة</option>
-              <option value="24" selected>24 ساعة</option>
-              <option value="48">يومان</option>
-            </select>
-          </label>
-          <div class="admin-toolbar-actions">
-            <button class="btn btn-primary" id="send-alert" type="submit">إرسال الإشعار الآن</button>
-            <button class="btn btn-ghost" id="clear-alert" type="button">إخفاء الشريط من الموقع</button>
-          </div>
-          <p class="muted" id="alert-last"></p>
-        </form>
+        <label class="admin-search">بحث في الأصناف
+          <input id="dish-search" type="search" placeholder="اكتبي اسم الأكلة…" autocomplete="off" />
+        </label>
+        <div class="admin-list" id="admin-list"></div>
       </section>
 
-      <div class="admin-toolbar">
-        <div>
-          <h2>الستوري</h2>
-          <p class="muted">زهرته -_-</p>
+      <section class="admin-tab-panel" id="tab-stories" role="tabpanel" aria-labelledby="tab-btn-stories" hidden>
+        <div class="admin-toolbar">
+          <div>
+            <h2>الستوري</h2>
+            <p class="muted">ارفعِ الصورة، حددي المدة، ثم انشري. هذا التبويب لا يغيّر الأصناف.</p>
+          </div>
+          <div class="admin-toolbar-actions">
+            <button class="btn btn-primary" id="add-story" type="button">إضافة ستوري</button>
+          </div>
         </div>
-        <div class="admin-toolbar-actions">
-          <button class="btn btn-primary" id="add-story" type="button">إضافة ستوري</button>
-        </div>
-      </div>
-      <div class="admin-list" id="admin-stories"></div>
+        <div class="admin-list" id="admin-stories"></div>
+      </section>
 
-      <div class="admin-toolbar">
-        <div>
-          <h2>الأصناف</h2>
-          <p class="muted" id="dish-count"></p>
-          <p class="muted" id="publish-status">الحفظ ينشر القائمة لكل الزبائن.</p>
+      <section class="admin-tab-panel" id="tab-alerts" role="tabpanel" aria-labelledby="tab-btn-alerts" hidden>
+        <div class="admin-alert-card" aria-labelledby="alert-heading">
+          <div class="admin-toolbar">
+            <div>
+              <h2 id="alert-heading">إشعار عاجل للزبائن</h2>
+              <p class="muted">يصل للهاتف بجرس مميز، ويظهر شريط أنيق أعلى الموقع. الإرسال لا يحذف أصنافاً ولا ستوريات.</p>
+            </div>
+          </div>
+          <ol class="admin-steps">
+            <li>اختاري نوع الخبر أو اكتبي رسالة خاصة.</li>
+            <li>أضيفي اسم الأكلة إذا تبين، وراجعي النص.</li>
+            <li>اضغطي إرسال الإشعار الآن.</li>
+          </ol>
+          <form id="alert-form">
+            <div class="alert-chips" role="group" aria-label="نوع الرسالة">
+              <button class="alert-chip active" type="button" data-alert-kind="now">توفّرت الآن</button>
+              <button class="alert-chip" type="button" data-alert-kind="tomorrow">غداً متوفر</button>
+              <button class="alert-chip" type="button" data-alert-kind="book">حجز مباشر</button>
+              <button class="alert-chip" type="button" data-alert-kind="custom">رسالة خاصة</button>
+            </div>
+            <label>اسم الأكلة <span class="muted">(اختياري — يُدرج في الرسالة)</span>
+              <input id="alert-dish" name="dish" type="text" list="alert-dish-list" placeholder="مثال: دولمة، كبة حلبية" maxlength="60" />
+              <datalist id="alert-dish-list"></datalist>
+            </label>
+            <label>عنوان الإشعار
+              <input id="alert-title" name="title" type="text" required maxlength="80" placeholder="توفّرت الآن على السفرة" />
+            </label>
+            <label>نص الرسالة
+              <textarea id="alert-body" name="body" rows="3" required maxlength="280" placeholder="رسالة دافئة تصل للزبون على الهاتف"></textarea>
+            </label>
+            <label>مدة ظهور الشريط في الموقع
+              <select id="alert-hours" name="hours">
+                <option value="6">6 ساعات</option>
+                <option value="12">12 ساعة</option>
+                <option value="24" selected>24 ساعة</option>
+                <option value="48">يومان</option>
+              </select>
+            </label>
+            <div class="admin-toolbar-actions">
+              <button class="btn btn-primary" id="send-alert" type="submit">إرسال الإشعار الآن</button>
+              <button class="btn btn-ghost" id="clear-alert" type="button">إخفاء الشريط من الموقع</button>
+            </div>
+            <p class="muted" id="alert-last"></p>
+          </form>
         </div>
-        <div class="admin-toolbar-actions">
+      </section>
+
+      <section class="admin-tab-panel" id="tab-status" role="tabpanel" aria-labelledby="tab-btn-status" hidden>
+        <div class="admin-toolbar">
+          <div>
+            <h2>حالة الموقع</h2>
+            <p class="muted" id="publish-status">الحفظ ينشر القائمة لكل الزبائن.</p>
+          </div>
+        </div>
+        <div class="admin-status-grid">
+          <article class="admin-stat">
+            <span>الأصناف المنشورة</span>
+            <strong id="status-dishes">—</strong>
+          </article>
+          <article class="admin-stat">
+            <span>ستوريات ظاهرة</span>
+            <strong id="status-stories">—</strong>
+          </article>
+          <article class="admin-stat">
+            <span>الإشعار العاجل</span>
+            <strong id="status-alert">—</strong>
+          </article>
+        </div>
+        <p class="admin-protect">البيانات الحالية للزبائن محفوظة على الموقع. التبديل بين التبويبات لا يحذف شيئاً. الحفظ يحدّث ما غيّرتيه فقط.</p>
+        <details class="admin-danger">
+          <summary>خيارات حساسة — لا تستخدميها إلا للضرورة</summary>
+          <p class="muted">استعادة القائمة الأصلية تستبدل الأصناف الحالية بالنسخة الأولى. لن تُنفَّذ إلا إذا كتبتي كلمة تأكيد.</p>
           <button class="btn btn-ghost" id="reset-menu" type="button">استعادة القائمة الأصلية</button>
-          <button class="btn btn-primary" id="add-dish" type="button">إضافة صنف</button>
-        </div>
-      </div>
-      <div class="admin-list" id="admin-list"></div>
+        </details>
+      </section>
     </main>
   </div>
 
@@ -226,10 +289,10 @@
   <div class="overlay" id="overlay" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=61"></script>
-  <script src="js/menu-data.js?v=61"></script>
-  <script src="js/menu-store.js?v=61"></script>
-  <script src="js/push-send.js?v=61"></script>
-  <script src="js/admin.js?v=61"></script>
+  <script src="js/config.js?v=62"></script>
+  <script src="js/menu-data.js?v=62"></script>
+  <script src="js/menu-store.js?v=62"></script>
+  <script src="js/push-send.js?v=62"></script>
+  <script src="js/admin.js?v=62"></script>
 </body>
 </html>

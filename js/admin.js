@@ -20,6 +20,14 @@
   if (!Array.isArray(catalog.stories)) catalog.stories = [];
   let editingId = null;
   let editingStoryId = null;
+  let remoteLoaded = false;
+  let lastSafeMenuLen = 0;
+  const TAB_GUIDES = {
+    dishes: "تبويب الأصناف: أضيفي أو عدّلي أكلة واحدة. الحفظ يحدّث هذا الصنف ولا يمسح باقي القائمة.",
+    stories: "تبويب الستوري: ارفعي الصورة وانشري. هذا التبويب لا يغيّر الأصناف.",
+    alerts: "تبويب الإشعارات: أرسلي خبر عاجل للزبائن. القائمة والستوري يبقون كما هم.",
+    status: "تبويب الحالة: عدد الأصناف والستوريات وحالة النشر. التنقل بين التبويبات آمن ولا يحذف بيانات."
+  };
   const publishStatus = document.getElementById("publish-status");
   const storyModal = document.getElementById("story-modal");
   const storyForm = document.getElementById("story-form");
@@ -157,6 +165,55 @@
     fillSelects();
     renderList();
     renderStories();
+    renderStatus();
+    showTab(currentTab());
+  }
+
+  function rememberSafeCatalog() {
+    lastSafeMenuLen = (catalog.menu || []).length;
+  }
+
+  function currentTab() {
+    const hash = String(location.hash || "").replace("#", "");
+    if (TAB_GUIDES[hash]) return hash;
+    try {
+      const saved = sessionStorage.getItem("yam-admin-tab") || "";
+      if (TAB_GUIDES[saved]) return saved;
+    } catch (err) {}
+    return "dishes";
+  }
+
+  function showTab(id) {
+    const tab = TAB_GUIDES[id] ? id : "dishes";
+    document.querySelectorAll(".admin-tab-panel").forEach((panel) => {
+      panel.hidden = panel.id !== "tab-" + tab;
+    });
+    document.querySelectorAll(".admin-tabs [data-tab]").forEach((btn) => {
+      const on = btn.getAttribute("data-tab") === tab;
+      btn.classList.toggle("active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    });
+    const guide = document.getElementById("admin-guide");
+    if (guide) guide.textContent = TAB_GUIDES[tab];
+    try { sessionStorage.setItem("yam-admin-tab", tab); } catch (err) {}
+  }
+
+  function renderStatus() {
+    const d = document.getElementById("status-dishes");
+    const s = document.getElementById("status-stories");
+    const a = document.getElementById("status-alert");
+    const now = Date.now();
+    const liveStories = (catalog.stories || []).filter((x) => Number(x.expiresAt || 0) > now);
+    if (d) d.textContent = String((catalog.menu || []).length);
+    if (s) s.textContent = String(liveStories.length);
+    if (a) {
+      const alert = catalog.alert;
+      a.textContent = alert && Number(alert.expiresAt || 0) > now ? "ظاهر الآن" : "لا يوجد";
+    }
+    const tabDish = document.getElementById("tab-dish-count");
+    const tabStory = document.getElementById("tab-story-count");
+    if (tabDish) tabDish.textContent = String((catalog.menu || []).length);
+    if (tabStory) tabStory.textContent = String(liveStories.length);
   }
 
   function showLogin() {
@@ -171,8 +228,10 @@
   }
 
   function fillSelects() {
+    if (!form || !form.category) return;
+    const cats = catalog.categories || [];
     const cat = form.category;
-    cat.innerHTML = catalog.categories
+    cat.innerHTML = cats
       .filter((c) => c.id !== "all")
       .map((c) => `<option value="${esc(c.id)}">${esc(c.label)}</option>`)
       .join("");
@@ -254,12 +313,24 @@
   }
 
   function renderList() {
-    countEl.textContent = `${catalog.menu.length} صنف`;
-    if (!catalog.menu.length) {
+    const total = catalog.menu.length;
+    countEl.textContent = total + " صنف";
+    const tabDish = document.getElementById("tab-dish-count");
+    if (tabDish) tabDish.textContent = String(total);
+    const q = String((document.getElementById("dish-search") || {}).value || "").trim().toLowerCase();
+    const items = catalog.menu.filter((item) => {
+      if (!q) return true;
+      return `${item.name || ""} ${item.desc || ""} ${catLabel(item.category)}`.toLowerCase().indexOf(q) >= 0;
+    });
+    if (!total) {
       listEl.innerHTML = `<div class="empty-cart">لا توجد أصناف بعد. اضغط إضافة صنف.</div>`;
       return;
     }
-    listEl.innerHTML = catalog.menu.map((item) => `
+    if (!items.length) {
+      listEl.innerHTML = `<div class="empty-cart">لا يوجد صنف بهذا الاسم.</div>`;
+      return;
+    }
+    listEl.innerHTML = items.map((item) => `
       <article class="admin-dish">
         <img src="${esc(dishImage(item.image))}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
         <div>
@@ -296,6 +367,7 @@
     const list = catalog.stories.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     if (!list.length) {
       storiesEl.innerHTML = `<div class="empty-cart">لا يوجد ستوري. اضغط إضافة ستوري وارفع صورة.</div>`;
+      renderStatus();
       return;
     }
     storiesEl.innerHTML = list.map((s) => {
@@ -313,6 +385,7 @@
         </div>
       </article>`;
     }).join("");
+    renderStatus();
   }
 
   function showStoryPreview(src) {
@@ -483,13 +556,20 @@
   }
 
   async function persist(opts) {
+    const menuLen = (catalog.menu || []).length;
+    if (remoteLoaded && lastSafeMenuLen > 0 && menuLen === 0) {
+      toast("تم إيقاف الحفظ: القائمة فارغة حتى لا تُحذف أصناف الزبائن");
+      return { local: false, remote: false, data: catalog, blocked: true };
+    }
     const result = await window.MenuStore.save(catalog);
     if (result.data) catalog = result.data;
     if (!Array.isArray(catalog.stories)) catalog.stories = [];
     fillSelects();
     renderList();
     renderStories();
+    renderStatus();
     setPublishStatus(!!result.remote);
+    if (result.remote) rememberSafeCatalog();
     if (result.remote === true && opts && opts.notify && window.YamPush) {
       try {
         result.pushed = await window.YamPush.notifyCustomers({
@@ -603,6 +683,16 @@
   overlay.addEventListener("click", closeAnyModal);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAnyModal(); });
 
+  document.querySelectorAll(".admin-tabs [data-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => showTab(btn.getAttribute("data-tab")));
+  });
+  window.addEventListener("hashchange", () => {
+    const hash = String(location.hash || "").replace("#", "");
+    if (TAB_GUIDES[hash]) showTab(hash);
+  });
+  const dishSearch = document.getElementById("dish-search");
+  if (dishSearch) dishSearch.addEventListener("input", () => renderList());
+
   const alertForm = document.getElementById("alert-form");
   if (alertForm) {
     alertForm.querySelectorAll("[data-alert-kind]").forEach((btn) => {
@@ -710,7 +800,11 @@
   });
 
   document.getElementById("reset-menu").addEventListener("click", async () => {
-    if (!confirm("استعادة القائمة الأصلية؟ ستُحذف الأصناف التي أضفتها من لوحة التحكم.")) return;
+    const typed = window.prompt("هذا يستبدل الأصناف الحالية بالنسخة الأصلية. اكتبي كلمة تأكيد للمتابعة:");
+    if (String(typed || "").trim() !== "تأكيد") {
+      toast("تم إلغاء العملية. القائمة الحالية كما هي");
+      return;
+    }
     const keptStories = Array.isArray(catalog.stories) ? catalog.stories.slice() : [];
     const keptAlert = catalog.alert || null;
     catalog = window.MenuStore.defaultData();
@@ -730,8 +824,13 @@
     if (delId) {
       const item = catalog.menu.find((i) => i.id === delId);
       if (!item || !confirm(`حذف «${item.name}»؟`)) return;
+      if (remoteLoaded && catalog.menu.length <= 1) {
+        toast("لا يمكن حذف آخر صنف حتى تبقى القائمة للزبائن");
+        return;
+      }
       catalog.menu = catalog.menu.filter((i) => i.id !== delId);
       const result = await persist();
+      if (result.blocked) return;
       toast(result.remote ? "تم حذف الصنف من الموقع" : "تم الحذف على هذا الجهاز فقط");
     }
   });
@@ -834,6 +933,7 @@
       if (submitBtn) submitBtn.disabled = false;
     }
     closeModal();
+    if (!result || result.blocked) return;
     if (result.remote === "images-stripped") {
       toast("تم حفظ الصنف. الصورة الجديدة لم تُرفع — جرّب صورة أصغر أو اختَر صورة جاهزة");
     } else if (result.remote) {
@@ -928,6 +1028,7 @@
       if (submitBtn) submitBtn.disabled = false;
     }
     closeStoryModal();
+    if (!result || result.blocked) return;
     if (result.remote === "images-stripped") {
       toast("حُفظ الستوري. الصورة لم تُرفع — جرّب صورة أصغر");
     } else if (result.remote) {
@@ -946,11 +1047,15 @@
     try {
       catalog = await window.MenuStore.loadAsync();
       if (!Array.isArray(catalog.stories)) catalog.stories = [];
+      remoteLoaded = !!(catalog.menu && catalog.menu.length);
+      rememberSafeCatalog();
       setPublishStatus(true);
       if (isAuthed()) {
         fillSelects();
         renderList();
         renderStories();
+        renderStatus();
+        showTab(currentTab());
         if (window.YamPush) window.YamPush.syncSubs().catch(() => {});
       }
     } catch (err) {
