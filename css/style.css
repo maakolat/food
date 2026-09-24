@@ -1183,14 +1183,6 @@ input[type="text"], input[type="tel"], textarea, select {
 .admin-stat strong {
   font-size: 1.35rem;
 }
-.admin-protect {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 14px;
-  font-weight: 700;
-  color: var(--muted);
-}
 .admin-danger {
   margin-top: 18px;
   border: 1px dashed var(--line);
