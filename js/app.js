@@ -1602,6 +1602,9 @@
     }
 
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const android = /android/i.test(navigator.userAgent);
+    const apkBtn = document.getElementById("android-apk-btn");
+    if (apkBtn) apkBtn.hidden = !android;
     const mobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
       || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     let deferred = null;
@@ -1656,6 +1659,16 @@
           "ثم اضغط إضافة"
         ]);
         btn.textContent = "حسناً، فهمت";
+        return;
+      }
+      if (android) {
+        if (text) text.textContent = "حمّلي تطبيق الأندرويد ليظهر مع التطبيقات على الهاتف، والقائمة والإشعارات تبقى متصلة بالموقع.";
+        showSteps([
+          "اضغطي حمّل تطبيق أندرويد",
+          "اسمحي بالتثبيت من هذا المصدر إذا طلب الهاتف",
+          "افتحي التطبيق من الشاشة الرئيسية ثم فعّلي الإشعارات"
+        ]);
+        btn.textContent = "تثبيت من كروم";
         return;
       }
       if (nativePrompt) {
