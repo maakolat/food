@@ -1,4 +1,4 @@
-const CACHE = "yam-app-v58";
+const CACHE = "yam-app-v60";
 const IDB_NAME = "yam-notify-v1";
 const IDB_STORE = "state";
 
@@ -43,7 +43,15 @@ self.addEventListener("periodicsync", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  event.waitUntil(checkForNews("push"));
+  event.waitUntil((async () => {
+    let payload = null;
+    try { if (event.data) payload = event.data.json(); } catch (err) {}
+    if (payload && payload.title) {
+      await showNote(payload.title, payload.body || "", payload.url || "./", payload.tag || "yam-news");
+      return;
+    }
+    await checkForNews("push");
+  })());
 });
 
 self.addEventListener("message", (event) => {
@@ -154,12 +162,24 @@ async function checkForNews(reason) {
   const dishes = data.menu.filter((item) => item && item.id);
   const stories = (data.stories || []).filter((s) => s && s.id && s.image && Number(s.expiresAt || 0) > now);
   const seen = await loadSeen();
+  const FRESH_MS = 36 * 3600000;
+  if ((seen.schema || 1) < 2) {
+    stories.forEach((s) => {
+      if (now - Number(s.createdAt || s.updatedAt || 0) < FRESH_MS) {
+        delete seen.stories[s.id];
+      }
+    });
+    seen.schema = 2;
+  }
   if (!seen.primed) {
     dishes.forEach((d) => { seen.dishes[d.id] = 1; });
-    stories.forEach((s) => { seen.stories[s.id] = 1; });
+    stories.forEach((s) => {
+      if (now - Number(s.createdAt || s.updatedAt || 0) >= FRESH_MS) {
+        seen.stories[s.id] = 1;
+      }
+    });
     seen.primed = true;
     await saveSeen(seen);
-    return;
   }
   const newDishes = dishes.filter((d) => !seen.dishes[d.id]);
   const newStories = stories.filter((s) => !seen.stories[s.id]);
@@ -177,7 +197,6 @@ async function checkForNews(reason) {
 
   if (await hasVisibleClient()) {
     await notifyClients(news);
-    return;
   }
 
   const allowed = typeof Notification === "undefined" || Notification.permission === "granted";

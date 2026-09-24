@@ -1496,6 +1496,7 @@
       banner.hidden = true;
       sessionStorage.setItem(hideKey, "1");
       if (permanent) localStorage.setItem(hideKey, "1");
+      window.dispatchEvent(new Event("yam-install-closed"));
     }
 
     function showSteps(items) {
@@ -1643,10 +1644,25 @@
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || window.navigator.standalone === true;
+    const cfg = window.SITE_CONFIG || {};
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+      const raw = atob(base64);
+      const out = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+      return out;
+    }
 
     function askSwCheck() {
-      if (!navigator.serviceWorker || !navigator.serviceWorker.controller) return;
-      navigator.serviceWorker.controller.postMessage({ type: "yam-check", reason: "page" });
+      if (!navigator.serviceWorker) return;
+      const send = (reg) => {
+        const worker = (reg && (reg.active || reg.waiting)) || navigator.serviceWorker.controller;
+        if (worker) worker.postMessage({ type: "yam-check", reason: "page" });
+      };
+      if (navigator.serviceWorker.controller) send();
+      else navigator.serviceWorker.ready.then(send).catch(() => {});
     }
 
     async function enablePeriodic() {
@@ -1658,11 +1674,32 @@
       } catch (err) {}
     }
 
+    async function registerPush() {
+      if (!cfg.vapidPublic || !("PushManager" in window)) return;
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(cfg.vapidPublic)
+        });
+      }
+      const payload = JSON.stringify(sub.toJSON());
+      try { localStorage.setItem("yam-push-sub", payload); } catch (err) {}
+      if (cfg.notifyTopic) {
+        await fetch("https://ntfy.sh/" + encodeURIComponent(cfg.notifyTopic), {
+          method: "POST",
+          headers: { "Title": "sub", "Content-Type": "text/plain" },
+          body: payload
+        });
+      }
+    }
+
     function hideBar(until) {
       if (!bar) return;
       bar.hidden = true;
       if (until === "later") {
-        try { localStorage.setItem(laterKey, String(Date.now() + 5 * 24 * 3600000)); } catch (err) {}
+        try { localStorage.setItem(laterKey, String(Date.now() + 12 * 3600000)); } catch (err) {}
       }
       if (until === "deny") {
         try { localStorage.setItem(denyKey, "1"); } catch (err) {}
@@ -1684,11 +1721,14 @@
       if (Notification.permission !== "default") return;
       if (laterActive()) return;
       const install = document.getElementById("install-banner");
-      if (install && !install.hidden) return;
+      if (install && !install.hidden) {
+        setTimeout(showBar, 2500);
+        return;
+      }
       if (ios && !standalone) {
         if (text) text.textContent = "على الآيفون: ثبّت التطبيق أولاً، ثم اضغط تفعيل الإشعارات.";
       } else if (text) {
-        text.textContent = "فعّل الإشعارات ليصلك خبر الستوري والأصناف الجديدة فور نشرها.";
+        text.textContent = "فعّل الإشعارات ليصلك الستوري والأصناف الجديدة حتى لو الموقع مغلق.";
       }
       bar.hidden = false;
     }
@@ -1712,8 +1752,9 @@
         hideBar();
         if (enableBtn) enableBtn.hidden = true;
         await enablePeriodic();
+        try { await registerPush(); } catch (err) { console.warn("push subscribe", err); }
         askSwCheck();
-        toast("تم تفعيل الإشعارات");
+        toast("تم تفعيل الإشعارات. سيصلك الستوري والأصناف الجديدة على الهاتف");
       } else {
         hideBar("deny");
         toast("تم رفض الإشعارات من إعدادات المتصفح");
@@ -1726,17 +1767,22 @@
     }
     if (allowBtn) allowBtn.addEventListener("click", requestPermission);
     if (laterBtn) laterBtn.addEventListener("click", () => hideBar("later"));
+    window.addEventListener("yam-install-closed", showBar);
 
     if (supported && Notification.permission === "granted") {
       enablePeriodic();
-      setTimeout(askSwCheck, 1200);
+      registerPush().catch(() => {});
+      setTimeout(askSwCheck, 800);
     } else {
-      setTimeout(showBar, 4200);
+      setTimeout(showBar, 1200);
     }
 
     setInterval(() => {
-      if (document.visibilityState === "visible") askSwCheck();
-    }, 90000);
+      if (document.visibilityState === "visible") {
+        askSwCheck();
+        if (Notification.permission === "granted") registerPush().catch(() => {});
+      }
+    }, 45000);
 
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") askSwCheck();
@@ -1760,7 +1806,7 @@
           }
         }
       });
-      navigator.serviceWorker.ready.then(() => setTimeout(askSwCheck, 1600));
+      navigator.serviceWorker.ready.then(() => setTimeout(askSwCheck, 1200));
       navigator.serviceWorker.addEventListener("controllerchange", () => askSwCheck());
     }
   }

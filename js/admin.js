@@ -3,6 +3,7 @@
   const VAULT = "yam-admin-vault";
   const FAILS = "yam-admin-fails";
   const TOKEN_SESSION = "yam-gh-token";
+  const VAPID_SESSION = "yam-vapid-private";
   const loginScreen = document.getElementById("login-screen");
   const adminApp = document.getElementById("admin-app");
   const loginForm = document.getElementById("login-form");
@@ -413,7 +414,7 @@
       : "الحفظ على هذا الجهاز فقط. تعذر النشر للزبائن — تحقق من الإنترنت ثم احفظ مرة ثانية.";
   }
 
-  async function persist() {
+  async function persist(opts) {
     const result = await window.MenuStore.save(catalog);
     if (result.data) catalog = result.data;
     if (!Array.isArray(catalog.stories)) catalog.stories = [];
@@ -421,6 +422,20 @@
     renderList();
     renderStories();
     setPublishStatus(!!result.remote);
+    if (result.remote === true && opts && opts.notify && window.YamPush) {
+      try {
+        result.pushed = await window.YamPush.notifyCustomers({
+          kind: opts.notify,
+          title: opts.title || (opts.notify === "story" ? "ستوري جديد" : "صنف جديد في القائمة"),
+          body: opts.body || "من مأكولات الياقوت والمرجان",
+          url: opts.notify === "story" ? "./?open=stories" : "./?open=menu",
+          tag: opts.notify === "story" ? "yam-story" : "yam-menu"
+        });
+      } catch (err) {
+        console.warn("notify", err);
+        result.pushed = 0;
+      }
+    }
     return result;
   }
 
@@ -475,6 +490,8 @@
       localStorage.setItem(VAULT, window.MenuStore.encodeAuth(token, pin));
       sessionStorage.setItem(TOKEN_SESSION, token);
       sessionStorage.setItem(SESSION, "1");
+      const vapidAuth = String((window.SITE_CONFIG || {}).vapidAuth || "");
+      if (vapidAuth) sessionStorage.setItem(VAPID_SESSION, window.MenuStore.decodeAuth(vapidAuth, pin));
     } catch (err) {
       showError("تعذر حفظ الجلسة على هذا الجهاز.");
       return;
@@ -482,12 +499,14 @@
     clearFails();
     loginForm.reset();
     showApp();
+    if (window.YamPush) window.YamPush.syncSubs().catch(() => {});
   });
 
   document.getElementById("logout-btn").addEventListener("click", () => {
     try {
       sessionStorage.removeItem(SESSION);
       sessionStorage.removeItem(TOKEN_SESSION);
+      sessionStorage.removeItem(VAPID_SESSION);
     } catch (err) {}
     showLogin();
   });
@@ -501,6 +520,7 @@
         localStorage.removeItem(FAILS);
         sessionStorage.removeItem(SESSION);
         sessionStorage.removeItem(TOKEN_SESSION);
+        sessionStorage.removeItem(VAPID_SESSION);
       } catch (err) {}
       prepareLoginForm();
       showError("");
@@ -638,13 +658,18 @@
     if (item.price == null && !item.variants) item.price = null;
 
     const idx = catalog.menu.findIndex((i) => i.id === item.id);
+    const isNew = idx < 0;
     if (idx >= 0) catalog.menu[idx] = item;
     else catalog.menu.push(item);
     clearUpload();
     if (submitBtn) submitBtn.disabled = true;
     let result;
     try {
-      result = await persist();
+      result = await persist(isNew ? {
+        notify: "dish",
+        title: "صنف جديد في القائمة",
+        body: item.name || "تمت إضافة صنف جديد"
+      } : undefined);
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }
@@ -652,7 +677,9 @@
     if (result.remote === "images-stripped") {
       toast("تم حفظ الصنف. الصورة الجديدة لم تُرفع — جرّب صورة أصغر أو اختَر صورة جاهزة");
     } else if (result.remote) {
-      toast("تم نشر الصنف. الزبائن الذين فعّلوا الإشعارات تصلهم رسالة إذا كان جديداً");
+      if (isNew && result.pushed > 0) toast("تم نشر الصنف ووصل إشعار لـ " + result.pushed + " زبون");
+      else if (isNew) toast("تم نشر الصنف. من فعّل الإشعارات يصله الخبر على الهاتف");
+      else toast("تم تحديث الصنف على الموقع");
     } else {
       toast("حُفظ على هذا الجهاز فقط. تحقق من الإنترنت واحفظ مرة ثانية");
     }
@@ -732,7 +759,11 @@
     if (submitBtn) submitBtn.disabled = true;
     let result;
     try {
-      result = await persist();
+      result = await persist({
+        notify: "story",
+        title: "ستوري جديد",
+        body: note || "افتح التطبيق لمشاهدة القصة"
+      });
     } finally {
       if (submitBtn) submitBtn.disabled = false;
     }
@@ -740,7 +771,8 @@
     if (result.remote === "images-stripped") {
       toast("حُفظ الستوري. الصورة لم تُرفع — جرّب صورة أصغر");
     } else if (result.remote) {
-      toast("تم نشر الستوري. الزبائن الذين فعّلوا الإشعارات تصلهم رسالة");
+      if (result.pushed > 0) toast("تم نشر الستوري ووصل إشعار لـ " + result.pushed + " زبون");
+      else toast("تم نشر الستوري. من فعّل الإشعارات يصله الخبر على الهاتف");
     } else {
       toast("حُفظ على هذا الجهاز فقط. تحقق من الإنترنت واحفظ مرة ثانية");
     }
@@ -759,6 +791,7 @@
         fillSelects();
         renderList();
         renderStories();
+        if (window.YamPush) window.YamPush.syncSubs().catch(() => {});
       }
     } catch (err) {
       console.warn("admin init", err);
