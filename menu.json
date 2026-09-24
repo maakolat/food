@@ -372,9 +372,21 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790151638657-1790151638662.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790151998718-1790151998721.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790179287045-1790179287105.jpg",
-    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790179363124-1790179363130.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790179363124-1790179363130.jpg",
+    "assets/uploads/story-story-1790253576861-1790253576863.jpg"
   ],
   "stories": [
+    {
+      "id": "story-1790253576861",
+      "kind": "dish",
+      "title": "آراء الزبائن",
+      "caption": "",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790253576861-1790253576863.jpg?v=1790253576863",
+      "durationHours": 24,
+      "createdAt": 1790253576861,
+      "expiresAt": 1790339976861,
+      "updatedAt": 1790253576861
+    },
     {
       "id": "story-1790179363124",
       "kind": "dish",
@@ -420,5 +432,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790180453969
+  "updatedAt": 1790253576863
 }
