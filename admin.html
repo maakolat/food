@@ -17,7 +17,7 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=66" />
+  <link rel="stylesheet" href="css/style.css?v=67" />
 </head>
 <body class="admin-page">
   <div class="page-bg" aria-hidden="true"></div>
@@ -45,7 +45,7 @@
         </p>
         <p class="admin-error" id="file-origin-hint" hidden>
           لا تفتح هذه الصفحة من ملف الجهاز. استخدم رابط الموقع:
-          <a href="https://maakolat.github.io/food/admin.html?v=66">لوحة الإدارة على الإنترنت</a>
+          <a href="https://maakolat.github.io/food/admin.html?v=67">لوحة الإدارة على الإنترنت</a>
         </p>
       </form>
       <a class="muted" href="index.html">العودة للموقع</a>
@@ -57,7 +57,7 @@
       <div class="container header-inner">
         <a class="brand" href="index.html">
           <span class="brand-mark" aria-hidden="true">
-            <img src="assets/logo.png?v=66" alt="">
+            <img src="assets/logo.png?v=67" alt="">
           </span>
           <span class="brand-text">
             <strong>لوحة الإدارة</strong>
@@ -79,7 +79,7 @@
             الستوري <span class="tab-count" id="tab-story-count"></span>
           </button>
           <button class="admin-tab" type="button" role="tab" id="tab-btn-alerts" data-tab="alerts" aria-selected="false" aria-controls="tab-alerts">
-            إشعارات
+            إشعارات <span class="tab-count" id="tab-alert-count"></span>
           </button>
           <button class="admin-tab" type="button" role="tab" id="tab-btn-status" data-tab="status" aria-selected="false" aria-controls="tab-status">
             الحالة
@@ -126,8 +126,12 @@
           <div class="admin-toolbar">
             <div>
               <h2 id="alert-heading">إشعار عاجل للزبائن</h2>
-              <p class="muted">إذا أرسلتِ أكثر من إشعار يبقى كلها ظاهرة، والشريط عند الزبون يتبدل بينها كل 5 ثوانٍ.</p>
+              <p class="muted">إذا أرسلتِ أكثر من إشعار يبقى كلها ظاهرة، والشريط عند الزبون يتبدل بينها كل 5 ثوانٍ. احذفي إشعاراً واحداً من القائمة دون الباقي.</p>
             </div>
+          </div>
+          <div class="admin-live-alerts">
+            <h3>الإشعارات الظاهرة الآن</h3>
+            <div class="admin-list" id="admin-alerts"></div>
           </div>
           <ol class="admin-steps">
             <li>اختاري نوع الخبر أو اكتبي رسالة خاصة.</li>
@@ -283,10 +287,10 @@
   <div class="overlay" id="overlay" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=66"></script>
-  <script src="js/menu-data.js?v=66"></script>
-  <script src="js/menu-store.js?v=66"></script>
-  <script src="js/push-send.js?v=66"></script>
-  <script src="js/admin.js?v=66"></script>
+  <script src="js/config.js?v=67"></script>
+  <script src="js/menu-data.js?v=67"></script>
+  <script src="js/menu-store.js?v=67"></script>
+  <script src="js/push-send.js?v=67"></script>
+  <script src="js/admin.js?v=67"></script>
 </body>
 </html>

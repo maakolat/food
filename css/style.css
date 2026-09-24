@@ -1227,6 +1227,19 @@ input[type="text"], input[type="tel"], textarea, select {
 }
 .admin-alert-card .admin-toolbar-actions { margin: 6px 0 12px; }
 #alert-last { margin: 0 0 12px; font-size: 0.92rem; }
+.admin-live-alerts {
+  margin: 4px 0 18px;
+}
+.admin-live-alerts h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+.admin-alerts-empty { margin: 0; }
+.admin-alert-item {
+  grid-template-columns: 1fr auto;
+  align-items: start;
+}
+.admin-alert-item p { margin: 6px 0 0; }
 .urgent-banner {
   position: relative;
   z-index: 5;

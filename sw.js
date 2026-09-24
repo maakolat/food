@@ -1,4 +1,4 @@
-const CACHE = "yam-app-v66";
+const CACHE = "yam-app-v67";
 const IDB_NAME = "yam-notify-v1";
 const IDB_STORE = "state";
 

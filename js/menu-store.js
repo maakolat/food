@@ -447,14 +447,16 @@ window.MenuStore = {
     }
     return { data: Object.assign({}, data, { menu, assets, stories }), stripped };
   },
-  async saveRemote(data, keptAlerts) {
+  async saveRemote(data, keptAlerts, exact) {
     if (!this.token()) return null;
     try {
       const prepared = await this.publishImages(this.payload(data, { touch: true }));
-      const alerts = this.liveAlerts({
-        alerts: [].concat(keptAlerts || [], data.alerts || [], prepared.data.alerts || []),
-        alert: data.alert || prepared.data.alert
-      });
+      const alerts = exact
+        ? this.liveAlerts({ alerts: keptAlerts || [] })
+        : this.liveAlerts({
+          alerts: [].concat(keptAlerts || [], data.alerts || [], prepared.data.alerts || []),
+          alert: data.alert || prepared.data.alert
+        });
       if (alerts.length) {
         prepared.data.alerts = alerts;
         prepared.data.alert = alerts[0];
@@ -489,17 +491,29 @@ window.MenuStore = {
     }
     return local || this.defaultData();
   },
-  async save(data) {
+  async save(data, opts) {
+    const exact = !!(opts && opts.alertsExact);
     const keptAlerts = this.liveAlerts(data);
     const clean = this.payload(data, { touch: true });
     if (keptAlerts.length) {
       clean.alerts = keptAlerts;
       clean.alert = keptAlerts[0];
+    } else {
+      delete clean.alerts;
+      delete clean.alert;
     }
     this.saveLocal(clean);
-    const prepared = await this.saveRemote(clean, keptAlerts);
+    const prepared = await this.saveRemote(clean, keptAlerts, exact);
     if (prepared && prepared.data) {
-      if (keptAlerts.length) {
+      if (exact) {
+        if (keptAlerts.length) {
+          prepared.data.alerts = keptAlerts;
+          prepared.data.alert = keptAlerts[0];
+        } else {
+          delete prepared.data.alerts;
+          delete prepared.data.alert;
+        }
+      } else if (keptAlerts.length) {
         prepared.data.alerts = this.liveAlerts({
           alerts: keptAlerts.concat(prepared.data.alerts || []),
           alert: prepared.data.alert

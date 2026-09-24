@@ -25,7 +25,7 @@
   const TAB_GUIDES = {
     dishes: "تبويب الأصناف: أضيفي أو عدّلي أكلة واحدة. الحفظ يحدّث هذا الصنف ولا يمسح باقي القائمة.",
     stories: "تبويب الستوري: ارفعي الصورة وانشري. هذا التبويب لا يغيّر الأصناف.",
-    alerts: "تبويب الإشعارات: أرسلي خبر عاجل للزبائن. القائمة والستوري يبقون كما هم.",
+    alerts: "تبويب الإشعارات: أرسلي خبر عاجل أو احذفي إشعاراً ظاهراً. القائمة والستوري يبقون كما هم.",
     status: "تبويب الحالة: عدد الأصناف والستوريات وحالة النشر. التنقل بين التبويبات آمن ولا يحذف بيانات."
   };
   const publishStatus = document.getElementById("publish-status");
@@ -206,18 +206,20 @@
     const liveStories = (catalog.stories || []).filter((x) => Number(x.expiresAt || 0) > now);
     if (d) d.textContent = String((catalog.menu || []).length);
     if (s) s.textContent = String(liveStories.length);
+    const live = window.MenuStore && window.MenuStore.liveAlerts
+      ? window.MenuStore.liveAlerts(catalog)
+      : ((catalog.alerts || []).concat(catalog.alert ? [catalog.alert] : [])).filter((x) => x && Number(x.expiresAt || 0) > now);
     if (a) {
-      const live = window.MenuStore && window.MenuStore.liveAlerts
-        ? window.MenuStore.liveAlerts(catalog)
-        : ((catalog.alerts || []).concat(catalog.alert ? [catalog.alert] : [])).filter((x) => x && Number(x.expiresAt || 0) > now);
       a.textContent = live.length
         ? (live.length === 1 ? "ظاهر الآن" : live.length + " ظاهرة")
         : "لا يوجد";
     }
     const tabDish = document.getElementById("tab-dish-count");
     const tabStory = document.getElementById("tab-story-count");
+    const tabAlert = document.getElementById("tab-alert-count");
     if (tabDish) tabDish.textContent = String((catalog.menu || []).length);
     if (tabStory) tabStory.textContent = String(liveStories.length);
+    if (tabAlert) tabAlert.textContent = live.length ? String(live.length) : "";
   }
 
   function showLogin() {
@@ -300,23 +302,64 @@
     if (force) alertTouched = false;
   }
 
+  function currentAlerts() {
+    return window.MenuStore && window.MenuStore.liveAlerts
+      ? window.MenuStore.liveAlerts(catalog)
+      : ((catalog.alerts || []).concat(catalog.alert ? [catalog.alert] : [])).filter((x) => x && Number(x.expiresAt || 0) > Date.now());
+  }
+
+  function setCatalogAlerts(list) {
+    const next = Array.isArray(list) ? list.slice() : [];
+    catalog.alerts = next;
+    catalog.alert = next[0] || null;
+  }
+
+  function alertRemaining(expiresAt) {
+    const ms = Number(expiresAt) - Date.now();
+    if (ms <= 0) return "انتهى وقته";
+    const hours = Math.ceil(ms / 3600000);
+    if (hours < 24) return "متبقي " + hours + " ساعة";
+    const days = Math.ceil(hours / 24);
+    return "متبقي " + days + " يوم";
+  }
+
+  function renderLiveAlerts() {
+    const el = document.getElementById("admin-alerts");
+    if (!el) return;
+    const live = currentAlerts();
+    if (!live.length) {
+      el.innerHTML = `<p class="muted admin-alerts-empty">لا يوجد إشعار ظاهر حالياً. أرسلي إشعاراً من النموذج أدناه.</p>`;
+      return;
+    }
+    const kinds = { now: "توفّرت الآن", tomorrow: "غداً متوفر", book: "حجز مباشر", custom: "رسالة خاصة" };
+    el.innerHTML = live.map((a) => `
+      <article class="admin-dish admin-alert-item">
+        <div>
+          <strong>${esc(a.title)}</strong>
+          <p class="muted">${esc(a.body || "")}</p>
+          <p class="muted">${esc(kinds[a.kind] || "إشعار")} · ${esc(alertRemaining(a.expiresAt))}</p>
+        </div>
+        <div class="admin-dish-actions">
+          <button class="remove-item" type="button" data-del-alert="${esc(a.id)}">حذف</button>
+        </div>
+      </article>
+    `).join("");
+  }
+
   function renderAlertLast() {
     const el = document.getElementById("alert-last");
-    if (!el) return;
-    const live = window.MenuStore && window.MenuStore.liveAlerts
-      ? window.MenuStore.liveAlerts(catalog)
-      : [];
-    if (!live.length) {
-      el.textContent = "ما زال ما انرسل إشعار عاجل.";
-      return;
+    const live = currentAlerts();
+    if (el) {
+      if (!live.length) {
+        el.textContent = "ما زال ما انرسل إشعار عاجل.";
+      } else if (live.length === 1) {
+        const when = new Date(live[0].createdAt || Date.now()).toLocaleString("ar-IQ");
+        el.textContent = "إشعار ظاهر: «" + live[0].title + "» — " + when;
+      } else {
+        el.textContent = live.length + " إشعارات ظاهرة، تتبدل عند الزبون كل 5 ثوانٍ.";
+      }
     }
-    if (live.length === 1) {
-      const when = new Date(live[0].createdAt || Date.now()).toLocaleString("ar-IQ");
-      el.textContent = "إشعار ظاهر: «" + live[0].title + "» — " + when;
-      return;
-    }
-    el.textContent = live.length + " إشعارات ظاهرة، تتبدل عند الزبون كل 5 ثوانٍ: " +
-      live.map((a) => "«" + a.title + "»").join("، ");
+    renderLiveAlerts();
   }
 
   function renderList() {
@@ -571,18 +614,19 @@
     const keptAlerts = window.MenuStore && window.MenuStore.liveAlerts
       ? window.MenuStore.liveAlerts(catalog)
       : (catalog.alerts || []).slice();
-    const result = await window.MenuStore.save(catalog);
+    const result = await window.MenuStore.save(catalog, { alertsExact: !!(opts && opts.alertsExact) });
     if (result.data) catalog = result.data;
     if (!Array.isArray(catalog.stories)) catalog.stories = [];
-    if (keptAlerts.length) {
+    if (opts && opts.alertsExact) {
+      setCatalogAlerts(keptAlerts);
+    } else if (keptAlerts.length) {
       const merged = window.MenuStore && window.MenuStore.liveAlerts
         ? window.MenuStore.liveAlerts({
           alerts: keptAlerts.concat(catalog.alerts || []),
           alert: catalog.alert
         })
         : keptAlerts;
-      catalog.alerts = merged;
-      if (merged[0]) catalog.alert = merged[0];
+      setCatalogAlerts(merged);
     }
     fillSelects();
     renderList();
@@ -796,16 +840,33 @@
     const clearBtn = document.getElementById("clear-alert");
     if (clearBtn) {
       clearBtn.addEventListener("click", async () => {
-        if (!catalog.alert && !(catalog.alerts && catalog.alerts.length)) {
+        if (!currentAlerts().length) {
           toast("لا يوجد شريط ظاهر حالياً");
           return;
         }
         if (!confirm("إخفاء كل الإشعارات من شريط الموقع؟")) return;
-        catalog.alert = null;
-        catalog.alerts = [];
-        const result = await persist();
+        setCatalogAlerts([]);
+        const result = await persist({ alertsExact: true });
         renderAlertLast();
         toast(result.remote ? "اختفى الشريط من الموقع" : "حُذف على هذا الجهاز فقط");
+      });
+    }
+    const alertsEl = document.getElementById("admin-alerts");
+    if (alertsEl) {
+      alertsEl.addEventListener("click", async (e) => {
+        const btn = e.target.closest ? e.target.closest("[data-del-alert]") : null;
+        if (!btn) return;
+        const id = btn.getAttribute("data-del-alert");
+        const live = currentAlerts();
+        const item = live.find((a) => a.id === id);
+        if (!item) return;
+        if (!confirm("حذف إشعار «" + item.title + "» من شريط الموقع؟")) return;
+        setCatalogAlerts(live.filter((a) => a.id !== id));
+        const result = await persist({ alertsExact: true });
+        renderAlertLast();
+        toast(result.remote
+          ? (currentAlerts().length ? "حُذف الإشعار وبقي الباقي ظاهراً" : "اختفى الشريط من الموقع")
+          : "حُذف على هذا الجهاز فقط");
       });
     }
   }
