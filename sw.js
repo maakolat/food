@@ -1,4 +1,4 @@
-const CACHE = "yam-app-v62";
+const CACHE = "yam-app-v65";
 const IDB_NAME = "yam-notify-v1";
 const IDB_STORE = "state";
 
@@ -182,10 +182,17 @@ async function checkForNews(reason) {
   const now = Date.now();
   const dishes = data.menu.filter((item) => item && item.id);
   const stories = (data.stories || []).filter((s) => s && s.id && s.image && Number(s.expiresAt || 0) > now);
-  const liveAlert = data.alert && data.alert.title && Number(data.alert.expiresAt || 0) > now
-    ? data.alert
-    : null;
+  const liveAlerts = [];
+  const addAlert = (item) => {
+    if (!item || !item.title || Number(item.expiresAt || 0) <= now) return;
+    if (liveAlerts.some((a) => a.id === item.id)) return;
+    liveAlerts.push(item);
+  };
+  if (Array.isArray(data.alerts)) data.alerts.forEach(addAlert);
+  addAlert(data.alert);
   const seen = await loadSeen();
+  if (!seen.alertIds) seen.alertIds = {};
+  if (seen.alertId) seen.alertIds[seen.alertId] = 1;
   const FRESH_MS = 36 * 3600000;
   if ((seen.schema || 1) < 2) {
     stories.forEach((s) => {
@@ -202,17 +209,18 @@ async function checkForNews(reason) {
         seen.stories[s.id] = 1;
       }
     });
-    if (liveAlert) seen.alertId = liveAlert.id;
+    liveAlerts.forEach((a) => { seen.alertIds[a.id] = 1; });
     seen.primed = true;
     await saveSeen(seen);
   }
   const newDishes = dishes.filter((d) => !seen.dishes[d.id]);
   const newStories = stories.filter((s) => !seen.stories[s.id]);
-  const newAlert = liveAlert && liveAlert.id !== seen.alertId ? liveAlert : null;
-  if (!newDishes.length && !newStories.length && !newAlert) return;
+  const newAlerts = liveAlerts.filter((a) => !seen.alertIds[a.id]);
+  if (!newDishes.length && !newStories.length && !newAlerts.length) return;
   newDishes.forEach((d) => { seen.dishes[d.id] = 1; });
   newStories.forEach((s) => { seen.stories[s.id] = 1; });
-  if (newAlert) seen.alertId = newAlert.id;
+  newAlerts.forEach((a) => { seen.alertIds[a.id] = 1; });
+  if (newAlerts[0]) seen.alertId = newAlerts[0].id;
   await saveSeen(seen);
 
   const news = {
@@ -248,12 +256,13 @@ async function checkForNews(reason) {
         : "تمت إضافتها إلى قائمة الياقوت والمرجان";
       await showNote(title, body, "./?open=menu", "yam-menu");
     }
-    if (newAlert) {
-      await showNote(newAlert.title, newAlert.body || "", "./?open=alert", "yam-urgent", { urgent: true });
+    if (newAlerts.length) {
+      const one = newAlerts[0];
+      await showNote(one.title, one.body || "", "./?open=alert", "yam-urgent", { urgent: true });
       await notifyClients({
         type: "yam-urgent",
-        title: newAlert.title,
-        body: newAlert.body || "",
+        title: one.title,
+        body: one.body || "",
         url: "./?open=alert"
       });
     }

@@ -207,8 +207,12 @@
     if (d) d.textContent = String((catalog.menu || []).length);
     if (s) s.textContent = String(liveStories.length);
     if (a) {
-      const alert = catalog.alert;
-      a.textContent = alert && Number(alert.expiresAt || 0) > now ? "ظاهر الآن" : "لا يوجد";
+      const live = window.MenuStore && window.MenuStore.liveAlerts
+        ? window.MenuStore.liveAlerts(catalog)
+        : ((catalog.alerts || []).concat(catalog.alert ? [catalog.alert] : [])).filter((x) => x && Number(x.expiresAt || 0) > now);
+      a.textContent = live.length
+        ? (live.length === 1 ? "ظاهر الآن" : live.length + " ظاهرة")
+        : "لا يوجد";
     }
     const tabDish = document.getElementById("tab-dish-count");
     const tabStory = document.getElementById("tab-story-count");
@@ -299,17 +303,20 @@
   function renderAlertLast() {
     const el = document.getElementById("alert-last");
     if (!el) return;
-    const alert = catalog.alert;
-    if (!alert || !alert.title) {
+    const live = window.MenuStore && window.MenuStore.liveAlerts
+      ? window.MenuStore.liveAlerts(catalog)
+      : [];
+    if (!live.length) {
       el.textContent = "ما زال ما انرسل إشعار عاجل.";
       return;
     }
-    const live = Number(alert.expiresAt || 0) > Date.now();
-    const when = new Date(alert.createdAt || Date.now());
-    const stamp = when.toLocaleString("ar-IQ");
-    el.textContent = live
-      ? ("آخر إشعار ظاهر للزبائن: «" + alert.title + "» — " + stamp)
-      : ("آخر إشعار: «" + alert.title + "» وانتهى ظهوره على الموقع.");
+    if (live.length === 1) {
+      const when = new Date(live[0].createdAt || Date.now()).toLocaleString("ar-IQ");
+      el.textContent = "إشعار ظاهر: «" + live[0].title + "» — " + when;
+      return;
+    }
+    el.textContent = live.length + " إشعارات ظاهرة، تتبدل عند الزبون كل 5 ثوانٍ: " +
+      live.map((a) => "«" + a.title + "»").join("، ");
   }
 
   function renderList() {
@@ -728,7 +735,7 @@
       }
       if (!confirm("إرسال الإشعار الآن لكل الزبائن الذين فعّلوا الإشعارات؟")) return;
       const now = Date.now();
-      catalog.alert = {
+      const item = {
         id: "alert-" + now,
         kind: alertKind,
         title,
@@ -738,6 +745,11 @@
         createdAt: now,
         expiresAt: now + hours * 3600000
       };
+      const current = window.MenuStore && window.MenuStore.liveAlerts
+        ? window.MenuStore.liveAlerts(catalog)
+        : [];
+      catalog.alerts = [item].concat(current.filter((a) => a.id !== item.id)).slice(0, 8);
+      catalog.alert = item;
       const sendBtn = document.getElementById("send-alert");
       if (sendBtn) sendBtn.disabled = true;
       let result;
@@ -770,12 +782,13 @@
     const clearBtn = document.getElementById("clear-alert");
     if (clearBtn) {
       clearBtn.addEventListener("click", async () => {
-        if (!catalog.alert) {
+        if (!catalog.alert && !(catalog.alerts && catalog.alerts.length)) {
           toast("لا يوجد شريط ظاهر حالياً");
           return;
         }
-        if (!confirm("إخفاء شريط الإشعار من موقع الزبائن؟")) return;
+        if (!confirm("إخفاء كل الإشعارات من شريط الموقع؟")) return;
         catalog.alert = null;
+        catalog.alerts = [];
         const result = await persist();
         renderAlertLast();
         toast(result.remote ? "اختفى الشريط من الموقع" : "حُذف على هذا الجهاز فقط");

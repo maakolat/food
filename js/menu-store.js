@@ -109,6 +109,29 @@ window.MenuStore = {
       expiresAt: Number(alert.expiresAt) || (createdAt + keepHours * 3600000)
     };
   },
+  liveAlerts(data) {
+    const now = Date.now();
+    const seen = {};
+    const list = [];
+    const add = (item) => {
+      const clean = this.cleanAlert(item);
+      if (!clean || seen[clean.id]) return;
+      if (Number(clean.expiresAt) <= now) return;
+      seen[clean.id] = 1;
+      list.push(clean);
+    };
+    (Array.isArray(data && data.alerts) ? data.alerts : []).forEach(add);
+    add(data && data.alert);
+    list.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+    return list.slice(0, 8);
+  },
+  attachAlerts(out, data) {
+    const alerts = this.liveAlerts(data);
+    if (!alerts.length) return out;
+    out.alerts = alerts;
+    out.alert = alerts[0];
+    return out;
+  },
   normalize(data) {
     if (!data) return null;
     const inner = data.data && Array.isArray(data.data.menu) ? data.data : data;
@@ -130,9 +153,7 @@ window.MenuStore = {
       updatedAt: inner.updatedAt || 0
     };
     if (Array.isArray(inner.stories)) out.stories = this.cleanStories(inner.stories);
-    const alert = this.cleanAlert(inner.alert);
-    if (alert) out.alert = alert;
-    return out;
+    return this.attachAlerts(out, inner);
   },
   payload(data, opts) {
     const cleanMenu = (data.menu || []).map((item) => {
@@ -148,8 +169,7 @@ window.MenuStore = {
       stories: this.cleanStories(data.stories),
       updatedAt: (opts && opts.touch) ? Date.now() : (Number(data.updatedAt) || Date.now())
     };
-    const alert = this.cleanAlert(data.alert);
-    if (alert) out.alert = alert;
+    this.attachAlerts(out, data);
     return out;
   },
   readKey(key) {
@@ -200,7 +220,8 @@ window.MenuStore = {
         durationHours: s.durationHours,
         expiresAt: s.expiresAt
       })),
-      alert: data && data.alert ? { id: data.alert.id, title: data.alert.title, expiresAt: data.alert.expiresAt } : null
+      alert: data && data.alert ? { id: data.alert.id, title: data.alert.title, expiresAt: data.alert.expiresAt } : null,
+      alerts: (data && data.alerts || []).map((a) => ({ id: a.id, title: a.title, expiresAt: a.expiresAt }))
     });
   },
   overlay(remote, local) {
@@ -235,8 +256,10 @@ window.MenuStore = {
       stories,
       updatedAt: Math.max(Number(remote.updatedAt || 0), Number(local.updatedAt || 0))
     };
-    const alert = this.cleanAlert(primary.alert) || this.cleanAlert(secondary.alert);
-    if (alert) merged.alert = alert;
+    this.attachAlerts(merged, {
+      alert: primary.alert || secondary.alert,
+      alerts: (primary.alerts || []).concat(secondary.alerts || [])
+    });
     return merged;
   },
   isFileOrigin() {

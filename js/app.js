@@ -55,7 +55,9 @@
     return Object.assign({}, item, { extras });
   }
 
-  let currentAlert = null;
+  let liveAlerts = [];
+  let alertIndex = 0;
+  let alertTimer = null;
   let chimeAudio = null;
 
   function playNotifyChime() {
@@ -75,7 +77,9 @@
     categories = (data && data.categories || []).slice();
     menu = (data && data.menu || []).map(hydrateItem);
     stories = (data && data.stories || []).slice();
-    currentAlert = data && data.alert ? data.alert : null;
+    liveAlerts = Array.isArray(data && data.alerts) && data.alerts.length
+      ? data.alerts.slice()
+      : (data && data.alert ? [data.alert] : []);
     renderStories();
     renderAlertBanner();
   }
@@ -84,26 +88,88 @@
     applyCatalog((window.MenuStore && window.MenuStore.loadImmediate()) || { categories: [], menu: [] });
   }
 
-  function renderAlertBanner() {
-    const box = document.getElementById("urgent-banner");
-    if (!box) return;
-    const alert = currentAlert && currentAlert.title && Number(currentAlert.expiresAt || 0) > Date.now()
-      ? currentAlert
-      : null;
+  function liveAlertList() {
+    const now = Date.now();
+    return (liveAlerts || []).filter((a) => a && a.title && Number(a.expiresAt || 0) > now);
+  }
+
+  function stopAlertRotate() {
+    if (alertTimer) {
+      clearInterval(alertTimer);
+      alertTimer = null;
+    }
+  }
+
+  function paintAlert(alert) {
     const titleEl = document.getElementById("urgent-title");
     const bodyEl = document.getElementById("urgent-body");
     const cta = document.getElementById("urgent-cta");
-    if (!alert) {
-      box.hidden = true;
+    const copy = document.getElementById("urgent-copy");
+    if (!alert) return;
+    const apply = () => {
+      if (titleEl) titleEl.textContent = alert.title;
+      if (bodyEl) bodyEl.textContent = alert.body || "";
+      if (cta) {
+        cta.textContent = alert.kind === "tomorrow" ? "احجز من اليوم" : "اطلب الآن";
+        cta.href = "#menu";
+      }
+      if (copy) copy.classList.remove("is-swap");
+    };
+    if (copy) {
+      copy.classList.add("is-swap");
+      setTimeout(apply, 180);
+    } else apply();
+  }
+
+  function renderAlertDots(list) {
+    const dots = document.getElementById("urgent-dots");
+    if (!dots) return;
+    if (list.length < 2) {
+      dots.hidden = true;
+      dots.innerHTML = "";
       return;
     }
-    if (titleEl) titleEl.textContent = alert.title;
-    if (bodyEl) bodyEl.textContent = alert.body || "";
-    if (cta) {
-      cta.textContent = alert.kind === "tomorrow" ? "احجز من اليوم" : "اطلب الآن";
-      cta.href = "#menu";
+    dots.hidden = false;
+    dots.innerHTML = list.map((_, i) =>
+      `<button type="button" class="urgent-dot ${i === alertIndex ? "active" : ""}" data-alert-i="${i}" aria-label="إشعار ${i + 1}"></button>`
+    ).join("");
+  }
+
+  function showAlertAt(i) {
+    const list = liveAlertList();
+    const box = document.getElementById("urgent-banner");
+    if (!box) return;
+    if (!list.length) {
+      box.hidden = true;
+      stopAlertRotate();
+      renderAlertDots([]);
+      return;
     }
+    alertIndex = ((i % list.length) + list.length) % list.length;
+    paintAlert(list[alertIndex]);
+    renderAlertDots(list);
     box.hidden = false;
+  }
+
+  function startAlertRotate() {
+    stopAlertRotate();
+    if (liveAlertList().length < 2) return;
+    alertTimer = setInterval(() => showAlertAt(alertIndex + 1), 5000);
+  }
+
+  function renderAlertBanner() {
+    const box = document.getElementById("urgent-banner");
+    if (!box) return;
+    const list = liveAlertList();
+    if (!list.length) {
+      box.hidden = true;
+      stopAlertRotate();
+      renderAlertDots([]);
+      return;
+    }
+    if (alertIndex >= list.length) alertIndex = 0;
+    showAlertAt(alertIndex);
+    startAlertRotate();
   }
 
   function toast(msg) {
@@ -1500,6 +1566,17 @@
     }
     setupInstall();
     setupNotify();
+    const banner = document.getElementById("urgent-banner");
+    if (banner) {
+      banner.addEventListener("mouseenter", stopAlertRotate);
+      banner.addEventListener("mouseleave", startAlertRotate);
+      banner.addEventListener("click", (e) => {
+        const btn = e.target.closest ? e.target.closest("[data-alert-i]") : null;
+        if (!btn) return;
+        showAlertAt(Number(btn.getAttribute("data-alert-i")));
+        startAlertRotate();
+      });
+    }
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch((err) => console.warn("sw", err));
     }
@@ -1864,12 +1941,15 @@
             }).catch(() => {});
           }
           if (data.title && data.body) {
-            currentAlert = {
-              id: "live",
+            const incoming = {
+              id: data.id || ("live-" + Date.now()),
               title: data.title,
               body: data.body,
+              kind: data.kind || "now",
               expiresAt: Date.now() + 24 * 3600000
             };
+            liveAlerts = [incoming].concat(liveAlerts.filter((a) => a.id !== incoming.id));
+            alertIndex = 0;
             renderAlertBanner();
           }
         }

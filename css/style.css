@@ -1259,6 +1259,27 @@ input[type="text"], input[type="tel"], textarea, select {
   font-size: 1.05rem;
   font-weight: 800;
 }
+.urgent-copy {
+  min-width: 0;
+  transition: opacity 0.18s ease;
+}
+.urgent-copy.is-swap { opacity: 0.15; }
+.urgent-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.urgent-dots[hidden] { display: none; }
+.urgent-dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(107, 18, 32, 0.28);
+  cursor: pointer;
+}
+.urgent-dot.active { background: var(--gold); }
 .urgent-banner-inner p {
   margin: 2px 0 0;
   color: var(--muted);
