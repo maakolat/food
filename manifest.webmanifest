@@ -8,8 +8,8 @@
   "scope": "./",
   "display": "standalone",
   "gcm_sender_id": "103953800507",
-  "background_color": "#ffb3ce",
-  "theme_color": "#6b1220",
+  "background_color": "#F6B7C8",
+  "theme_color": "#F6B7C8",
   "prefer_related_applications": false,
   "icons": [
     {
