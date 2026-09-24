@@ -17,7 +17,7 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=60" />
+  <link rel="stylesheet" href="css/style.css?v=61" />
 </head>
 <body class="admin-page">
   <div class="page-bg" aria-hidden="true"></div>
@@ -45,7 +45,7 @@
         </p>
         <p class="admin-error" id="file-origin-hint" hidden>
           لا تفتح هذه الصفحة من ملف الجهاز. استخدم رابط الموقع:
-          <a href="https://maakolat.github.io/food/admin.html?v=60">لوحة الإدارة على الإنترنت</a>
+          <a href="https://maakolat.github.io/food/admin.html?v=61">لوحة الإدارة على الإنترنت</a>
         </p>
       </form>
       <a class="muted" href="index.html">العودة للموقع</a>
@@ -57,7 +57,7 @@
       <div class="container header-inner">
         <a class="brand" href="index.html">
           <span class="brand-mark" aria-hidden="true">
-            <img src="assets/logo.png?v=60" alt="">
+            <img src="assets/logo.png?v=61" alt="">
           </span>
           <span class="brand-text">
             <strong>إدارة القائمة</strong>
@@ -70,6 +70,46 @@
     </header>
 
     <main class="container admin-main">
+      <section class="admin-alert-card" aria-labelledby="alert-heading">
+        <div class="admin-toolbar">
+          <div>
+            <h2 id="alert-heading">إشعار عاجل للزبائن</h2>
+            <p class="muted">يصل للهاتف بجرس مميز، ويظهر شريط أنيق أعلى الموقع.</p>
+          </div>
+        </div>
+        <form id="alert-form">
+          <div class="alert-chips" role="group" aria-label="نوع الرسالة">
+            <button class="alert-chip active" type="button" data-alert-kind="now">توفّرت الآن</button>
+            <button class="alert-chip" type="button" data-alert-kind="tomorrow">غداً متوفر</button>
+            <button class="alert-chip" type="button" data-alert-kind="book">حجز مباشر</button>
+            <button class="alert-chip" type="button" data-alert-kind="custom">رسالة خاصة</button>
+          </div>
+          <label>اسم الأكلة <span class="muted">(اختياري — يُدرج في الرسالة)</span>
+            <input id="alert-dish" name="dish" type="text" list="alert-dish-list" placeholder="مثال: دولمة، كبة حلبية" maxlength="60" />
+            <datalist id="alert-dish-list"></datalist>
+          </label>
+          <label>عنوان الإشعار
+            <input id="alert-title" name="title" type="text" required maxlength="80" placeholder="توفّرت الآن على السفرة" />
+          </label>
+          <label>نص الرسالة
+            <textarea id="alert-body" name="body" rows="3" required maxlength="280" placeholder="رسالة دافئة تصل للزبون على الهاتف"></textarea>
+          </label>
+          <label>مدة ظهور الشريط في الموقع
+            <select id="alert-hours" name="hours">
+              <option value="6">6 ساعات</option>
+              <option value="12">12 ساعة</option>
+              <option value="24" selected>24 ساعة</option>
+              <option value="48">يومان</option>
+            </select>
+          </label>
+          <div class="admin-toolbar-actions">
+            <button class="btn btn-primary" id="send-alert" type="submit">إرسال الإشعار الآن</button>
+            <button class="btn btn-ghost" id="clear-alert" type="button">إخفاء الشريط من الموقع</button>
+          </div>
+          <p class="muted" id="alert-last"></p>
+        </form>
+      </section>
+
       <div class="admin-toolbar">
         <div>
           <h2>الستوري</h2>
@@ -186,10 +226,10 @@
   <div class="overlay" id="overlay" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=60"></script>
-  <script src="js/menu-data.js?v=60"></script>
-  <script src="js/menu-store.js?v=60"></script>
-  <script src="js/push-send.js?v=60"></script>
-  <script src="js/admin.js?v=60"></script>
+  <script src="js/config.js?v=61"></script>
+  <script src="js/menu-data.js?v=61"></script>
+  <script src="js/menu-store.js?v=61"></script>
+  <script src="js/push-send.js?v=61"></script>
+  <script src="js/admin.js?v=61"></script>
 </body>
 </html>

@@ -87,6 +87,28 @@ window.MenuStore = {
       };
     }).filter((s) => s && s.image);
   },
+  cleanAlert(alert) {
+    if (!alert || typeof alert !== "object") return null;
+    const title = String(alert.title || "").trim().slice(0, 80);
+    const body = String(alert.body || "").trim().slice(0, 280);
+    if (!title || !body) return null;
+    const createdAt = Number(alert.createdAt) || Date.now();
+    const hours = Number(alert.hours);
+    const keepHours = hours === 6 || hours === 12 || hours === 48 ? hours : 24;
+    const kind = alert.kind === "tomorrow" || alert.kind === "book" || alert.kind === "custom"
+      ? alert.kind
+      : "now";
+    return {
+      id: String(alert.id || ("alert-" + createdAt)),
+      kind,
+      title,
+      body,
+      dish: String(alert.dish || "").trim().slice(0, 60),
+      hours: keepHours,
+      createdAt,
+      expiresAt: Number(alert.expiresAt) || (createdAt + keepHours * 3600000)
+    };
+  },
   normalize(data) {
     if (!data) return null;
     const inner = data.data && Array.isArray(data.data.menu) ? data.data : data;
@@ -108,6 +130,8 @@ window.MenuStore = {
       updatedAt: inner.updatedAt || 0
     };
     if (Array.isArray(inner.stories)) out.stories = this.cleanStories(inner.stories);
+    const alert = this.cleanAlert(inner.alert);
+    if (alert) out.alert = alert;
     return out;
   },
   payload(data, opts) {
@@ -117,13 +141,16 @@ window.MenuStore = {
       copy.image = this.mediaUrl(copy.image);
       return copy;
     });
-    return {
+    const out = {
       categories: data.categories || [],
       menu: cleanMenu,
       assets: data.assets || [],
       stories: this.cleanStories(data.stories),
       updatedAt: (opts && opts.touch) ? Date.now() : (Number(data.updatedAt) || Date.now())
     };
+    const alert = this.cleanAlert(data.alert);
+    if (alert) out.alert = alert;
+    return out;
   },
   readKey(key) {
     try {
@@ -172,7 +199,8 @@ window.MenuStore = {
         image: String(s.image || "").length + ":" + String(s.image || "").slice(-48),
         durationHours: s.durationHours,
         expiresAt: s.expiresAt
-      }))
+      })),
+      alert: data && data.alert ? { id: data.alert.id, title: data.alert.title, expiresAt: data.alert.expiresAt } : null
     });
   },
   overlay(remote, local) {
@@ -200,13 +228,16 @@ window.MenuStore = {
         if (path.indexOf("assets/") === 0 && assets.indexOf(path) < 0) assets.push(path);
       }
     });
-    return {
+    const merged = {
       categories: (primary.categories && primary.categories.length) ? primary.categories : secondary.categories,
       menu,
       assets,
       stories,
       updatedAt: Math.max(Number(remote.updatedAt || 0), Number(local.updatedAt || 0))
     };
+    const alert = this.cleanAlert(primary.alert) || this.cleanAlert(secondary.alert);
+    if (alert) merged.alert = alert;
+    return merged;
   },
   isFileOrigin() {
     try {

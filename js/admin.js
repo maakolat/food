@@ -183,6 +183,74 @@
     });
     form.image.innerHTML = `<option value="">— اختَر صورة —</option>` +
       assets.map((src) => `<option value="${esc(src)}">${esc(src.replace("assets/", ""))}</option>`).join("");
+    const dishList = document.getElementById("alert-dish-list");
+    if (dishList) {
+      dishList.innerHTML = catalog.menu.map((i) => `<option value="${esc(i.name)}"></option>`).join("");
+    }
+    renderAlertLast();
+  }
+
+  let alertKind = "now";
+  let alertTouched = false;
+
+  function composeAlert(kind, dish) {
+    const name = String(dish || "").trim();
+    const ofDish = name ? "«" + name + "»" : "";
+    if (kind === "tomorrow") {
+      return {
+        title: name ? ("غداً تتوفر " + ofDish) : "غداً على سفرتنا أكلة مميزة",
+        body: name
+          ? ("بشارة لطيفة: غداً إن شاء الله " + ofDish + " بطعم البيت. احجز من اليوم حتى ما يفوتك.")
+          : "بشارة لطيفة: غداً إن شاء الله تتوفر أكلة شهية بطعم البيت. احجز مكانك من اليوم."
+      };
+    }
+    if (kind === "book") {
+      return {
+        title: name ? ("حجز مباشر على " + ofDish) : "الحجز المباشر مفتوح الآن",
+        body: name
+          ? ("الكمية محدودة و" + ofDish + " بانتظارك. اطلب من التطبيق والتأكيد يوصلك واتساب.")
+          : "الكمية محدودة والحجز مفتوح الآن. افتح التطبيق واطلب، والتأكيد يوصلك واتساب."
+      };
+    }
+    if (kind === "custom") {
+      return { title: "", body: "" };
+    }
+    return {
+      title: name ? ("توفّرت " + ofDish + " الآن") : "توفّرت الآن على السفرة",
+      body: name
+        ? ("يا هلا، " + ofDish + " صارت جاهزة والحجز مباشر. اطلبها قبل ما تخلص — الياقوت والمرجان.")
+        : "يا هلا، صنف طازج توفّر الآن والحجز مباشر. اطلبه قبل ما تخلص الكمية — الياقوت والمرجان."
+    };
+  }
+
+  function fillAlertDraft(force) {
+    const titleEl = document.getElementById("alert-title");
+    const bodyEl = document.getElementById("alert-body");
+    const dishEl = document.getElementById("alert-dish");
+    if (!titleEl || !bodyEl) return;
+    if (!force && alertTouched) return;
+    const drafted = composeAlert(alertKind, dishEl ? dishEl.value : "");
+    if (drafted.title || force || alertKind !== "custom") {
+      titleEl.value = drafted.title;
+      bodyEl.value = drafted.body;
+    }
+    if (force) alertTouched = false;
+  }
+
+  function renderAlertLast() {
+    const el = document.getElementById("alert-last");
+    if (!el) return;
+    const alert = catalog.alert;
+    if (!alert || !alert.title) {
+      el.textContent = "ما زال ما انرسل إشعار عاجل.";
+      return;
+    }
+    const live = Number(alert.expiresAt || 0) > Date.now();
+    const when = new Date(alert.createdAt || Date.now());
+    const stamp = when.toLocaleString("ar-IQ");
+    el.textContent = live
+      ? ("آخر إشعار ظاهر للزبائن: «" + alert.title + "» — " + stamp)
+      : ("آخر إشعار: «" + alert.title + "» وانتهى ظهوره على الموقع.");
   }
 
   function renderList() {
@@ -535,6 +603,96 @@
   overlay.addEventListener("click", closeAnyModal);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAnyModal(); });
 
+  const alertForm = document.getElementById("alert-form");
+  if (alertForm) {
+    alertForm.querySelectorAll("[data-alert-kind]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        alertKind = btn.getAttribute("data-alert-kind") || "now";
+        alertForm.querySelectorAll("[data-alert-kind]").forEach((b) => {
+          b.classList.toggle("active", b === btn);
+        });
+        fillAlertDraft(true);
+      });
+    });
+    const dishEl = document.getElementById("alert-dish");
+    const titleEl = document.getElementById("alert-title");
+    const bodyEl = document.getElementById("alert-body");
+    if (dishEl) {
+      dishEl.addEventListener("input", () => {
+        if (alertKind !== "custom") fillAlertDraft(true);
+      });
+    }
+    if (titleEl) titleEl.addEventListener("input", () => { alertTouched = true; });
+    if (bodyEl) bodyEl.addEventListener("input", () => { alertTouched = true; });
+    fillAlertDraft(true);
+
+    alertForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const title = String((titleEl && titleEl.value) || "").trim();
+      const body = String((bodyEl && bodyEl.value) || "").trim();
+      const dish = String((dishEl && dishEl.value) || "").trim();
+      const hours = Number((document.getElementById("alert-hours") || {}).value) || 24;
+      if (!title || !body) {
+        toast("اكتب عنوان الرسالة ونصها");
+        return;
+      }
+      if (!confirm("إرسال الإشعار الآن لكل الزبائن الذين فعّلوا الإشعارات؟")) return;
+      const now = Date.now();
+      catalog.alert = {
+        id: "alert-" + now,
+        kind: alertKind,
+        title,
+        body,
+        dish,
+        hours,
+        createdAt: now,
+        expiresAt: now + hours * 3600000
+      };
+      const sendBtn = document.getElementById("send-alert");
+      if (sendBtn) sendBtn.disabled = true;
+      let result;
+      try {
+        result = await persist();
+        let pushed = 0;
+        if (window.YamPush) {
+          pushed = await window.YamPush.notifyCustomers({
+            urgent: true,
+            title,
+            body,
+            url: "./?open=alert",
+            tag: "yam-urgent"
+          });
+        }
+        result.pushed = pushed;
+      } finally {
+        if (sendBtn) sendBtn.disabled = false;
+      }
+      renderAlertLast();
+      if (result && result.pushed > 0) {
+        toast("وصل الإشعار لـ " + result.pushed + " زبون بجرس الياقوت");
+      } else if (result && result.remote) {
+        toast("ظهر الشريط على الموقع. يصل الجرس لمن فعّل الإشعارات");
+      } else {
+        toast("تعذر النشر. تحقق من الإنترنت وأعد الإرسال");
+      }
+    });
+
+    const clearBtn = document.getElementById("clear-alert");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", async () => {
+        if (!catalog.alert) {
+          toast("لا يوجد شريط ظاهر حالياً");
+          return;
+        }
+        if (!confirm("إخفاء شريط الإشعار من موقع الزبائن؟")) return;
+        catalog.alert = null;
+        const result = await persist();
+        renderAlertLast();
+        toast(result.remote ? "اختفى الشريط من الموقع" : "حُذف على هذا الجهاز فقط");
+      });
+    }
+  }
+
   document.getElementById("add-variant").addEventListener("click", () => {
     variantRows.appendChild(variantRow());
   });
@@ -554,8 +712,10 @@
   document.getElementById("reset-menu").addEventListener("click", async () => {
     if (!confirm("استعادة القائمة الأصلية؟ ستُحذف الأصناف التي أضفتها من لوحة التحكم.")) return;
     const keptStories = Array.isArray(catalog.stories) ? catalog.stories.slice() : [];
+    const keptAlert = catalog.alert || null;
     catalog = window.MenuStore.defaultData();
     catalog.stories = keptStories;
+    if (keptAlert) catalog.alert = keptAlert;
     const result = await persist();
     setPublishStatus(!!result.remote);
     toast("تمت استعادة القائمة الأصلية مع الإبقاء على الستوري");

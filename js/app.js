@@ -55,15 +55,55 @@
     return Object.assign({}, item, { extras });
   }
 
+  let currentAlert = null;
+  let chimeAudio = null;
+
+  function playNotifyChime() {
+    try {
+      if (!chimeAudio) {
+        chimeAudio = new Audio("assets/notify-chime.wav?v=61");
+        chimeAudio.preload = "auto";
+      }
+      chimeAudio.currentTime = 0;
+      chimeAudio.volume = 0.92;
+      const play = chimeAudio.play();
+      if (play && play.catch) play.catch(() => {});
+    } catch (err) {}
+  }
+
   function applyCatalog(data) {
     categories = (data && data.categories || []).slice();
     menu = (data && data.menu || []).map(hydrateItem);
     stories = (data && data.stories || []).slice();
+    currentAlert = data && data.alert ? data.alert : null;
     renderStories();
+    renderAlertBanner();
   }
 
   function loadCatalog() {
     applyCatalog((window.MenuStore && window.MenuStore.loadImmediate()) || { categories: [], menu: [] });
+  }
+
+  function renderAlertBanner() {
+    const box = document.getElementById("urgent-banner");
+    if (!box) return;
+    const alert = currentAlert && currentAlert.title && Number(currentAlert.expiresAt || 0) > Date.now()
+      ? currentAlert
+      : null;
+    const titleEl = document.getElementById("urgent-title");
+    const bodyEl = document.getElementById("urgent-body");
+    const cta = document.getElementById("urgent-cta");
+    if (!alert) {
+      box.hidden = true;
+      return;
+    }
+    if (titleEl) titleEl.textContent = alert.title;
+    if (bodyEl) bodyEl.textContent = alert.body || "";
+    if (cta) {
+      cta.textContent = alert.kind === "tomorrow" ? "احجز من اليوم" : "اطلب الآن";
+      cta.href = "#menu";
+    }
+    box.hidden = false;
   }
 
   function toast(msg) {
@@ -1626,7 +1666,12 @@
       if (list.length) showStoryAt(0);
       const strip = document.getElementById("stories-strip");
       if (strip) strip.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else if (open === "menu") {
+    } else if (open === "menu" || open === "alert") {
+      const banner = document.getElementById("urgent-banner");
+      if (open === "alert" && banner && !banner.hidden) {
+        banner.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
       const section = document.getElementById("menu");
       if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -1794,6 +1839,7 @@
         if (data.type === "yam-open") {
           const url = String(data.url || "");
           if (url.indexOf("open=stories") >= 0) consumeOpenParam("stories");
+          else if (url.indexOf("open=alert") >= 0) consumeOpenParam("alert");
           else if (url.indexOf("open=menu") >= 0) consumeOpenParam("menu");
         }
         if (data.type === "yam-news") {
@@ -1803,6 +1849,28 @@
           }
           if (data.dishes && data.dishes.length) {
             toast(data.dishes.length === 1 ? "صنف جديد في القائمة" : "أصناف جديدة في القائمة");
+          }
+        }
+        if (data.type === "yam-urgent") {
+          playNotifyChime();
+          toast(data.title || "رسالة من الياقوت والمرجان");
+          if (window.MenuStore && window.MenuStore.refreshPublished) {
+            window.MenuStore.refreshPublished().then((fresh) => {
+              if (!fresh) return;
+              applyCatalog(fresh);
+              renderCategories();
+              renderFeatured();
+              renderMenu();
+            }).catch(() => {});
+          }
+          if (data.title && data.body) {
+            currentAlert = {
+              id: "live",
+              title: data.title,
+              body: data.body,
+              expiresAt: Date.now() + 24 * 3600000
+            };
+            renderAlertBanner();
           }
         }
       });

@@ -246,7 +246,8 @@
       title: opts.title || "تحديث من الياقوت والمرجان",
       body: opts.body || "افتح التطبيق",
       url: opts.url || "./",
-      tag: opts.tag || "yam-news"
+      tag: opts.tag || "yam-news",
+      urgent: !!opts.urgent
     }));
 
     let sent = 0;

@@ -1,4 +1,4 @@
-const CACHE = "yam-app-v60";
+const CACHE = "yam-app-v61";
 const IDB_NAME = "yam-notify-v1";
 const IDB_STORE = "state";
 
@@ -47,7 +47,17 @@ self.addEventListener("push", (event) => {
     let payload = null;
     try { if (event.data) payload = event.data.json(); } catch (err) {}
     if (payload && payload.title) {
-      await showNote(payload.title, payload.body || "", payload.url || "./", payload.tag || "yam-news");
+      await showNote(payload.title, payload.body || "", payload.url || "./", payload.tag || "yam-news", {
+        urgent: !!payload.urgent
+      });
+      if (payload.urgent) {
+        await notifyClients({
+          type: "yam-urgent",
+          title: payload.title,
+          body: payload.body || "",
+          url: payload.url || "./"
+        });
+      }
       return;
     }
     await checkForNews("push");
@@ -125,7 +135,13 @@ async function notifyClients(payload) {
   list.forEach((c) => c.postMessage(payload));
 }
 
-async function showNote(title, body, url, tag) {
+function chimeUrl() {
+  return new URL("assets/notify-chime.wav", self.registration.scope).href;
+}
+
+async function showNote(title, body, url, tag, opts) {
+  opts = opts || {};
+  const urgent = !!opts.urgent;
   await self.registration.showNotification(title, {
     body,
     lang: "ar",
@@ -134,8 +150,13 @@ async function showNote(title, body, url, tag) {
     badge: iconUrl(),
     tag: tag || "yam-news",
     renotify: true,
-    vibrate: [160, 80, 160],
-    data: { url: url || "./" }
+    requireInteraction: urgent,
+    silent: false,
+    vibrate: urgent
+      ? [70, 40, 70, 40, 90, 120, 240, 70, 240, 70, 380]
+      : [160, 80, 160],
+    sound: chimeUrl(),
+    data: { url: url || "./", urgent }
   });
 }
 
@@ -161,6 +182,9 @@ async function checkForNews(reason) {
   const now = Date.now();
   const dishes = data.menu.filter((item) => item && item.id);
   const stories = (data.stories || []).filter((s) => s && s.id && s.image && Number(s.expiresAt || 0) > now);
+  const liveAlert = data.alert && data.alert.title && Number(data.alert.expiresAt || 0) > now
+    ? data.alert
+    : null;
   const seen = await loadSeen();
   const FRESH_MS = 36 * 3600000;
   if ((seen.schema || 1) < 2) {
@@ -178,14 +202,17 @@ async function checkForNews(reason) {
         seen.stories[s.id] = 1;
       }
     });
+    if (liveAlert) seen.alertId = liveAlert.id;
     seen.primed = true;
     await saveSeen(seen);
   }
   const newDishes = dishes.filter((d) => !seen.dishes[d.id]);
   const newStories = stories.filter((s) => !seen.stories[s.id]);
-  if (!newDishes.length && !newStories.length) return;
+  const newAlert = liveAlert && liveAlert.id !== seen.alertId ? liveAlert : null;
+  if (!newDishes.length && !newStories.length && !newAlert) return;
   newDishes.forEach((d) => { seen.dishes[d.id] = 1; });
   newStories.forEach((s) => { seen.stories[s.id] = 1; });
+  if (newAlert) seen.alertId = newAlert.id;
   await saveSeen(seen);
 
   const news = {
@@ -220,6 +247,15 @@ async function checkForNews(reason) {
         ? (one.name || "تمت إضافة صنف جديد")
         : "تمت إضافتها إلى قائمة الياقوت والمرجان";
       await showNote(title, body, "./?open=menu", "yam-menu");
+    }
+    if (newAlert) {
+      await showNote(newAlert.title, newAlert.body || "", "./?open=alert", "yam-urgent", { urgent: true });
+      await notifyClients({
+        type: "yam-urgent",
+        title: newAlert.title,
+        body: newAlert.body || "",
+        url: "./?open=alert"
+      });
     }
   } catch (err) {}
   } catch (err) {}
