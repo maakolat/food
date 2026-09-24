@@ -108,6 +108,12 @@ a { color: inherit; }
   position: sticky;
   top: 0;
 }
+.admin-page .header-inner {
+  min-height: 62px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.admin-page .brand-text small { font-size: 0.78rem; }
 .header-inner {
   min-height: var(--header);
   display: flex;
@@ -1101,12 +1107,10 @@ input[type="text"], input[type="tel"], textarea, select {
 }
 .admin-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  overflow-x: auto;
   padding: 10px 0 12px;
-  scrollbar-width: none;
 }
-.admin-tabs::-webkit-scrollbar { display: none; }
 .admin-tab {
   flex: 0 0 auto;
   border: 1px solid var(--line);
