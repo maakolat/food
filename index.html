@@ -13,11 +13,11 @@
   <title>مأكولات الياقوت والمرجان | اطلب أطيب الأكلات البيتية</title>
   <meta name="description" content="مأكولات الياقوت والمرجان — كبة، دولمة، معجنات وحلويات بيتية. اطلب أونلاين ويصلك الطلب مباشرة على واتساب." />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="assets/app-icon.png?v=73" />
+  <link rel="apple-touch-icon" href="assets/app-icon.png?v=74" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="assets/app-icon.png?v=73" type="image/png" />
+  <link rel="icon" href="assets/app-icon.png?v=74" type="image/png" />
   <script>
     (function () {
       var theme = localStorage.getItem("yam-theme") || "dark";
@@ -27,7 +27,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=73" />
+  <link rel="stylesheet" href="css/style.css?v=74" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -38,7 +38,7 @@
       <div class="container header-inner">
       <a class="brand" href="#top">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=73" alt="">
+          <img src="assets/logo.png?v=74" alt="">
         </span>
         <span class="brand-text">
           <strong>الياقوت والمرجان</strong>
@@ -55,6 +55,7 @@
         <a href="#special-order">طلب خاص</a>
         <a href="#about">من نحن</a>
         <a href="#contact">تواصل</a>
+        <a href="#game">لعبة</a>
       </nav>
 
       <button class="btn btn-ghost install-app-btn" id="install-app-btn" type="button">تثبيت التطبيق</button>
@@ -63,6 +64,11 @@
           <path fill="currentColor" d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12zm0 2c-3.6 0-8 1.8-8 5.4V22h16v-2.6c0-3.6-4.4-5.4-8-5.4z"/>
         </svg>
       </button>
+      <a class="game-btn" href="#game" aria-label="لعبة السفرة">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M6 4h5v7H4V6a2 2 0 0 1 2-2zm8 0h4a2 2 0 0 1 2 2v5h-6V4zM4 13h7v7H6a2 2 0 0 1-2-2v-5zm9 0h7v5a2 2 0 0 1-2 2h-5v-7z"/>
+        </svg>
+      </a>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="الوضع الفاتح">
         <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
           <path fill="currentColor" d="M21 14.3A9 9 0 0 1 9.7 3a7 7 0 1 0 11.3 11.3z"/>
@@ -114,6 +120,7 @@
               توصيلة
             </a>
             <a class="btn btn-ghost" href="#special-order">طلب أكل خاص</a>
+            <a class="btn btn-ghost" href="#game">لعبة السفرة</a>
           </div>
           <ul class="hero-points">
             <li>تصفح المأكولات</li>
@@ -158,7 +165,7 @@
         </div>
       </div>
       <div class="pay-note">
-        <img src="assets/qi-card.png?v=73" alt="كي كارد">
+        <img src="assets/qi-card.png?v=74" alt="كي كارد">
         <div>
           <strong>الدفع الإلكتروني متوفر</strong>
           <span>يمكنك الدفع عبر كي كارد عند تأكيد الطلب على واتساب.</span>
@@ -175,6 +182,35 @@
           <p>مختارات من أصنافنا الجاهزة للطلب الآن.</p>
         </header>
         <div class="featured-row" id="featured-row"></div>
+      </div>
+    </section>
+
+    <section class="game-section" id="game">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">PLAY</p>
+          <h2>لعبة السفرة</h2>
+          <p>طابقي الأصناف المتشابهة. لعبة خفيفة ريثما تختارين طلبك.</p>
+        </header>
+        <div class="game-shell">
+          <div class="game-stats" aria-live="polite">
+            <div>النقاط <strong id="game-score">0</strong></div>
+            <div>الحركات <strong id="game-moves">0</strong></div>
+            <div>الوقت <strong id="game-time">0:00</strong></div>
+            <div>أفضل نتيجة <strong id="game-best">—</strong></div>
+          </div>
+          <div class="game-stage">
+            <div class="game-board" id="game-board" role="grid" aria-label="بطاقات اللعبة"></div>
+            <div class="game-overlay" id="game-overlay">
+              <p class="eyebrow" id="game-overlay-eyebrow">جاهزة؟</p>
+              <h3 id="game-overlay-title">طابق الأصناف</h3>
+              <p id="game-overlay-text">اقلبي بطاقتين في كل مرة، وجمعي السفرة كاملة.</p>
+              <button class="btn btn-primary" id="game-start" type="button">ابدئي اللعب</button>
+              <a class="btn btn-ghost" href="#menu">اطلبي من القائمة</a>
+            </div>
+          </div>
+          <p class="muted game-hint" id="game-hint">ضغطة على البطاقة تقلبها. طابقي كل صنف مع توأمه.</p>
+        </div>
       </div>
     </section>
 
@@ -351,7 +387,7 @@
           </div>
           <p class="muted">بعد إتمام السلة ننقلك مباشرة إلى واتساب والطلب مكتوب تلقائياً.</p>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=73" alt="كي كارد">
+            <img src="assets/qi-card.png?v=74" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد</span>
@@ -367,7 +403,7 @@
     <div class="container footer-inner">
       <div class="brand brand-footer">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=73" alt="">
+          <img src="assets/logo.png?v=74" alt="">
         </span>
         <span class="brand-text">
           <strong>مأكولات الياقوت والمرجان</strong>
@@ -490,7 +526,7 @@
           </label>
           <div class="checkout-summary" id="checkout-summary"></div>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=73" alt="كي كارد">
+            <img src="assets/qi-card.png?v=74" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد — عند تأكيد الطلب عبر واتساب.</span>
@@ -526,7 +562,7 @@
 
   <div class="install-overlay" id="install-banner" hidden>
     <div class="install-modal" role="dialog" aria-labelledby="install-title">
-      <img class="install-icon" src="assets/app-icon.png?v=73" alt="" />
+      <img class="install-icon" src="assets/app-icon.png?v=74" alt="" />
       <h3 id="install-title">ثبّت التطبيق على هاتفك</h3>
       <p id="install-text">يظهر مع التطبيقات وتفتحه مثل واتساب، بدون المتصفح.</p>
       <ol class="install-steps" id="install-steps" hidden></ol>
@@ -570,9 +606,10 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=73"></script>
-  <script src="js/menu-data.js?v=73"></script>
-  <script src="js/menu-store.js?v=73"></script>
-  <script src="js/app.js?v=73"></script>
+  <script src="js/config.js?v=74"></script>
+  <script src="js/menu-data.js?v=74"></script>
+  <script src="js/menu-store.js?v=74"></script>
+  <script src="js/app.js?v=74"></script>
+  <script src="js/game.js?v=74"></script>
 </body>
 </html>
