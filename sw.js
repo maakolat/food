@@ -1,11 +1,52 @@
-const CACHE = "yam-app-v83";
+const CACHE = "yam-app-v84";
 const IDB_NAME = "yam-notify-v1";
 const IDB_STORE = "state";
 const VAPID_PUBLIC = "BEfFV9lMNzSY-Z9xW8zr_ISpD5BYdkQMUpOOCf29MZEP6X6_6cOdEOzpX5wl-jdMvg88wgUXYEhbwuvWjnhxO-M";
 const NTFY_TOPIC = "yam-alyaqout-n7p4w2";
+const PRECACHE = [
+  "./",
+  "./index.html",
+  "./privacy.html",
+  "./manifest.webmanifest",
+  "./css/style.css",
+  "./js/config.js",
+  "./js/menu-data.js",
+  "./js/menu-store.js",
+  "./js/app.js",
+  "./js/game.js",
+  "./js/snake.js",
+  "./assets/logo.png",
+  "./assets/app-icon.png",
+  "./assets/app-icon-192.png",
+  "./assets/qi-card.png",
+  "./assets/facebook.svg",
+  "./assets/instagram.svg",
+  "./menu.json",
+  "./assets/pastry-mix.jpg",
+  "./assets/kibbeh-mix.jpg",
+  "./assets/kibbeh-halabi.jpg",
+  "./assets/kibbeh-mosul.jpg",
+  "./assets/kibbeh-burghul.jpg",
+  "./assets/kabsa.jpg",
+  "./assets/chicken-tray.jpg",
+  "./assets/dolma.jpg",
+  "./assets/kleija-ghee.jpg",
+  "./assets/kleija-walnut.jpg",
+  "./assets/kleija-plain.jpg",
+  "./assets/basbousa.jpg",
+  "./assets/cake-plain.jpg",
+  "./assets/cake-layer.jpg",
+  "./assets/qatayef.jpg",
+  "./assets/grilled-fish.jpg",
+  "./assets/qouzi.jpg"
+];
 
 self.addEventListener("install", (event) => {
-  self.skipWaiting();
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    await Promise.all(PRECACHE.map((url) => cache.add(url).catch(() => {})));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
@@ -20,24 +61,9 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   let url;
   try { url = new URL(event.request.url); } catch (err) { return; }
-  if (url.origin !== self.location.origin) return;
-  if (/manifest\.webmanifest$|\/sw\.js$|admin\.html$|\.js$|\.css$|app-icon|\/logo\.png$/i.test(url.pathname)) return;
-  if (/menu\.json(\?|$)|\/assets\/uploads\//.test(url.pathname + url.search)) return;
-
-  event.respondWith((async () => {
-    try {
-      const res = await fetch(event.request);
-      if (res && res.ok && res.type === "basic") {
-        const copy = res.clone();
-        caches.open(CACHE).then((cache) => cache.put(event.request, copy)).catch(() => {});
-      }
-      return res;
-    } catch (err) {
-      const cached = await caches.match(event.request);
-      if (cached) return cached;
-      throw err;
-    }
-  })());
+  if (url.pathname.endsWith("/sw.js") || url.pathname.endsWith("admin.html")) return;
+  if (!isCacheable(url)) return;
+  event.respondWith(networkFirst(event.request));
 });
 
 self.addEventListener("periodicsync", (event) => {
@@ -78,6 +104,9 @@ self.addEventListener("message", (event) => {
   if (data.type === "yam-check") {
     event.waitUntil(checkForNews(data.reason || "message"));
   }
+  if (data.type === "yam-cache" && Array.isArray(data.urls)) {
+    event.waitUntil(cacheUrls(data.urls));
+  }
 });
 
 self.addEventListener("notificationclick", (event) => {
@@ -85,6 +114,52 @@ self.addEventListener("notificationclick", (event) => {
   const target = (event.notification.data && event.notification.data.url) || "./";
   event.waitUntil(openTarget(target));
 });
+
+function isCacheable(url) {
+  const same = url.origin === self.location.origin;
+  if (same && /menu\.json$/i.test(url.pathname)) return true;
+  if (same && /\.(html|js|css|png|jpe?g|svg|webp|gif|wav|webmanifest)$/i.test(url.pathname)) return true;
+  if (same && (url.pathname.endsWith("/") || /\/food\/?$/i.test(url.pathname))) return true;
+  if (/raw\.githubusercontent\.com\/maakolat\/food\//i.test(url.href) && /\/assets\/uploads\//i.test(url.pathname)) return true;
+  if (url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com") return true;
+  return false;
+}
+
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE);
+  try {
+    const res = await fetch(request);
+    if (res && (res.ok || res.type === "opaque")) {
+      cache.put(request, res.clone()).catch(() => {});
+    }
+    return res;
+  } catch (err) {
+    const cached = await cache.match(request) || await caches.match(request, { ignoreSearch: true });
+    if (cached) return cached;
+    if (request.mode === "navigate") {
+      return (await cache.match("./index.html")) || (await cache.match("./")) || Promise.reject(err);
+    }
+    throw err;
+  }
+}
+
+async function cacheUrls(urls) {
+  const cache = await caches.open(CACHE);
+  await Promise.all((urls || []).slice(0, 80).map(async (src) => {
+    const url = String(src || "");
+    if (!url || url.indexOf("data:") === 0) return;
+    try {
+      let res = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (!res || !res.ok) res = await fetch(url, { mode: "no-cors", credentials: "omit" });
+      if (res && (res.ok || res.type === "opaque")) await cache.put(url, res);
+    } catch (err) {
+      try {
+        const res = await fetch(url, { mode: "no-cors", credentials: "omit" });
+        if (res) await cache.put(url, res);
+      } catch (ignored) {}
+    }
+  }));
+}
 
 function urlB64ToU8(base64String) {
   const padding = "=".repeat((4 - (String(base64String).length % 4)) % 4);

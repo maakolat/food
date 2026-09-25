@@ -153,6 +153,25 @@
     if (window.YAM_SNAKE && typeof window.YAM_SNAKE.useMenu === "function") {
       window.YAM_SNAKE.useMenu(menu);
     }
+    cacheMenuMedia();
+  }
+
+  function cacheMenuMedia() {
+    if (!navigator.serviceWorker) return;
+    const send = () => {
+      const ctrl = navigator.serviceWorker.controller;
+      if (!ctrl) return;
+      const urls = [];
+      (menu || []).forEach((item) => {
+        if (item && item.image) urls.push(dishImage(item.image));
+      });
+      (stories || []).forEach((story) => {
+        if (story && story.image) urls.push(story.image);
+      });
+      ctrl.postMessage({ type: "yam-cache", urls });
+    };
+    if (navigator.serviceWorker.controller) send();
+    else navigator.serviceWorker.ready.then(send).catch(() => {});
   }
 
   function loadCatalog() {
