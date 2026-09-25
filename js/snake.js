@@ -59,22 +59,37 @@
     return String(src || "");
   }
 
+  function isAdminUpload(src) {
+    return /assets\/uploads\//i.test(imageKey(src));
+  }
+
+  function latestMenu() {
+    if (window.MenuStore && window.MenuStore.loadImmediate) {
+      const live = window.MenuStore.loadImmediate();
+      if (live && live.menu) return live.menu;
+    }
+    return [];
+  }
+
   function dishesFromMenu(menu) {
     const seen = {};
     const uploaded = [];
-    const others = [];
     (menu || []).forEach((item) => {
       if (!item || !item.image) return;
       const image = media(item.image);
       if (!image || image.indexOf("data:") === 0) return;
+      if (!isAdminUpload(image)) return;
       const key = imageKey(image);
       if (seen[key]) return;
       seen[key] = 1;
-      const row = { id: String(item.id || key), name: String(item.name || "صنف"), image: image };
-      if (/uploads\//i.test(key)) uploaded.push(row);
-      else others.push(row);
+      uploaded.push({ id: String(item.id || key), name: String(item.name || "صنف"), image: image });
     });
-    return uploaded.length ? uploaded : uploaded.concat(others);
+    return uploaded;
+  }
+
+  function refreshPool(menu) {
+    pool = dishesFromMenu(menu || latestMenu());
+    return pool;
   }
 
   function loadImg(src) {
@@ -143,9 +158,7 @@
   }
 
   function pickDish(busyIds) {
-    const src = pool.length ? pool : dishesFromMenu(
-      (window.MenuStore && window.MenuStore.loadImmediate && (window.MenuStore.loadImmediate().menu || [])) || []
-    );
+    const src = pool.length ? pool : refreshPool();
     if (!src.length) return null;
     const avoid = busyIds || [];
     const fresh = src.filter((d) => avoid.indexOf(d.id) < 0);
@@ -434,22 +447,41 @@
     fitCanvas();
   }
 
+  const NEED_MSG = "ارفعوا صور الأصناف من لوحة الإدارة. الدودة تأكل الصور المرفوعة فقط، مو الصور الافتراضية.";
+
   function startGame() {
-    const src = pool.length ? pool : dishesFromMenu(
-      (window.MenuStore && window.MenuStore.loadImmediate && (window.MenuStore.loadImmediate().menu || [])) || []
-    );
-    pool = src;
-    if (!src.length) {
-      showOverlay("القائمة", "ماكو أصناف بعد", "ارفعوا صور الأصناف من لوحة الإدارة حتى تأكل الدودة منها.", "حاولي لاحقاً");
+    function begin() {
+      const src = refreshPool();
+      if (!src.length) {
+        showOverlay("القائمة", "ماكو صور مرفوعة", NEED_MSG, "حاولي لاحقاً");
+        return;
+      }
+      src.forEach((d) => loadImg(d.image));
+      resetBoard();
+      hideOverlay();
+      playing = true;
+      if (hint) hint.textContent = "اختاري اتجاه من الأسهم أو اسحبي. الدودة ما تمشي إلا بعد أول حركة.";
+      startLoop();
+      draw();
+    }
+    refreshPool();
+    if (pool.length) {
+      begin();
       return;
     }
-    src.forEach((d) => loadImg(d.image));
-    resetBoard();
-    hideOverlay();
-    playing = true;
-    if (hint) hint.textContent = "اختاري اتجاه من الأسهم أو اسحبي. الدودة ما تمشي إلا بعد أول حركة.";
-    startLoop();
-    draw();
+    if (window.MenuStore && window.MenuStore.refreshPublished) {
+      startBtn.disabled = true;
+      window.MenuStore.refreshPublished().then((data) => {
+        startBtn.disabled = false;
+        if (data && data.menu) refreshPool(data.menu);
+        begin();
+      }).catch(() => {
+        startBtn.disabled = false;
+        begin();
+      });
+      return;
+    }
+    begin();
   }
 
   startBtn.addEventListener("click", startGame);
@@ -506,22 +538,20 @@
   showOverlay(
     "لقمة ورا لقمة",
     "هل تشبعين الدودة؟",
-    "الأصناف من قائمتكم الحقيقية، وكل واحد مكتوب اسمه. كلي بدون ما تصطدمي بالجدار أو بجسمك.",
+    "الأصناف المرفوعة من لوحة الإدارة، وكل واحد مكتوب اسمه. كلي بدون ما تصطدمي بالجدار أو بجسمك.",
     "ابدئي الدودة"
   );
 
   window.YAM_SNAKE = {
     useMenu: function (menu) {
-      const next = dishesFromMenu(menu);
-      const same = next.map((d) => imageKey(d.image)).sort().join("|") === pool.map((d) => imageKey(d.image)).sort().join("|");
-      pool = next;
+      const next = refreshPool(menu);
       next.forEach((d) => loadImg(d.image));
-      if (playing || same) return;
+      if (playing) return;
       resetBoard();
       showOverlay(
         "لقمة ورا لقمة",
         "هل تشبعين الدودة؟",
-        "الأصناف من قائمتكم الحقيقية، وكل واحد مكتوب اسمه. كلي بدون ما تصطدمي بالجدار أو بجسمك.",
+        "الأصناف المرفوعة من لوحة الإدارة، وكل واحد مكتوب اسمه. كلي بدون ما تصطدمي بالجدار أو بجسمك.",
         "ابدئي الدودة"
       );
     }

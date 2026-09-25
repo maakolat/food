@@ -53,31 +53,44 @@
     return String(src || "");
   }
 
+  function isAdminUpload(src) {
+    return /assets\/uploads\//i.test(imageKey(src));
+  }
+
+  function latestMenu() {
+    if (window.MenuStore && window.MenuStore.loadImmediate) {
+      const live = window.MenuStore.loadImmediate();
+      if (live && live.menu) return live.menu;
+    }
+    return [];
+  }
+
   function dishesFromMenu(menu) {
     const seen = {};
     const uploaded = [];
-    const others = [];
     (menu || []).forEach((item) => {
       if (!item || !item.image) return;
       const image = media(item.image);
       if (!image || image.indexOf("data:") === 0) return;
+      if (!isAdminUpload(image)) return;
       const key = imageKey(image);
       if (seen[key]) return;
       seen[key] = 1;
-      const row = { id: String(item.id || key), name: String(item.name || "صنف"), image: image };
-      if (/uploads\//i.test(key)) uploaded.push(row);
-      else others.push(row);
+      uploaded.push({ id: String(item.id || key), name: String(item.name || "صنف"), image: image });
     });
-    return uploaded.length >= 4 ? uploaded : uploaded.concat(others);
+    return uploaded;
+  }
+
+  function refreshPool(menu) {
+    pool = dishesFromMenu(menu || latestMenu());
+    return pool;
   }
 
   function pickRound() {
-    const src = pool.length ? pool : dishesFromMenu(
-      (window.MenuStore && window.MenuStore.loadImmediate && (window.MenuStore.loadImmediate().menu || [])) || []
-    );
+    const src = refreshPool();
     const count = Math.min(8, src.length);
     dishes = shuffle(src).slice(0, count);
-    board.style.setProperty("--game-cols", dishes.length <= 6 ? "3" : "4");
+    board.style.setProperty("--game-cols", dishes.length <= 4 ? "2" : dishes.length <= 6 ? "3" : "4");
   }
 
   function formatTime(n) {
@@ -323,10 +336,37 @@
     }
   }
 
+  const NEED_MSG = "ارفعوا صور الأصناف من لوحة الإدارة. اللعبة تستخدم الصور المرفوعة فقط، مو الصور الافتراضية.";
+
   function startGame() {
-    reset();
-    hideOverlay();
-    peekThenPlay();
+    function begin() {
+      refreshPool();
+      if (pool.length < 2) {
+        showOverlay("القائمة", "ماكو صور مرفوعة", NEED_MSG, "حاولي لاحقاً");
+        return;
+      }
+      reset();
+      hideOverlay();
+      peekThenPlay();
+    }
+    refreshPool();
+    if (pool.length >= 2) {
+      begin();
+      return;
+    }
+    if (window.MenuStore && window.MenuStore.refreshPublished) {
+      startBtn.disabled = true;
+      window.MenuStore.refreshPublished().then((data) => {
+        startBtn.disabled = false;
+        if (data && data.menu) refreshPool(data.menu);
+        begin();
+      }).catch(() => {
+        startBtn.disabled = false;
+        begin();
+      });
+      return;
+    }
+    begin();
   }
 
   board.addEventListener("click", (e) => {
@@ -343,22 +383,19 @@
   showOverlay(
     "تحدّي",
     "هل تلحقين السفرة؟",
-    "5 دقائق وصور أصنافكم الحقيقية بدون أسماء. احفظي الصورة ثم طابقي قبل نفاد الوقت.",
+    "5 دقائق وصور أصنافكم المرفوعة من لوحة الإدارة، بدون أسماء. احفظي الصورة ثم طابقي قبل نفاد الوقت.",
     "ابدئي التحدي"
   );
 
   window.YAM_GAME = {
     useMenu: function (menu) {
-      const next = dishesFromMenu(menu);
-      const same = next.map((d) => imageKey(d.image)).sort().join("|") === pool.map((d) => imageKey(d.image)).sort().join("|");
-      pool = next;
-      if (playing || lock || same) return;
-      pickRound();
+      refreshPool(menu);
+      if (playing || lock) return;
       reset();
       showOverlay(
         "تحدّي",
         "هل تلحقين السفرة؟",
-        "5 دقائق وصور أصنافكم الحقيقية بدون أسماء. احفظي الصورة ثم طابقي قبل نفاد الوقت.",
+        "5 دقائق وصور أصنافكم المرفوعة من لوحة الإدارة، بدون أسماء. احفظي الصورة ثم طابقي قبل نفاد الوقت.",
         "ابدئي التحدي"
       );
     }
