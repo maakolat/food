@@ -1,5 +1,5 @@
 {
-  "updatedAt": 1790347546619,
+  "updatedAt": 1790347550177,
   "subs": [
     {
       "endpoint": "https://fcm.googleapis.com/fcm/send/fRVganQecho:APA91bGgYj7_HDsHSdW2-Dl7rU3NkPo3JPH7a8MGORupf7gEp-kj80YsAhgqDGkDuS-ZyOAauGB0MlOZI3QKfYoPAz5tNzxbvQJIFPC9_mvNNR6uEfrukLSjY9qayVtU6yuKjfZvVZSU",
@@ -15,14 +15,6 @@
       "keys": {
         "p256dh": "BGLlZvSkw7BzE4UEJ7B8t1MAXUt-Ux80ZQ1wofohZX07r1iaqTZm3OCq2KHi3d5pABwd_lijFC1FNX6bYgLzTqI",
         "auth": "i5_7-VS7hrtbffHRTERqQw"
-      }
-    },
-    {
-      "endpoint": "https://fcm.googleapis.com/fcm/send/fefKag2dDDY:APA91bG8BqtxKD5s8yq52Kd3QGuYMzYaQj8OSz2iSpqwDlZaZzkZciCBMMMvPRO2qEF7OgMHjZbfQPM_Hu_tWG9VAup2kjQ1NzxIAG82bZ0FaJ-TRquepnvYhsRl5fMiEONLfoMuJT0W",
-      "expirationTime": null,
-      "keys": {
-        "p256dh": "BIch0hGo1WPlm7hzRFdLBnd-OvnMA2nNmtxrVhOwiEbuC_dVcD54H0hqo0ObLmZnOzBPBKQW2G0BTuQWIKjaRnk",
-        "auth": "Aj_SYsF_nmUcuVaATxnQIg"
       }
     }
   ]
