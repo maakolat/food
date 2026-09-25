@@ -343,7 +343,7 @@
       "extraIds": [
         "pickles"
       ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347817330-1790347817337.jpg?v=1790347817337",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347817330-1790347817337.jpg",
       "unit": "صينيه دجاج كامله",
       "price": 15000
     }
@@ -489,7 +489,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790347938763,
+  "updatedAt": 1790347953545,
   "alerts": [
     {
       "id": "alert-1790263611923",
