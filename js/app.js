@@ -1146,7 +1146,9 @@
       `العنوان: ${data.address}`,
       data.locationUrl ? `الموقع على الخريطة: ${data.locationUrl}` : "الموقع: لم يُحدَّد",
       `الاستلام: ${data.fulfillment}`,
-      `خبز: ${data.bread || "لم يُحدَّد"}`,
+      data.bread === "نعم"
+        ? `خبز: نعم — الكمية: ${data.breadAmount || "غير محددة"} (المندوب يشتريه)`
+        : `خبز: ${data.bread || "لم يُحدَّد"}`,
       data.notes ? `ملاحظات: ${data.notes}` : "",
       "",
       "الطلب:"
@@ -1789,12 +1791,30 @@
 
     setupDock(openProfile);
 
+    const breadAmount = document.getElementById("bread-amount");
+    function syncBreadAmount() {
+      const yes = !!els.checkoutForm.querySelector('[name="bread"][value="نعم"]:checked');
+      if (!breadAmount) return;
+      breadAmount.required = yes;
+      if (!yes) breadAmount.value = "";
+    }
+    els.checkoutForm.querySelectorAll('[name="bread"]').forEach((input) => {
+      input.addEventListener("change", syncBreadAmount);
+    });
+    syncBreadAmount();
+
     els.checkoutForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const form = new FormData(els.checkoutForm);
       const bread = String(form.get("bread") || "").trim();
+      const breadQty = String(form.get("breadAmount") || "").trim();
       if (!bread) {
         toast("حدّد إذا كنت تريد خبزاً مع الطلب أو لا");
+        return;
+      }
+      if (bread === "نعم" && !breadQty) {
+        toast("اكتب كمية الخبز الإضافي حتى يشتريه المندوب");
+        if (breadAmount) breadAmount.focus();
         return;
       }
       if (!customerLocation) {
@@ -1808,6 +1828,7 @@
         address: form.get("address").trim(),
         fulfillment: form.get("fulfillment"),
         bread,
+        breadAmount: breadQty,
         notes: form.get("notes").trim(),
         locationUrl: customerLocation.url
       });

@@ -959,6 +959,19 @@ input[type="text"], input[type="tel"], textarea, select {
   margin: 0 0 6px;
 }
 .bread-choice { margin-top: 4px; }
+.bread-amount {
+  display: none;
+  width: 100%;
+  margin-top: 6px;
+  gap: 6px;
+  font-weight: 800;
+}
+.bread-choice:has([value="نعم"]:checked) .bread-amount {
+  display: grid;
+}
+.bread-amount input {
+  font-weight: 700;
+}
 .location-box {
   margin-bottom: 12px;
 }
