@@ -315,9 +315,9 @@
       "extraIds": [
         "pickles"
       ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347541810-1790347541819.jpg?v=1790347541819",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347541810-1790347541819.jpg",
       "unit": "حجم كبير",
-      "price": 250000
+      "price": 25000
     }
   ],
   "assets": [
@@ -459,7 +459,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790347541818,
+  "updatedAt": 1790347604940,
   "alerts": [
     {
       "id": "alert-1790263611923",
