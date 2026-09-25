@@ -318,6 +318,19 @@
       "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347541810-1790347541819.jpg",
       "unit": "حجم كبير",
       "price": 25000
+    },
+    {
+      "id": "dish-1790347678650",
+      "name": "برياني دجاج",
+      "desc": "برياني دجاج",
+      "category": "pastry",
+      "extrasKey": "custom",
+      "extraIds": [
+        "pickles"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347678650-1790347678656.jpg?v=1790347678656",
+      "unit": "كبير",
+      "price": 20000
     }
   ],
   "assets": [
@@ -389,7 +402,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790253576861-1790253576863.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790254884743-1790254884746.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790260854167-1790260854169.jpg",
-    "assets/uploads/dish-1790347541810-1790347541819.jpg"
+    "assets/uploads/dish-1790347541810-1790347541819.jpg",
+    "assets/uploads/dish-1790347678650-1790347678656.jpg"
   ],
   "stories": [
     {
@@ -459,7 +473,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790347604940,
+  "updatedAt": 1790347678656,
   "alerts": [
     {
       "id": "alert-1790263611923",
