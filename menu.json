@@ -305,6 +305,19 @@
       "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790179287045-1790179287105.jpg",
       "unit": "",
       "price": 30000
+    },
+    {
+      "id": "dish-1790347541810",
+      "name": "برياني لحم",
+      "desc": "برباني لحم وسط وكبير",
+      "category": "pastry",
+      "extrasKey": "custom",
+      "extraIds": [
+        "pickles"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347541810-1790347541819.jpg?v=1790347541819",
+      "unit": "حجم كبير",
+      "price": 250000
     }
   ],
   "assets": [
@@ -375,7 +388,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790179363124-1790179363130.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790253576861-1790253576863.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790254884743-1790254884746.jpg",
-    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790260854167-1790260854169.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790260854167-1790260854169.jpg",
+    "assets/uploads/dish-1790347541810-1790347541819.jpg"
   ],
   "stories": [
     {
@@ -445,7 +459,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790263939412,
+  "updatedAt": 1790347541818,
   "alerts": [
     {
       "id": "alert-1790263611923",
