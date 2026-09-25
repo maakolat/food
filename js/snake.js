@@ -1,15 +1,15 @@
 (function () {
   const KEY = "yam-snake-best-v1";
-  const COLS = 11;
-  const ROWS = 12;
+  const COLS = 16;
+  const ROWS = 18;
   const START_TICK = 170;
   const MIN_TICK = 90;
 
   const canvas = document.getElementById("snake-board");
   const overlay = document.getElementById("snake-overlay");
   const startBtn = document.getElementById("snake-start");
-  const pad = document.getElementById("snake-pad");
   if (!canvas || !overlay || !startBtn) return;
+  const stage = canvas.parentElement;
 
   const ctx = canvas.getContext("2d");
   const scoreEl = document.getElementById("snake-score");
@@ -274,9 +274,9 @@
   function drawFoodName(food) {
     const cx = food.x * cell + cell / 2;
     const cy = food.y * cell + cell / 2;
-    const size = cell * 0.9;
-    const maxW = Math.min(cell * 2.4, cell * COLS - 8);
-    const fontSize = Math.max(12, Math.floor(cell * 0.34));
+    const size = cell * 0.72;
+    const maxW = Math.min(cell * 2.8, cell * COLS - 8);
+    const fontSize = Math.max(11, Math.floor(cell * 0.42));
     ctx.font = "800 " + fontSize + "px Cairo, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -314,14 +314,14 @@
     foods.forEach((food) => {
       const cx = food.x * cell + cell / 2;
       const cy = food.y * cell + cell / 2;
-      drawDish(cx, cy, cell * 0.9, food);
+      drawDish(cx, cy, cell * 0.72, food);
     });
     for (let i = snake.length - 1; i >= 1; i--) {
       const p = snake[i];
       const meal = meals[meals.length - i];
       const cx = p.x * cell + cell / 2;
       const cy = p.y * cell + cell / 2;
-      const size = cell * (i === snake.length - 1 ? 0.68 : 0.78);
+      const size = cell * (i === snake.length - 1 ? 0.42 : 0.5);
       if (meal) drawDish(cx, cy, size, meal);
       else {
         ctx.beginPath();
@@ -338,20 +338,20 @@
     const hx = head.x * cell + cell / 2;
     const hy = head.y * cell + cell / 2;
     ctx.beginPath();
-    ctx.arc(hx, hy, cell * 0.42, 0, Math.PI * 2);
+    ctx.arc(hx, hy, cell * 0.26, 0, Math.PI * 2);
     ctx.fillStyle = "#f4c9d4";
     ctx.fill();
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2;
     ctx.strokeStyle = "#e3be55";
     ctx.stroke();
-    const ex = dir.x * cell * 0.14;
-    const ey = dir.y * cell * 0.14;
-    const ox = -dir.y * cell * 0.13;
-    const oy = dir.x * cell * 0.13;
+    const ex = dir.x * cell * 0.08;
+    const ey = dir.y * cell * 0.08;
+    const ox = -dir.y * cell * 0.08;
+    const oy = dir.x * cell * 0.08;
     ctx.fillStyle = "#1c100c";
     ctx.beginPath();
-    ctx.arc(hx + ex + ox, hy + ey + oy, cell * 0.08, 0, Math.PI * 2);
-    ctx.arc(hx + ex - ox, hy + ey - oy, cell * 0.08, 0, Math.PI * 2);
+    ctx.arc(hx + ex + ox, hy + ey + oy, cell * 0.05, 0, Math.PI * 2);
+    ctx.arc(hx + ex - ox, hy + ey - oy, cell * 0.05, 0, Math.PI * 2);
     ctx.fill();
     foods.forEach(drawFoodName);
   }
@@ -441,7 +441,7 @@
     foods = [];
     tickMs = START_TICK;
     primed = false;
-    snake = [{ x: 3, y: 6 }, { x: 2, y: 6 }, { x: 1, y: 6 }];
+    snake = [{ x: 4, y: 9 }, { x: 3, y: 9 }, { x: 2, y: 9 }];
     spawnFood(2);
     setHud();
     fitCanvas();
@@ -460,7 +460,7 @@
       resetBoard();
       hideOverlay();
       playing = true;
-      if (hint) hint.textContent = "اختاري اتجاه من الأسهم أو اسحبي. الدودة ما تمشي إلا بعد أول حركة.";
+      if (hint) hint.textContent = "اسحبي على الشاشة. أول سحبة تبدأ الحركة.";
       startLoop();
       draw();
     }
@@ -485,11 +485,36 @@
   }
 
   startBtn.addEventListener("click", startGame);
-  pad && pad.addEventListener("click", (e) => {
-    const btn = e.target.closest("button");
-    if (!btn || !playing) return;
-    setDir(Number(btn.dataset.dx), Number(btn.dataset.dy));
-  });
+  function applySwipe(dx, dy) {
+    if (Math.abs(dx) < 18 && Math.abs(dy) < 18) return false;
+    if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
+    else setDir(0, dy > 0 ? 1 : -1);
+    return true;
+  }
+  function onPointerDown(e) {
+    if (!playing || overlay.classList.contains("is-on")) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    touchStart = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    if (stage && stage.setPointerCapture) {
+      try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+  }
+  function onPointerMove(e) {
+    if (!playing || !touchStart || e.pointerId !== touchStart.id) return;
+    const dx = e.clientX - touchStart.x;
+    const dy = e.clientY - touchStart.y;
+    if (applySwipe(dx, dy)) touchStart = { x: e.clientX, y: e.clientY, id: e.pointerId };
+  }
+  function onPointerUp(e) {
+    if (!touchStart || e.pointerId !== touchStart.id) return;
+    applySwipe(e.clientX - touchStart.x, e.clientY - touchStart.y);
+    touchStart = null;
+  }
+  const swipeEl = stage || canvas;
+  swipeEl.addEventListener("pointerdown", onPointerDown);
+  swipeEl.addEventListener("pointermove", onPointerMove);
+  swipeEl.addEventListener("pointerup", onPointerUp);
+  swipeEl.addEventListener("pointercancel", () => { touchStart = null; });
   document.addEventListener("keydown", (e) => {
     if (!playing) return;
     const tag = (document.activeElement && document.activeElement.tagName) || "";
@@ -504,20 +529,6 @@
     e.preventDefault();
     setDir(next[0], next[1]);
   });
-  canvas.addEventListener("touchstart", (e) => {
-    const t = e.changedTouches[0];
-    touchStart = { x: t.clientX, y: t.clientY };
-  }, { passive: true });
-  canvas.addEventListener("touchend", (e) => {
-    if (!touchStart) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchStart.x;
-    const dy = t.clientY - touchStart.y;
-    touchStart = null;
-    if (Math.abs(dx) < 18 && Math.abs(dy) < 18) return;
-    if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
-    else setDir(0, dy > 0 ? 1 : -1);
-  }, { passive: true });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState !== "visible") {
       playing = false;
@@ -537,8 +548,8 @@
   resetBoard();
   showOverlay(
     "لقمة ورا لقمة",
-    "هل تشبعين الدودة؟",
-    "الأصناف المرفوعة من لوحة الإدارة، وكل واحد مكتوب اسمه. كلي بدون ما تصطدمي بالجدار أو بجسمك.",
+    "لعبة الدودة",
+    "",
     "ابدئي الدودة"
   );
 
@@ -550,8 +561,8 @@
       resetBoard();
       showOverlay(
         "لقمة ورا لقمة",
-        "هل تشبعين الدودة؟",
-        "الأصناف المرفوعة من لوحة الإدارة، وكل واحد مكتوب اسمه. كلي بدون ما تصطدمي بالجدار أو بجسمك.",
+        "لعبة الدودة",
+        "",
         "ابدئي الدودة"
       );
     }
