@@ -17,7 +17,7 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=68" />
+  <link rel="stylesheet" href="css/style.css?v=85" />
 </head>
 <body class="admin-page">
   <div class="page-bg" aria-hidden="true"></div>
@@ -45,7 +45,7 @@
         </p>
         <p class="admin-error" id="file-origin-hint" hidden>
           لا تفتح هذه الصفحة من ملف الجهاز. استخدم رابط الموقع:
-          <a href="https://maakolat.github.io/food/admin.html?v=68">لوحة الإدارة على الإنترنت</a>
+          <a href="https://maakolat.github.io/food/admin.html?v=85">لوحة الإدارة على الإنترنت</a>
         </p>
       </form>
       <a class="muted" href="index.html">العودة للموقع</a>
@@ -57,11 +57,10 @@
       <div class="container header-inner">
         <a class="brand" href="index.html">
           <span class="brand-mark" aria-hidden="true">
-            <img src="assets/logo.png?v=68" alt="">
+            <img src="assets/logo.png?v=85" alt="">
           </span>
           <span class="brand-text">
             <strong>لوحة الإدارة</strong>
-            <small>كل شيء بمكانه — القائمة محفوظة</small>
           </span>
         </a>
         <a class="btn btn-ghost" href="index.html">عرض الموقع</a>
@@ -89,14 +88,11 @@
     </div>
 
     <main class="container admin-main">
-      <p class="admin-guide" id="admin-guide">اختاري تبويب الأصناف لإضافة أو تعديل أكلة. الحفظ يحدّث هذا الصنف فقط ولا يمسح القائمة.</p>
-
       <section class="admin-tab-panel" id="tab-dishes" role="tabpanel" aria-labelledby="tab-btn-dishes">
         <div class="admin-toolbar">
           <div>
             <h2>الأصناف</h2>
             <p class="muted" id="dish-count"></p>
-            <p class="muted">عدّلي صنفاً واحداً في كل مرة. باقي الأصناف تبقى كما هي.</p>
           </div>
           <div class="admin-toolbar-actions">
             <button class="btn btn-primary" id="add-dish" type="button">إضافة صنف</button>
@@ -112,7 +108,6 @@
         <div class="admin-toolbar">
           <div>
             <h2>الستوري</h2>
-            <p class="muted">ارفعِ الصورة، حددي المدة، ثم انشري. هذا التبويب لا يغيّر الأصناف.</p>
           </div>
           <div class="admin-toolbar-actions">
             <button class="btn btn-primary" id="add-story" type="button">إضافة ستوري</button>
@@ -126,7 +121,6 @@
           <div class="admin-toolbar">
             <div>
               <h2 id="alert-heading">إشعار عاجل للزبائن</h2>
-              <p class="muted">إذا أرسلتِ أكثر من إشعار يبقى كلها ظاهرة، والشريط عند الزبون يتبدل بينها كل 5 ثوانٍ. احذفي إشعاراً واحداً من القائمة دون الباقي.</p>
             </div>
           </div>
           <div class="admin-live-alerts">
@@ -173,12 +167,6 @@
       </section>
 
       <section class="admin-tab-panel" id="tab-status" role="tabpanel" aria-labelledby="tab-btn-status" hidden>
-        <div class="admin-toolbar">
-          <div>
-            <h2>حالة الموقع</h2>
-            <p class="muted" id="publish-status">الحفظ ينشر القائمة لكل الزبائن.</p>
-          </div>
-        </div>
         <div class="admin-status-grid">
           <article class="admin-stat">
             <span>الأصناف المنشورة</span>
@@ -287,10 +275,10 @@
   <div class="overlay" id="overlay" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=68"></script>
-  <script src="js/menu-data.js?v=68"></script>
-  <script src="js/menu-store.js?v=68"></script>
-  <script src="js/push-send.js?v=68"></script>
-  <script src="js/admin.js?v=68"></script>
+  <script src="js/config.js?v=85"></script>
+  <script src="js/menu-data.js?v=85"></script>
+  <script src="js/menu-store.js?v=85"></script>
+  <script src="js/push-send.js?v=85"></script>
+  <script src="js/admin.js?v=85"></script>
 </body>
 </html>

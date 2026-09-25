@@ -22,12 +22,7 @@
   let editingStoryId = null;
   let remoteLoaded = false;
   let lastSafeMenuLen = 0;
-  const TAB_GUIDES = {
-    dishes: "تبويب الأصناف: أضيفي أو عدّلي أكلة واحدة. الحفظ يحدّث هذا الصنف ولا يمسح باقي القائمة.",
-    stories: "تبويب الستوري: ارفعي الصورة وانشري. هذا التبويب لا يغيّر الأصناف.",
-    alerts: "تبويب الإشعارات: أرسلي خبر عاجل أو احذفي إشعاراً ظاهراً. القائمة والستوري يبقون كما هم.",
-    status: "تبويب الحالة: عدد الأصناف والستوريات وحالة النشر. التنقل بين التبويبات آمن ولا يحذف بيانات."
-  };
+  const TABS = { dishes: 1, stories: 1, alerts: 1, status: 1 };
   const publishStatus = document.getElementById("publish-status");
   const storyModal = document.getElementById("story-modal");
   const storyForm = document.getElementById("story-form");
@@ -175,16 +170,16 @@
 
   function currentTab() {
     const hash = String(location.hash || "").replace("#", "");
-    if (TAB_GUIDES[hash]) return hash;
+    if (TABS[hash]) return hash;
     try {
       const saved = sessionStorage.getItem("yam-admin-tab") || "";
-      if (TAB_GUIDES[saved]) return saved;
+      if (TABS[saved]) return saved;
     } catch (err) {}
     return "dishes";
   }
 
   function showTab(id) {
-    const tab = TAB_GUIDES[id] ? id : "dishes";
+    const tab = TABS[id] ? id : "dishes";
     document.querySelectorAll(".admin-tab-panel").forEach((panel) => {
       panel.hidden = panel.id !== "tab-" + tab;
     });
@@ -193,8 +188,6 @@
       btn.classList.toggle("active", on);
       btn.setAttribute("aria-selected", on ? "true" : "false");
     });
-    const guide = document.getElementById("admin-guide");
-    if (guide) guide.textContent = TAB_GUIDES[tab];
     try { sessionStorage.setItem("yam-admin-tab", tab); } catch (err) {}
   }
 
@@ -356,7 +349,7 @@
         const when = new Date(live[0].createdAt || Date.now()).toLocaleString("ar-IQ");
         el.textContent = "إشعار ظاهر: «" + live[0].title + "» — " + when;
       } else {
-        el.textContent = live.length + " إشعارات ظاهرة، تتبدل عند الزبون كل 5 ثوانٍ.";
+        el.textContent = live.length + " إشعارات ظاهرة.";
       }
     }
     renderLiveAlerts();
@@ -600,9 +593,7 @@
 
   function setPublishStatus(ok) {
     if (!publishStatus) return;
-    publishStatus.textContent = ok
-      ? "القائمة منشورة لكل الزبائن. من فعّل الإشعارات يصله خبر الستوري أو الصنف الجديد."
-      : "الحفظ على هذا الجهاز فقط. تعذر النشر للزبائن — تحقق من الإنترنت ثم احفظ مرة ثانية.";
+    publishStatus.textContent = ok ? "" : "تعذر النشر للزبائن — تحقق من الإنترنت ثم احفظ مرة ثانية.";
   }
 
   async function persist(opts) {
@@ -753,7 +744,7 @@
   });
   window.addEventListener("hashchange", () => {
     const hash = String(location.hash || "").replace("#", "");
-    if (TAB_GUIDES[hash]) showTab(hash);
+    if (TABS[hash]) showTab(hash);
   });
   const dishSearch = document.getElementById("dish-search");
   if (dishSearch) dishSearch.addEventListener("input", () => renderList());
