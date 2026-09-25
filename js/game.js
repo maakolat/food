@@ -266,7 +266,7 @@
       lock = false;
       playing = true;
       startTimer();
-      if (hint) hint.textContent = "طابقي بالصورة فقط. خطآن متتاليان يحرّكان البطاقات.";
+      if (hint) hint.textContent = "طابقي بالصورة فقط. كل 5 محاولات خاطئة تحرّك البطاقات.";
     }, PEEK);
   }
 
@@ -288,7 +288,6 @@
       first.classList.add("is-matched");
       second.classList.add("is-matched");
       matches += 1;
-      misses = 0;
       combo += 1;
       const comboBonus = combo > 1 ? combo * 40 : 0;
       const rushBonus = left > 50 ? 30 : left > 25 ? 15 : 0;
@@ -313,11 +312,11 @@
         second.classList.remove("is-miss", "is-flipped");
         first.setAttribute("aria-label", "بطاقة مخفية");
         second.setAttribute("aria-label", "بطاقة مخفية");
-        if (misses >= 2) {
+        if (misses >= 5) {
           misses = 0;
           shuffleUnmatched();
         } else if (hint) {
-          hint.textContent = "مو نفس الصورة. خطأ آخر يحرّك البطاقات.";
+          hint.textContent = "مو نفس الصورة. بعد " + (5 - misses) + " محاولات خاطئة تتحرّك البطاقات.";
         }
         lock = false;
       }, 500);
