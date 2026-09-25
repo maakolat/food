@@ -313,7 +313,8 @@
       "category": "pastry",
       "extrasKey": "custom",
       "extraIds": [
-        "pickles"
+        "pickles",
+        "greens"
       ],
       "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347541810-1790347541819.jpg",
       "unit": "حجم كبير",
@@ -487,7 +488,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790347817336,
+  "updatedAt": 1790347922137,
   "alerts": [
     {
       "id": "alert-1790263611923",
