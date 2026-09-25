@@ -53,10 +53,6 @@
     return String(src || "");
   }
 
-  function isAdminUpload(src) {
-    return /assets\/uploads\//i.test(imageKey(src));
-  }
-
   function latestMenu() {
     if (window.MenuStore && window.MenuStore.loadImmediate) {
       const live = window.MenuStore.loadImmediate();
@@ -67,18 +63,17 @@
 
   function dishesFromMenu(menu) {
     const seen = {};
-    const uploaded = [];
+    const list = [];
     (menu || []).forEach((item) => {
-      if (!item || !item.image) return;
+      if (!item) return;
       const image = media(item.image);
       if (!image || image.indexOf("data:") === 0) return;
-      if (!isAdminUpload(image)) return;
-      const key = imageKey(image);
-      if (seen[key]) return;
-      seen[key] = 1;
-      uploaded.push({ id: String(item.id || key), name: String(item.name || "صنف"), image: image });
+      const id = String(item.id || imageKey(image));
+      if (seen[id]) return;
+      seen[id] = 1;
+      list.push({ id: id, name: String(item.name || "صنف"), image: image });
     });
-    return uploaded;
+    return list;
   }
 
   function refreshPool(menu) {
@@ -336,13 +331,13 @@
     }
   }
 
-  const NEED_MSG = "ارفعوا صور الأصناف من لوحة الإدارة. اللعبة تستخدم الصور المرفوعة فقط، مو الصور الافتراضية.";
+  const NEED_MSG = "ماكو أصناف في القائمة بعد.";
 
   function startGame() {
     function begin() {
       refreshPool();
       if (pool.length < 2) {
-        showOverlay("القائمة", "ماكو صور مرفوعة", NEED_MSG, "حاولي لاحقاً");
+        showOverlay("القائمة", "ماكو أصناف", NEED_MSG, "حاولي لاحقاً");
         return;
       }
       reset();
