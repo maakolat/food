@@ -150,6 +150,9 @@
     if (window.YAM_GAME && typeof window.YAM_GAME.useMenu === "function") {
       window.YAM_GAME.useMenu(menu);
     }
+    if (window.YAM_SNAKE && typeof window.YAM_SNAKE.useMenu === "function") {
+      window.YAM_SNAKE.useMenu(menu);
+    }
   }
 
   function loadCatalog() {

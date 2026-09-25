@@ -13,11 +13,11 @@
   <title>مأكولات الياقوت والمرجان | اطلب أطيب الأكلات البيتية</title>
   <meta name="description" content="مأكولات الياقوت والمرجان — كبة، دولمة، معجنات وحلويات بيتية. اطلب أونلاين ويصلك الطلب مباشرة على واتساب." />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="assets/app-icon.png?v=78" />
+  <link rel="apple-touch-icon" href="assets/app-icon.png?v=79" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="assets/app-icon.png?v=78" type="image/png" />
+  <link rel="icon" href="assets/app-icon.png?v=79" type="image/png" />
   <script>
     (function () {
       var theme = localStorage.getItem("yam-theme") || "dark";
@@ -27,7 +27,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=78" />
+  <link rel="stylesheet" href="css/style.css?v=79" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -38,7 +38,7 @@
       <div class="container header-inner">
       <a class="brand" href="#top">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=78" alt="">
+          <img src="assets/logo.png?v=79" alt="">
         </span>
         <span class="brand-text">
           <strong>الياقوت والمرجان</strong>
@@ -56,6 +56,7 @@
         <a href="#about">من نحن</a>
         <a href="#contact">تواصل</a>
         <a href="#game">لعبة</a>
+        <a href="#snake">الدودة</a>
       </nav>
 
       <button class="btn btn-ghost install-app-btn" id="install-app-btn" type="button">تثبيت التطبيق</button>
@@ -165,7 +166,7 @@
         </div>
       </div>
       <div class="pay-note">
-        <img src="assets/qi-card.png?v=78" alt="كي كارد">
+        <img src="assets/qi-card.png?v=79" alt="كي كارد">
         <div>
           <strong>الدفع الإلكتروني متوفر</strong>
           <span>يمكنك الدفع عبر كي كارد عند تأكيد الطلب على واتساب.</span>
@@ -358,7 +359,7 @@
           </div>
           <p class="muted">بعد إتمام السلة ننقلك مباشرة إلى واتساب والطلب مكتوب تلقائياً.</p>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=78" alt="كي كارد">
+            <img src="assets/qi-card.png?v=79" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد</span>
@@ -390,10 +391,46 @@
               <h3 id="game-overlay-title">هل تلحقين السفرة؟</h3>
               <p id="game-overlay-text">5 دقائق، صور أصنافكم الحقيقية، وبدون أسماء على البطاقات. احفظي الصورة قبل أن تُخفى.</p>
               <button class="btn btn-primary" id="game-start" type="button">ابدئي التحدي</button>
-              <a class="btn btn-ghost" href="#menu">اطلبي من القائمة</a>
+              <a class="btn btn-ghost" href="#snake">لعبة الدودة</a>
             </div>
           </div>
           <p class="muted game-hint" id="game-hint">نظرة سريعة ثم تُخفى البطاقات. طابقي بالصورة فقط.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="game-section snake-section" id="snake">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow">PLAY</p>
+          <h2>لعبة الدودة</h2>
+          <p>وجّهي الدودة نحو أصنافكم المرفوعة من لوحة الإدارة. كل صنف عليه اسمه، وكل لقمة تكبر الدودة.</p>
+        </header>
+        <div class="game-shell">
+          <div class="game-stats" aria-live="polite">
+            <div>النقاط <strong id="snake-score">0</strong></div>
+            <div>الطول <strong id="snake-len">3</strong></div>
+            <div>أكلتِ <strong id="snake-eaten">0</strong></div>
+            <div>أفضل نتيجة <strong id="snake-best">—</strong></div>
+          </div>
+          <div class="snake-stage">
+            <canvas class="snake-board" id="snake-board" aria-label="لوحة الدودة"></canvas>
+            <div class="game-overlay is-on" id="snake-overlay">
+              <p class="eyebrow" id="snake-overlay-eyebrow">لقمة ورا لقمة</p>
+              <h3 id="snake-overlay-title">هل تشبعين الدودة؟</h3>
+              <p id="snake-overlay-text">الأصناف من قائمتكم الحقيقية، وكل واحد مكتوب اسمه. كلي بدون ما تصطدمي بالجدار أو بجسمك.</p>
+              <button class="btn btn-primary" id="snake-start" type="button">ابدئي الدودة</button>
+            </div>
+          </div>
+          <div class="snake-pad" id="snake-pad" dir="ltr" aria-label="أزرار التحكم">
+            <button type="button" data-dx="0" data-dy="-1" aria-label="فوق">▲</button>
+            <div class="snake-pad-row">
+              <button type="button" data-dx="-1" data-dy="0" aria-label="يسار">◀</button>
+              <button type="button" data-dx="0" data-dy="1" aria-label="تحت">▼</button>
+              <button type="button" data-dx="1" data-dy="0" aria-label="يمين">▶</button>
+            </div>
+          </div>
+          <p class="muted game-hint" id="snake-hint">اسحبي على اللوحة أو استخدمي الأسهم. كل صنف عليه اسمه.</p>
         </div>
       </div>
     </section>
@@ -403,7 +440,7 @@
     <div class="container footer-inner">
       <div class="brand brand-footer">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=78" alt="">
+          <img src="assets/logo.png?v=79" alt="">
         </span>
         <span class="brand-text">
           <strong>مأكولات الياقوت والمرجان</strong>
@@ -526,7 +563,7 @@
           </label>
           <div class="checkout-summary" id="checkout-summary"></div>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=78" alt="كي كارد">
+            <img src="assets/qi-card.png?v=79" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد — عند تأكيد الطلب عبر واتساب.</span>
@@ -562,7 +599,7 @@
 
   <div class="install-overlay" id="install-banner" hidden>
     <div class="install-modal" role="dialog" aria-labelledby="install-title">
-      <img class="install-icon" src="assets/app-icon.png?v=78" alt="" />
+      <img class="install-icon" src="assets/app-icon.png?v=79" alt="" />
       <h3 id="install-title">ثبّت التطبيق على هاتفك</h3>
       <p id="install-text">يظهر مع التطبيقات وتفتحه مثل واتساب، بدون المتصفح.</p>
       <ol class="install-steps" id="install-steps" hidden></ol>
@@ -606,10 +643,11 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=78"></script>
-  <script src="js/menu-data.js?v=78"></script>
-  <script src="js/menu-store.js?v=78"></script>
-  <script src="js/app.js?v=78"></script>
-  <script src="js/game.js?v=78"></script>
+  <script src="js/config.js?v=79"></script>
+  <script src="js/menu-data.js?v=79"></script>
+  <script src="js/menu-store.js?v=79"></script>
+  <script src="js/app.js?v=79"></script>
+  <script src="js/game.js?v=79"></script>
+  <script src="js/snake.js?v=79"></script>
 </body>
 </html>

@@ -2161,3 +2161,50 @@ body:has(#story-viewer:not([hidden])) .mobile-bar { display: none; }
   .game-board { gap: 7px; }
   .game-stage { min-height: 340px; }
 }
+
+.snake-section { padding-top: 8px; }
+.snake-stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(244, 201, 212, 0.18), transparent 42%),
+    linear-gradient(180deg, #241418, #161012);
+  border-radius: 18px;
+  overflow: hidden;
+  min-height: 280px;
+}
+.snake-board {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+  border-radius: 18px;
+}
+.snake-pad {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.snake-pad-row {
+  display: flex;
+  gap: 8px;
+}
+.snake-pad button {
+  width: 58px;
+  height: 50px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--field);
+  color: var(--ink);
+  font-size: 1.05rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.snake-pad button:active {
+  background: var(--gold-soft);
+  color: #1c100c;
+}
+.game-overlay .btn + .btn { margin-top: 8px; }
