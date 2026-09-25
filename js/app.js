@@ -147,6 +147,9 @@
       : (data && data.alert ? [data.alert] : []);
     renderStories();
     renderAlertBanner();
+    if (window.YAM_GAME && typeof window.YAM_GAME.useMenu === "function") {
+      window.YAM_GAME.useMenu(menu);
+    }
   }
 
   function loadCatalog() {

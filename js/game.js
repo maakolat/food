@@ -2,16 +2,6 @@
   const KEY = "yam-game-best-v2";
   const LIMIT = 80;
   const PEEK = 2200;
-  const dishes = [
-    { id: "dolma", name: "دولمة", image: "assets/dolma.jpg" },
-    { id: "kibbeh", name: "كبة حلبية", image: "assets/kibbeh-halabi.jpg" },
-    { id: "kleija", name: "كليجة", image: "assets/kleija-ghee.jpg" },
-    { id: "qatayef", name: "قطايف", image: "assets/qatayef.jpg" },
-    { id: "kabsa", name: "كبسة", image: "assets/kabsa.jpg" },
-    { id: "pastry", name: "معجنات", image: "assets/pastry-mix.jpg" },
-    { id: "mosul", name: "كبة موصلية", image: "assets/kibbeh-mosul.jpg" },
-    { id: "basbousa", name: "بسبوسة", image: "assets/basbousa.jpg" }
-  ];
 
   const board = document.getElementById("game-board");
   const overlay = document.getElementById("game-overlay");
@@ -28,6 +18,8 @@
   const textEl = document.getElementById("game-overlay-text");
   const eyeEl = document.getElementById("game-overlay-eyebrow");
 
+  let pool = [];
+  let dishes = [];
   let cards = [];
   let flipped = [];
   let lock = false;
@@ -48,6 +40,44 @@
       out[j] = tmp;
     }
     return out;
+  }
+
+  function imageKey(src) {
+    return String(src || "").split("?")[0]
+      .replace(/^https:\/\/raw\.githubusercontent\.com\/[^/]+\/[^/]+\/main\//, "")
+      .replace(/^\.\//, "");
+  }
+
+  function media(src) {
+    if (window.MenuStore && window.MenuStore.mediaUrl) return window.MenuStore.mediaUrl(src);
+    return String(src || "");
+  }
+
+  function dishesFromMenu(menu) {
+    const seen = {};
+    const uploaded = [];
+    const others = [];
+    (menu || []).forEach((item) => {
+      if (!item || !item.image) return;
+      const image = media(item.image);
+      if (!image || image.indexOf("data:") === 0) return;
+      const key = imageKey(image);
+      if (seen[key]) return;
+      seen[key] = 1;
+      const row = { id: String(item.id || key), name: String(item.name || "صنف"), image: image };
+      if (/uploads\//i.test(key)) uploaded.push(row);
+      else others.push(row);
+    });
+    return uploaded.length >= 4 ? uploaded : uploaded.concat(others);
+  }
+
+  function pickRound() {
+    const src = pool.length ? pool : dishesFromMenu(
+      (window.MenuStore && window.MenuStore.loadImmediate && (window.MenuStore.loadImmediate().menu || [])) || []
+    );
+    const count = Math.min(8, src.length);
+    dishes = shuffle(src).slice(0, count);
+    board.style.setProperty("--game-cols", dishes.length <= 6 ? "3" : "4");
   }
 
   function formatTime(n) {
@@ -173,6 +203,7 @@
     left = LIMIT;
     setHud();
     renderBest();
+    pickRound();
     const pack = shuffle(dishes.concat(dishes)).map((dish, index) => ({
       uid: dish.id + "-" + index,
       id: dish.id,
@@ -204,7 +235,7 @@
       showOverlay(
         "انتهى الوقت",
         "السفرة تفرّقت",
-        "طابقتِ " + matches + " من 8 أصناف · النقاط " + score,
+        "طابقتِ " + matches + " من " + dishes.length + " أصناف · النقاط " + score,
         "أعيدي المحاولة"
       );
     }
@@ -313,7 +344,28 @@
   showOverlay(
     "تحدّي",
     "هل تلحقين السفرة؟",
-    "80 ثانية، 8 أصناف، وبدون أسماء. احفظي الصورة ثم طابقي قبل نفاد الوقت.",
+    "وقت محدود وصور أصنافكم الحقيقية بدون أسماء. احفظي الصورة ثم طابقي قبل نفاد الوقت.",
     "ابدئي التحدي"
   );
+
+  window.YAM_GAME = {
+    useMenu: function (menu) {
+      const next = dishesFromMenu(menu);
+      const same = next.map((d) => imageKey(d.image)).sort().join("|") === pool.map((d) => imageKey(d.image)).sort().join("|");
+      pool = next;
+      if (playing || lock || same) return;
+      pickRound();
+      reset();
+      showOverlay(
+        "تحدّي",
+        "هل تلحقين السفرة؟",
+        "وقت محدود وصور أصنافكم الحقيقية بدون أسماء. احفظي الصورة ثم طابقي قبل نفاد الوقت.",
+        "ابدئي التحدي"
+      );
+    }
+  };
+  if (window.MenuStore && window.MenuStore.loadImmediate) {
+    const live = window.MenuStore.loadImmediate();
+    if (live && live.menu) window.YAM_GAME.useMenu(live.menu);
+  }
 })();
