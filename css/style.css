@@ -118,13 +118,15 @@ a { color: inherit; }
   min-height: var(--header);
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
+  flex-wrap: nowrap;
 }
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
   text-decoration: none;
+  flex-shrink: 0;
 }
 .brand-mark {
   width: 48px;
@@ -173,15 +175,33 @@ a { color: inherit; }
 }
 .brand-text small { color: var(--muted); font-size: 0.9rem; font-weight: 600; }
 .header-nav {
-  margin-inline-start: auto;
+  flex: 1;
   display: flex;
-  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 18px;
+  min-width: 0;
+  flex-wrap: nowrap;
 }
 .header-nav a {
   text-decoration: none;
   color: var(--ink);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+.header-actions .install-app-btn {
+  height: 42px;
+  padding: 0 14px;
+  font-size: 0.86rem;
 }
 .nav-delivery,
 .btn-delivery {
@@ -1086,6 +1106,10 @@ input[type="text"], input[type="tel"], textarea, select {
   transform: translateX(-50%) translateY(0);
 }
 
+@media (max-width: 1100px) {
+  .header-nav a[href="#about"],
+  .header-nav a[href="#contact"] { display: none; }
+}
 @media (max-width: 900px) {
   .header-nav { display: none; }
   .install-app-btn { display: none; }
