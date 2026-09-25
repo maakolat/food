@@ -792,12 +792,22 @@
       const view = document.documentElement.getAttribute("data-dock") || "home";
       const glow = dock.querySelector(".app-dock-glow");
       const buttons = dock.querySelectorAll("[data-dock]");
+      const vertical = window.matchMedia("(min-width: 901px)").matches;
       buttons.forEach((btn, i) => {
         const on = btn.getAttribute("data-dock") === view;
         btn.classList.toggle("is-on", on);
         if (on && glow) {
-          glow.style.width = (100 / buttons.length) + "%";
-          glow.style.insetInlineStart = (i * 100 / buttons.length) + "%";
+          if (vertical) {
+            glow.style.width = "calc(100% - 12px)";
+            glow.style.height = (100 / buttons.length) + "%";
+            glow.style.insetInlineStart = "6px";
+            glow.style.insetBlockStart = (i * 100 / buttons.length) + "%";
+          } else {
+            glow.style.width = (100 / buttons.length) + "%";
+            glow.style.height = "46px";
+            glow.style.insetInlineStart = (i * 100 / buttons.length) + "%";
+            glow.style.insetBlockStart = "6px";
+          }
         }
       });
     }
@@ -808,29 +818,50 @@
     if (!dock) return;
     const glow = dock.querySelector(".app-dock-glow");
     const buttons = Array.prototype.slice.call(dock.querySelectorAll("[data-dock]"));
-    function enabled() {
-      return document.documentElement.getAttribute("data-native-app") === "1"
-        || window.matchMedia("(display-mode: standalone)").matches
-        || window.matchMedia("(max-width: 900px)").matches;
+    const hashes = {
+      home: "#top",
+      menu: "#menu",
+      special: "#special-order",
+      delivery: "#delivery",
+      play: "#play"
+    };
+    function viewFromHash(hash) {
+      const id = String(hash || "").replace("#", "");
+      if (id === "menu") return { view: "menu" };
+      if (id === "special-order") return { view: "special" };
+      if (id === "delivery") return { view: "delivery" };
+      if (id === "game" || id === "play") return { view: "play" };
+      if (id === "snake") return { view: "play", anchor: "snake" };
+      if (id === "about" || id === "contact" || id === "featured") return { view: "home", anchor: id };
+      if (id === "top" || !id) return { view: "home" };
+      return null;
     }
     function paint(view) {
       const current = view || document.documentElement.getAttribute("data-dock") || "home";
+      const vertical = window.matchMedia("(min-width: 901px)").matches;
       buttons.forEach((btn, i) => {
         const on = btn.getAttribute("data-dock") === current;
         btn.classList.toggle("is-on", on);
         if (on && glow) {
-          glow.style.width = (100 / buttons.length) + "%";
-          glow.style.insetInlineStart = (i * 100 / buttons.length) + "%";
+          if (vertical) {
+            glow.style.width = "calc(100% - 12px)";
+            glow.style.height = (100 / buttons.length) + "%";
+            glow.style.insetInlineStart = "6px";
+            glow.style.insetBlockStart = (i * 100 / buttons.length) + "%";
+          } else {
+            glow.style.width = (100 / buttons.length) + "%";
+            glow.style.height = "46px";
+            glow.style.insetInlineStart = (i * 100 / buttons.length) + "%";
+            glow.style.insetBlockStart = "6px";
+          }
         }
       });
     }
     function setEnabled() {
-      const on = enabled();
-      document.documentElement.classList.toggle("has-dock", on);
-      if (on && !document.documentElement.getAttribute("data-dock")) {
+      document.documentElement.classList.add("has-dock");
+      if (!document.documentElement.getAttribute("data-dock")) {
         document.documentElement.setAttribute("data-dock", "home");
       }
-      if (!on) document.documentElement.removeAttribute("data-dock");
       paint();
     }
     function go(view, opts) {
@@ -842,6 +873,9 @@
       closeModals();
       document.documentElement.setAttribute("data-dock", view);
       paint(view);
+      if (hashes[view] && !(opts && opts.skipHash)) {
+        try { history.replaceState(null, "", hashes[view]); } catch (err) {}
+      }
       window.scrollTo({ top: 0, behavior: opts && opts.instant ? "auto" : "smooth" });
       setTimeout(() => window.dispatchEvent(new Event("resize")), 60);
       if (opts && opts.anchor) {
@@ -854,22 +888,24 @@
       if (btn) go(btn.getAttribute("data-dock"));
     });
     document.addEventListener("click", (e) => {
-      if (!document.documentElement.classList.contains("has-dock")) return;
       const a = e.target.closest("a[href^='#']");
       if (!a || a.closest("#app-dock")) return;
-      const href = a.getAttribute("href") || "";
-      const id = href.replace("#", "");
+      const id = (a.getAttribute("href") || "").replace("#", "");
       if (id === "menu") { e.preventDefault(); go("menu"); }
+      else if (id === "special-order") { e.preventDefault(); go("special"); }
+      else if (id === "delivery") { e.preventDefault(); go("delivery"); }
       else if (id === "game" || id === "play") { e.preventDefault(); go("play"); }
       else if (id === "snake") { e.preventDefault(); go("play", { anchor: "snake" }); }
       else if (id === "top") { e.preventDefault(); go("home"); }
+      else if (id === "about" || id === "contact" || id === "featured") {
+        e.preventDefault();
+        go("home", { anchor: id });
+      }
     });
     window.addEventListener("resize", setEnabled);
     setEnabled();
-    const hash = String(location.hash || "").replace("#", "");
-    if (hash === "menu") go("menu", { instant: true });
-    else if (hash === "game" || hash === "play") go("play", { instant: true });
-    else if (hash === "snake") go("play", { instant: true, anchor: "snake" });
+    const start = viewFromHash(location.hash);
+    if (start) go(start.view, { instant: true, anchor: start.anchor, skipHash: true });
   }
 
   function openCart() {

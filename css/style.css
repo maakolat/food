@@ -2241,7 +2241,7 @@ html.has-dock .app-dock-glow {
   border-radius: 16px;
   background: linear-gradient(180deg, color-mix(in srgb, var(--gold) 32%, var(--field)), color-mix(in srgb, var(--ruby) 16%, var(--field)));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 40%, transparent);
-  transition: inset-inline-start 0.28s cubic-bezier(.22,.8,.28,1), width 0.28s ease;
+  transition: inset-inline-start 0.28s cubic-bezier(.22,.8,.28,1), inset-block-start 0.28s cubic-bezier(.22,.8,.28,1), width 0.28s ease, height 0.28s ease;
   pointer-events: none;
 }
 html.has-dock .app-dock button {
@@ -2282,6 +2282,8 @@ html.has-dock .app-dock button.is-on::after {
 html.has-dock .dock-pane { display: none; }
 html.has-dock[data-dock="home"] .dock-home,
 html.has-dock[data-dock="menu"] .dock-menu,
+html.has-dock[data-dock="special"] .dock-special,
+html.has-dock[data-dock="delivery"] .dock-delivery,
 html.has-dock[data-dock="play"] .dock-play {
   display: block;
   animation: dock-in 0.34s cubic-bezier(.22,.8,.28,1);
@@ -2296,6 +2298,7 @@ html.has-dock {
 html.has-dock body {
   padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
 }
+html.has-dock .header-nav { display: none !important; }
 html.has-dock .profile-btn,
 html.has-dock .game-btn { display: none; }
 html.has-dock .mobile-bar {
@@ -2312,12 +2315,93 @@ html.has-dock .toast {
   bottom: calc(86px + env(safe-area-inset-bottom, 0px));
 }
 html.has-dock .site-footer { padding-bottom: 20px; }
-body:has(.drawer.open) .app-dock,
-body:has(#checkout-modal.open) .app-dock,
-body:has(#item-modal.open) .app-dock,
-body:has(#map-modal.open) .app-dock,
-body:has(#story-viewer:not([hidden])) .app-dock {
-  transform: translateY(100%);
-  pointer-events: none;
+html.has-dock .app-dock button {
+  font-size: 0.62rem;
+  white-space: nowrap;
+}
+html.has-dock .app-dock button svg {
+  width: 20px;
+  height: 20px;
+}
+@media (max-width: 900px) {
+  body:has(.drawer.open) .app-dock,
+  body:has(#checkout-modal.open) .app-dock,
+  body:has(#item-modal.open) .app-dock,
+  body:has(#map-modal.open) .app-dock,
+  body:has(#story-viewer:not([hidden])) .app-dock {
+    transform: translateY(100%);
+    pointer-events: none;
+  }
+}
+@media (min-width: 901px) {
+  html.has-dock {
+    scroll-padding-bottom: 0;
+  }
+  html.has-dock body {
+    padding-bottom: 0;
+    padding-inline-start: 118px;
+  }
+  html.has-dock .app-dock {
+    top: 0;
+    bottom: 0;
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    width: 118px;
+    min-height: 0;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding: 18px 10px;
+    border-radius: 0;
+    border-top: 0;
+    border-inline-end: 1px solid var(--line);
+    box-shadow:
+      -16px 0 36px rgba(28, 16, 12, 0.12),
+      inset -1px 0 0 color-mix(in srgb, var(--gold) 40%, transparent);
+  }
+  html.has-dock .app-dock-glow {
+    top: auto;
+    height: auto;
+    border-radius: 18px;
+  }
+  html.has-dock .app-dock button {
+    flex: 0 0 auto;
+    min-height: 74px;
+    padding: 8px 4px;
+    gap: 4px;
+    font-size: 0.78rem;
+    border-radius: 18px;
+  }
+  html.has-dock .app-dock button svg {
+    width: 22px;
+    height: 22px;
+  }
+  html.has-dock .app-dock button.is-on {
+    background: color-mix(in srgb, var(--gold) 18%, var(--field));
+  }
+  html.has-dock .app-dock button.is-on::after {
+    display: none;
+  }
+  html.has-dock .wa-float {
+    bottom: 24px;
+    inset-inline-end: 18px;
+  }
+  html.has-dock .mobile-bar {
+    bottom: 16px;
+    inset-inline: 16px 16px;
+    inset-inline-start: 134px;
+  }
+  html.has-dock .toast {
+    bottom: 24px;
+  }
+  body:has(.drawer.open) .app-dock,
+  body:has(#checkout-modal.open) .app-dock,
+  body:has(#item-modal.open) .app-dock,
+  body:has(#map-modal.open) .app-dock,
+  body:has(#story-viewer:not([hidden])) .app-dock {
+    transform: translateX(110%);
+    pointer-events: none;
+  }
 }
 body:has(#profile-modal.open) .app-dock { transform: none; pointer-events: auto; }

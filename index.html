@@ -13,21 +13,29 @@
   <title>مأكولات الياقوت والمرجان | اطلب أطيب الأكلات البيتية</title>
   <meta name="description" content="مأكولات الياقوت والمرجان — كبة، دولمة، معجنات وحلويات بيتية. اطلب أونلاين ويصلك الطلب مباشرة على واتساب." />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="apple-touch-icon" href="assets/app-icon.png?v=86" />
+  <link rel="apple-touch-icon" href="assets/app-icon.png?v=87" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="assets/app-icon.png?v=86" type="image/png" />
+  <link rel="icon" href="assets/app-icon.png?v=87" type="image/png" />
   <script>
     (function () {
       var theme = localStorage.getItem("yam-theme") || "dark";
       document.documentElement.setAttribute("data-theme", theme);
+      document.documentElement.classList.add("has-dock");
+      var h = String(location.hash || "").replace("#", "");
+      var view = "home";
+      if (h === "menu") view = "menu";
+      else if (h === "special-order") view = "special";
+      else if (h === "delivery") view = "delivery";
+      else if (h === "game" || h === "play" || h === "snake") view = "play";
+      document.documentElement.setAttribute("data-dock", view);
       if (/AlyaqoutApp/i.test(navigator.userAgent || "")) {
         document.documentElement.setAttribute("data-native-app", "1");
       }
     })();
   </script>
-  <link rel="stylesheet" href="css/style.css?v=86" />
+  <link rel="stylesheet" href="css/style.css?v=87" />
 </head>
 <body>
   <div class="page-bg" aria-hidden="true"></div>
@@ -38,7 +46,7 @@
       <div class="container header-inner">
       <a class="brand" href="#top">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=86" alt="">
+          <img src="assets/logo.png?v=87" alt="">
         </span>
         <span class="brand-text">
           <strong>الياقوت والمرجان</strong>
@@ -166,7 +174,7 @@
         </div>
       </div>
       <div class="pay-note">
-        <img src="assets/qi-card.png?v=86" alt="كي كارد">
+        <img src="assets/qi-card.png?v=87" alt="كي كارد">
         <div>
           <strong>الدفع الإلكتروني متوفر</strong>
           <span>يمكنك الدفع عبر كي كارد عند تأكيد الطلب على واتساب.</span>
@@ -206,7 +214,7 @@
       </div>
     </section>
 
-    <section class="service-section dock-pane dock-home" id="special-order">
+    <section class="service-section dock-pane dock-special" id="special-order">
       <div class="container">
         <header class="service-head">
           <p class="eyebrow">طلب خاص</p>
@@ -240,7 +248,7 @@
       </div>
     </section>
 
-    <section class="service-section dock-pane dock-home" id="delivery">
+    <section class="service-section dock-pane dock-delivery" id="delivery">
       <div class="container">
         <header class="service-head">
           <p class="eyebrow">توصيلة</p>
@@ -359,7 +367,7 @@
           </div>
           <p class="muted">بعد إتمام السلة ننقلك مباشرة إلى واتساب والطلب مكتوب تلقائياً.</p>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=86" alt="كي كارد">
+            <img src="assets/qi-card.png?v=87" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد</span>
@@ -432,7 +440,7 @@
     <div class="container footer-inner">
       <div class="brand brand-footer">
         <span class="brand-mark" aria-hidden="true">
-          <img src="assets/logo.png?v=86" alt="">
+          <img src="assets/logo.png?v=87" alt="">
         </span>
         <span class="brand-text">
           <strong>مأكولات الياقوت والمرجان</strong>
@@ -463,6 +471,14 @@
     <button type="button" data-dock="menu">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>
       <span>الأصناف</span>
+    </button>
+    <button type="button" data-dock="special">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 3v11a5 5 0 0 0 10 0V8h2V3h-2v3h-2V3h-2v5h-2V3H9v5H7V3zm5 13a3 3 0 0 1-3-3v-1h6v1a3 3 0 0 1-3 3z"/></svg>
+      <span>طلب خاص</span>
+    </button>
+    <button type="button" data-dock="delivery">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 7c-1.1 0-2 .9-2 2h-2.2L13.5 5H9v2h3.7l1.2 2H8.5L5 13.2V17h2.1c.3-1.7 1.8-3 3.6-3s3.3 1.3 3.6 3H17v-1c0-1.1.9-2 2-2s2 .9 2 2c0 1.7-1.3 3-3 3h-1.1c-.3 1.7-1.8 3-3.6 3s-3.3-1.3-3.6-3H5c-1.1 0-2-.9-2-2v-4.2L6.8 9H4V7h4V4h6.5c.4 0 .8.2 1 .6L17.4 9H19c2.2 0 4 1.8 4 4v1h-2v-1c0-1.1-.9-2-2-2zm-8.3 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      <span>توصيلة</span>
     </button>
     <button type="button" data-dock="play">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.2v13.6L19 12z"/></svg>
@@ -575,7 +591,7 @@
           </label>
           <div class="checkout-summary" id="checkout-summary"></div>
           <div class="pay-note pay-note-compact">
-            <img src="assets/qi-card.png?v=86" alt="كي كارد">
+            <img src="assets/qi-card.png?v=87" alt="كي كارد">
             <div>
               <strong>الدفع الإلكتروني متوفر</strong>
               <span>كي كارد — عند تأكيد الطلب عبر واتساب.</span>
@@ -611,7 +627,7 @@
 
   <div class="install-overlay" id="install-banner" hidden>
     <div class="install-modal" role="dialog" aria-labelledby="install-title">
-      <img class="install-icon" src="assets/app-icon.png?v=86" alt="" />
+      <img class="install-icon" src="assets/app-icon.png?v=87" alt="" />
       <h3 id="install-title">ثبّت التطبيق على هاتفك</h3>
       <p id="install-text">يظهر مع التطبيقات وتفتحه مثل واتساب، بدون المتصفح.</p>
       <ol class="install-steps" id="install-steps" hidden></ol>
@@ -655,11 +671,11 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/config.js?v=86"></script>
-  <script src="js/menu-data.js?v=86"></script>
-  <script src="js/menu-store.js?v=86"></script>
-  <script src="js/app.js?v=86"></script>
-  <script src="js/game.js?v=86"></script>
-  <script src="js/snake.js?v=86"></script>
+  <script src="js/config.js?v=87"></script>
+  <script src="js/menu-data.js?v=87"></script>
+  <script src="js/menu-store.js?v=87"></script>
+  <script src="js/app.js?v=87"></script>
+  <script src="js/game.js?v=87"></script>
+  <script src="js/snake.js?v=87"></script>
 </body>
 </html>
