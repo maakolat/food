@@ -768,6 +768,89 @@
     }
     els.overlay.hidden = true;
     document.body.style.overflow = "";
+    const dock = document.getElementById("app-dock");
+    if (dock && document.documentElement.classList.contains("has-dock")) {
+      const view = document.documentElement.getAttribute("data-dock") || "home";
+      const glow = dock.querySelector(".app-dock-glow");
+      const buttons = dock.querySelectorAll("[data-dock]");
+      buttons.forEach((btn, i) => {
+        const on = btn.getAttribute("data-dock") === view;
+        btn.classList.toggle("is-on", on);
+        if (on && glow) {
+          glow.style.width = (100 / buttons.length) + "%";
+          glow.style.insetInlineStart = (i * 100 / buttons.length) + "%";
+        }
+      });
+    }
+  }
+
+  function setupDock(openProfile) {
+    const dock = document.getElementById("app-dock");
+    if (!dock) return;
+    const glow = dock.querySelector(".app-dock-glow");
+    const buttons = Array.prototype.slice.call(dock.querySelectorAll("[data-dock]"));
+    function enabled() {
+      return document.documentElement.getAttribute("data-native-app") === "1"
+        || window.matchMedia("(display-mode: standalone)").matches
+        || window.matchMedia("(max-width: 900px)").matches;
+    }
+    function paint(view) {
+      const current = view || document.documentElement.getAttribute("data-dock") || "home";
+      buttons.forEach((btn, i) => {
+        const on = btn.getAttribute("data-dock") === current;
+        btn.classList.toggle("is-on", on);
+        if (on && glow) {
+          glow.style.width = (100 / buttons.length) + "%";
+          glow.style.insetInlineStart = (i * 100 / buttons.length) + "%";
+        }
+      });
+    }
+    function setEnabled() {
+      const on = enabled();
+      document.documentElement.classList.toggle("has-dock", on);
+      if (on && !document.documentElement.getAttribute("data-dock")) {
+        document.documentElement.setAttribute("data-dock", "home");
+      }
+      if (!on) document.documentElement.removeAttribute("data-dock");
+      paint();
+    }
+    function go(view, opts) {
+      if (view === "profile") {
+        paint("profile");
+        if (typeof openProfile === "function") openProfile();
+        return;
+      }
+      closeModals();
+      document.documentElement.setAttribute("data-dock", view);
+      paint(view);
+      window.scrollTo({ top: 0, behavior: opts && opts.instant ? "auto" : "smooth" });
+      setTimeout(() => window.dispatchEvent(new Event("resize")), 60);
+      if (opts && opts.anchor) {
+        const el = document.getElementById(opts.anchor);
+        if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+      }
+    }
+    dock.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-dock]");
+      if (btn) go(btn.getAttribute("data-dock"));
+    });
+    document.addEventListener("click", (e) => {
+      if (!document.documentElement.classList.contains("has-dock")) return;
+      const a = e.target.closest("a[href^='#']");
+      if (!a || a.closest("#app-dock")) return;
+      const href = a.getAttribute("href") || "";
+      const id = href.replace("#", "");
+      if (id === "menu") { e.preventDefault(); go("menu"); }
+      else if (id === "game" || id === "play") { e.preventDefault(); go("play"); }
+      else if (id === "snake") { e.preventDefault(); go("play", { anchor: "snake" }); }
+      else if (id === "top") { e.preventDefault(); go("home"); }
+    });
+    window.addEventListener("resize", setEnabled);
+    setEnabled();
+    const hash = String(location.hash || "").replace("#", "");
+    if (hash === "menu") go("menu", { instant: true });
+    else if (hash === "game" || hash === "play") go("play", { instant: true });
+    else if (hash === "snake") go("play", { instant: true, anchor: "snake" });
   }
 
   function openCart() {
@@ -1648,6 +1731,8 @@
         toast("تم حفظ ملفك. سيُملأ الطلب تلقائياً");
       });
     }
+
+    setupDock(openProfile);
 
     els.checkoutForm.addEventListener("submit", (e) => {
       e.preventDefault();
