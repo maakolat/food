@@ -327,10 +327,9 @@
       "category": "pastry",
       "extrasKey": "custom",
       "extraIds": [
-        "pickles",
-        "greens"
+        "pickles"
       ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347678650-1790347678656.jpg",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347678650-1790347678656.jpg?v=1790347678656",
       "unit": "كبير",
       "price": 20000
     },
@@ -343,8 +342,22 @@
       "extraIds": [
         "pickles"
       ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347817330-1790347817337.jpg",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347817330-1790347817337.jpg?v=1790347817337",
       "unit": "صينيه دجاج كامله",
+      "price": 15000
+    },
+    {
+      "id": "dish-1790348130840",
+      "name": "كسور عجل",
+      "desc": "كسور عجل",
+      "category": "pastry",
+      "extrasKey": "custom",
+      "extraIds": [
+        "pickles",
+        "greens"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790348130840-1790348130846.jpg?v=1790348130846",
+      "unit": "قدر",
       "price": 15000
     }
   ],
@@ -419,7 +432,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790260854167-1790260854169.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347541810-1790347541819.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347678650-1790347678656.jpg",
-    "assets/uploads/dish-1790347817330-1790347817337.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347817330-1790347817337.jpg",
+    "assets/uploads/dish-1790348130840-1790348130846.jpg"
   ],
   "stories": [
     {
@@ -489,7 +503,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790347953545,
+  "updatedAt": 1790348130845,
   "alerts": [
     {
       "id": "alert-1790263611923",
