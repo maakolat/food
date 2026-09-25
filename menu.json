@@ -359,6 +359,20 @@
       "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790348130840-1790348130846.jpg?v=1790348130846",
       "unit": "قدر",
       "price": 15000
+    },
+    {
+      "id": "dish-1790348470903",
+      "name": "مطبك سمج",
+      "desc": "صينيه مطبك سمج",
+      "category": "special",
+      "extrasKey": "custom",
+      "extraIds": [
+        "pickles",
+        "greens"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790348470903-1790348470914.jpg?v=1790348470914",
+      "unit": "صينيه",
+      "price": 15000
     }
   ],
   "assets": [
@@ -433,7 +447,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347541810-1790347541819.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347678650-1790347678656.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347817330-1790347817337.jpg",
-    "assets/uploads/dish-1790348130840-1790348130846.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790348130840-1790348130846.jpg",
+    "assets/uploads/dish-1790348470903-1790348470914.jpg"
   ],
   "stories": [
     {
@@ -503,7 +518,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790348130845,
+  "updatedAt": 1790348470913,
   "alerts": [
     {
       "id": "alert-1790263611923",
