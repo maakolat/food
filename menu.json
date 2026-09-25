@@ -327,9 +327,10 @@
       "category": "pastry",
       "extrasKey": "custom",
       "extraIds": [
-        "pickles"
+        "pickles",
+        "greens"
       ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347678650-1790347678656.jpg?v=1790347678656",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347678650-1790347678656.jpg",
       "unit": "كبير",
       "price": 20000
     },
@@ -488,7 +489,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790347922137,
+  "updatedAt": 1790347938763,
   "alerts": [
     {
       "id": "alert-1790263611923",
