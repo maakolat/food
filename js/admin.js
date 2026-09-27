@@ -272,15 +272,6 @@
     set("status-stories-yesterday", bucketCount(storyDays, baghdadDay(-1)));
     set("status-stories-week", bucketRange(storyDays, 7));
     set("status-stories-total", bucketTotal(storyDays));
-    const hint = document.getElementById("visits-hint");
-    if (hint) {
-      const people = dayPeople(visitStats, today);
-      const views = dayCount(visitStats, today);
-      const when = visitStats.updatedAt ? new Date(visitStats.updatedAt).toLocaleString("ar-IQ") : "";
-      hint.textContent = views
-        ? ("اليوم " + views + " مشاهدة من " + people + " زائر. كل فتح يُحسب حتى لنفس الزائر." + (when ? " آخر تحديث: " + when : ""))
-        : "كل فتح للموقع يُحسب، حتى لو نفس الزائر دخل أكثر من مرة.";
-    }
     const storyHint = document.getElementById("stories-views-hint");
     if (storyHint) {
       const people = bucketPeople(storyDays, today);
