@@ -452,7 +452,7 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790502870988-1790502870994.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790503647345-1790503647352.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790508538030-1790508538038.jpg",
-    "assets/uploads/story-story-1790512059336-1790512059340.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790512059336-1790512059340.jpg"
   ],
   "stories": [
     {
@@ -555,8 +555,18 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790512059339,
+  "updatedAt": 1790512332676,
   "alerts": [
+    {
+      "id": "alert-1790512332674",
+      "kind": "tomorrow",
+      "title": "غداً تتوفر «كبسة الدجاج والمقلوبة»",
+      "body": "بشارة لطيفة: غداً إن شاء الله «كبسة الدجاج والمقلوبة» بطعم البيت. احجز من اليوم حتى ما يفوتك.",
+      "dish": "كبسة الدجاج والمقلوبة",
+      "hours": 24,
+      "createdAt": 1790512332674,
+      "expiresAt": 1790598732674
+    },
     {
       "id": "alert-1790502664823",
       "kind": "book",
@@ -569,13 +579,13 @@
     }
   ],
   "alert": {
-    "id": "alert-1790502664823",
-    "kind": "book",
-    "title": "حجز مباشر على «دولمة»",
-    "body": "الكمية محدودة و«دولمة» بانتظارك. اطلب من التطبيق والتأكيد يوصلك واتساب.",
-    "dish": "دولمة",
+    "id": "alert-1790512332674",
+    "kind": "tomorrow",
+    "title": "غداً تتوفر «كبسة الدجاج والمقلوبة»",
+    "body": "بشارة لطيفة: غداً إن شاء الله «كبسة الدجاج والمقلوبة» بطعم البيت. احجز من اليوم حتى ما يفوتك.",
+    "dish": "كبسة الدجاج والمقلوبة",
     "hours": 24,
-    "createdAt": 1790502664823,
-    "expiresAt": 1790589064823
+    "createdAt": 1790512332674,
+    "expiresAt": 1790598732674
   }
 }
