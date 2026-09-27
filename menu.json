@@ -452,9 +452,21 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790502870988-1790502870994.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790503647345-1790503647352.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790508538030-1790508538038.jpg",
-    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790512059336-1790512059340.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790512059336-1790512059340.jpg",
+    "assets/uploads/story-story-1790513550209-1790513550213.jpg"
   ],
   "stories": [
+    {
+      "id": "story-1790513550209",
+      "kind": "dish",
+      "title": "كبة موصلية",
+      "caption": "",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790513550209-1790513550213.jpg?v=1790513550213",
+      "durationHours": 24,
+      "createdAt": 1790513550209,
+      "expiresAt": 1790599950209,
+      "updatedAt": 1790513550209
+    },
     {
       "id": "story-1790512059336",
       "kind": "dish",
@@ -555,7 +567,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790512332676,
+  "updatedAt": 1790513550213,
   "alerts": [
     {
       "id": "alert-1790512332674",
