@@ -1889,7 +1889,7 @@
     const nativeMatch = ua.match(/AlyaqoutApp\/(\d+(?:\.\d+)?)/i);
     const nativeApp = !!nativeMatch;
     const nativeVer = nativeMatch ? Number(nativeMatch[1]) : 0;
-    const needsApkUpdate = nativeApp && nativeVer < 2.4;
+    const needsApkUpdate = nativeApp && nativeVer < 2.5;
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || window.navigator.standalone === true;
     if (nativeApp && !needsApkUpdate) {
@@ -1919,7 +1919,7 @@
     const mobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
       || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     let deferred = null;
-    const hideKey = needsApkUpdate ? "yam-apk-update-24" : "yam-install-popup";
+    const hideKey = needsApkUpdate ? "yam-apk-update-25" : "yam-install-popup";
 
     function showPopup(force) {
       if (!force && sessionStorage.getItem(hideKey) === "1") return;
