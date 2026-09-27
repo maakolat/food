@@ -1919,6 +1919,8 @@ html[data-theme="dark"] .story-ring.seen .story-ring-frame {
   touch-action: none;
   display: grid;
   place-items: center;
+  box-sizing: border-box;
+  padding: calc(62px + env(safe-area-inset-top)) 10px calc(78px + env(safe-area-inset-bottom));
 }
 .story-photo-bg {
   position: absolute;
