@@ -272,9 +272,40 @@
     }
   }
 
+  async function kickGithub(opts) {
+    let token = "";
+    try { token = String(sessionStorage.getItem("yam-gh-token") || "").trim(); } catch (err) {}
+    const repo = String(cfg().githubRepo || "").trim();
+    if (!token || !repo) return false;
+    try {
+      const res = await fetch("https://api.github.com/repos/" + repo + "/dispatches", {
+        method: "POST",
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: "Bearer " + token,
+          "X-GitHub-Api-Version": "2022-11-28"
+        },
+        body: JSON.stringify({
+          event_type: "notify-customers",
+          client_payload: {
+            title: opts.title || "تحديث من الياقوت والمرجان",
+            body: opts.body || "افتح التطبيق",
+            url: opts.url || "./",
+            tag: opts.tag || "yam-news",
+            urgent: !!opts.urgent
+          }
+        })
+      });
+      return res.status === 204 || res.ok;
+    } catch (err) {
+      return false;
+    }
+  }
+
   async function notifyCustomers(opts) {
     opts = opts || {};
     const phone = await publishPhoneAlert(opts).catch(() => false);
+    const kicked = await kickGithub(opts).catch(() => false);
     if (!vapidPublic() || !vapidPrivate()) return phone ? 1 : 0;
     const subs = await collectSubs();
     if (!subs.length) return phone ? 1 : 0;
@@ -307,7 +338,7 @@
     if (kept.length !== subs.length) {
       try { await saveGithubSubs(kept); } catch (err) {}
     }
-    return sent + (phone ? 1 : 0);
+    return sent + (phone || kicked ? 1 : 0);
   }
 
   window.YamPush = {

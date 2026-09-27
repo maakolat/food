@@ -4,8 +4,35 @@ const webpush = require("web-push");
 
 const SUBS_FILE = "notify-subs.json";
 const TOPIC = process.env.NTFY_TOPIC || "yam-alyaqout-n7p4w2";
-const PUBLIC = process.env.VAPID_PUBLIC;
-const PRIVATE = process.env.VAPID_PRIVATE;
+
+function xorDecode(hex, pin) {
+  const key = String(pin || "");
+  const h = String(hex || "").replace(/\s/g, "");
+  if (!h || !key || h.length % 2) return "";
+  let out = "";
+  for (let i = 0; i < h.length; i += 2) {
+    out += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ key.charCodeAt((i / 2) % key.length));
+  }
+  return out;
+}
+
+function loadVapid() {
+  let pub = String(process.env.VAPID_PUBLIC || "").trim();
+  let priv = String(process.env.VAPID_PRIVATE || "").trim();
+  try {
+    const cfg = fs.readFileSync("js/config.js", "utf8");
+    if (!pub) {
+      const m = cfg.match(/vapidPublic:\s*"([^"]+)"/);
+      if (m) pub = m[1];
+    }
+    if (!priv) {
+      const m = cfg.match(/vapidAuth:\s*"([^"]+)"/);
+      const pin = String(process.env.ADMIN_PIN || "48291763");
+      if (m) priv = xorDecode(m[1], pin);
+    }
+  } catch (err) {}
+  return { pub, priv };
+}
 
 function readSubsFile() {
   try {
@@ -18,7 +45,7 @@ function readSubsFile() {
 }
 
 function writeSubsFile(list) {
-  fs.writeFileSync(SUBS_FILE, JSON.stringify({ subs: list }, null, 2) + "\n");
+  fs.writeFileSync(SUBS_FILE, JSON.stringify({ updatedAt: Date.now(), subs: list }, null, 2) + "\n");
 }
 
 function keyOf(sub) {
@@ -92,6 +119,21 @@ function diffCatalog(prev, next) {
   return { newDishes, newStories, newAlerts };
 }
 
+function eventPayload() {
+  try {
+    const p = process.env.GITHUB_EVENT_PATH;
+    if (!p || !fs.existsSync(p)) return null;
+    const ev = JSON.parse(fs.readFileSync(p, "utf8"));
+    if (ev.client_payload && (ev.client_payload.title || ev.client_payload.body)) {
+      return ev.client_payload;
+    }
+    if (ev.inputs && (ev.inputs.title || ev.inputs.body)) {
+      return ev.inputs;
+    }
+  } catch (err) {}
+  return null;
+}
+
 async function sendNtfy(payload) {
   const click = "https://maakolat.github.io/food/" + String(payload.url || "").replace(/^\.\//, "");
   const u = new URL("https://ntfy.sh/" + encodeURIComponent(TOPIC));
@@ -99,46 +141,47 @@ async function sendNtfy(payload) {
   u.searchParams.set("priority", payload.urgent ? "5" : "4");
   u.searchParams.set("tags", "bell");
   u.searchParams.set("click", click);
-  await fetch(u.toString(), {
+  const res = await fetch(u.toString(), {
     method: "POST",
     headers: { "Content-Type": "text/plain; charset=utf-8" },
     body: String(payload.body || "افتح التطبيق")
   });
+  console.log("ntfy", res.status);
 }
 
 async function sendAll(subs, payload) {
-  if (!PUBLIC || !PRIVATE) return subs;
-  webpush.setVapidDetails("mailto:maakolat@users.noreply.github.com", PUBLIC, PRIVATE);
+  const { pub, priv } = loadVapid();
+  if (!pub || !priv) {
+    console.log("missing vapid keys", { pub: !!pub, priv: !!priv });
+    return subs;
+  }
+  webpush.setVapidDetails("mailto:maakolat@users.noreply.github.com", pub, priv);
   const body = JSON.stringify(payload);
   const keep = [];
+  let ok = 0;
+  let fail = 0;
   for (const sub of subs) {
     try {
-      await webpush.sendNotification(sub, body, { TTL: 86400, urgency: "high" });
+      await webpush.sendNotification(sub, body, { TTL: 86400, urgency: "high", headers: { Urgency: "high" } });
       keep.push(sub);
+      ok += 1;
     } catch (err) {
+      fail += 1;
       const code = err && err.statusCode;
+      console.warn("push fail", code || "", (err && err.message) || err);
       if (code !== 404 && code !== 410) keep.push(sub);
     }
   }
+  console.log("webpush ok", ok, "fail", fail, "subs", subs.length);
   return keep;
 }
 
-async function main() {
-  const mode = process.argv[2] || "harvest";
-  let subs = mergeSubs(readSubsFile(), await harvestNtfy());
-  writeSubsFile(subs);
-
-  if (mode !== "send") {
-    console.log("harvested", subs.length, "subscriptions");
-    return;
-  }
-
+function jobsFromCatalog() {
   const current = readJsonFile("menu.json");
   const prevRaw = gitShow("HEAD~1", "menu.json");
   const prev = prevRaw ? JSON.parse(prevRaw) : { menu: current.menu || [], stories: [] };
   const { newDishes, newStories, newAlerts } = diffCatalog(prev, current);
-  console.log("newStories", newStories.length, "newDishes", newDishes.length, "newAlerts", newAlerts.length, "subs", subs.length);
-
+  console.log("newStories", newStories.length, "newDishes", newDishes.length, "newAlerts", newAlerts.length);
   const jobs = [];
   if (newAlerts.length) {
     const one = newAlerts[0];
@@ -168,6 +211,56 @@ async function main() {
       url: "./?open=menu",
       tag: "yam-menu"
     });
+  }
+  return jobs;
+}
+
+async function main() {
+  const mode = process.argv[2] || "harvest";
+  let subs = mergeSubs(readSubsFile(), await harvestNtfy());
+  writeSubsFile(subs);
+  console.log("subs", subs.length, "mode", mode);
+
+  if (mode === "harvest") {
+    return;
+  }
+
+  let jobs = [];
+  const forced = eventPayload();
+  if (mode === "send-now" || forced) {
+    const p = forced || {};
+    const title = String(p.title || process.env.NOTIFY_TITLE || "").trim();
+    const body = String(p.body || process.env.NOTIFY_BODY || "").trim();
+    if (title || body) {
+      jobs.push({
+        title: title || "تحديث من الياقوت والمرجان",
+        body: body || "افتح التطبيق",
+        url: p.url || "./?open=alert",
+        tag: p.tag || "yam-urgent",
+        urgent: p.urgent === true || p.urgent === "true" || p.urgent === "5"
+      });
+    } else {
+      jobs = jobsFromCatalog();
+      if (!jobs.length) {
+        const alerts = liveAlerts(readJsonFile("menu.json"), Date.now());
+        if (alerts[0]) {
+          jobs.push({
+            title: alerts[0].title,
+            body: alerts[0].body || "من مأكولات الياقوت والمرجان",
+            url: "./?open=alert",
+            tag: "yam-urgent",
+            urgent: true
+          });
+        }
+      }
+    }
+  } else {
+    jobs = jobsFromCatalog();
+  }
+
+  if (!jobs.length) {
+    console.log("nothing to send");
+    return;
   }
   for (const job of jobs) {
     try { await sendNtfy(job); } catch (err) { console.warn("ntfy", err); }
