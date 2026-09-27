@@ -249,17 +249,110 @@
 
   function renderAlertBanner() {
     const box = document.getElementById("urgent-banner");
-    if (!box) return;
-    const list = liveAlertList();
-    if (!list.length) {
-      box.hidden = true;
-      stopAlertRotate();
-      renderAlertDots([]);
-      return;
+    if (box) box.hidden = true;
+    stopAlertRotate();
+    paintNotifyBell();
+  }
+
+  const INBOX_SEEN_KEY = "yam-inbox-seen-v1";
+
+  function readInboxSeen() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(INBOX_SEEN_KEY) || "[]");
+      return Array.isArray(raw) ? raw.map(String) : [];
+    } catch (err) {
+      return [];
     }
-    if (alertIndex >= list.length) alertIndex = 0;
-    showAlertAt(alertIndex);
-    startAlertRotate();
+  }
+
+  function writeInboxSeen(ids) {
+    try { localStorage.setItem(INBOX_SEEN_KEY, JSON.stringify(ids.slice(0, 40))); } catch (err) {}
+  }
+
+  function paintNotifyBell() {
+    const bell = document.getElementById("notify-bell");
+    const dot = document.getElementById("notify-dot");
+    const listEl = document.getElementById("notify-list");
+    const list = liveAlertList();
+    const seen = readInboxSeen();
+    const unread = list.filter((a) => a.id && seen.indexOf(String(a.id)) < 0).length;
+    if (dot) {
+      dot.hidden = unread < 1;
+      dot.title = unread ? unread + " إشعار جديد" : "";
+    }
+    if (bell) bell.setAttribute("aria-label", unread ? "الإشعارات، " + unread + " جديدة" : "الإشعارات");
+    if (!listEl) return;
+    if (!list.length) {
+      listEl.innerHTML = `<p class="notify-empty">لا توجد إشعارات حالياً</p>`;
+    } else {
+      listEl.innerHTML = list.map((a) =>
+        `<button type="button" class="notify-item" data-alert-id="${escapeHtml(a.id || "")}" data-alert-kind="${escapeHtml(a.kind || "now")}">
+          <strong>${escapeHtml(a.title)}</strong>
+          <span>${escapeHtml(a.body || "")}</span>
+        </button>`
+      ).join("");
+    }
+    const box = document.getElementById("notify-inbox");
+    if (box && !box.hidden) {
+      writeInboxSeen(Array.from(new Set(seen.concat(list.map((a) => String(a.id || "")).filter(Boolean)))));
+      if (dot) dot.hidden = true;
+    }
+  }
+
+  function openNotifyInbox() {
+    const bell = document.getElementById("notify-bell");
+    const box = document.getElementById("notify-inbox");
+    if (!box) return;
+    paintNotifyBell();
+    box.hidden = false;
+    if (bell) {
+      bell.classList.add("is-open");
+      bell.setAttribute("aria-expanded", "true");
+    }
+    const ids = liveAlertList().map((a) => String(a.id || "")).filter(Boolean);
+    writeInboxSeen(Array.from(new Set(readInboxSeen().concat(ids))));
+    const dot = document.getElementById("notify-dot");
+    if (dot) dot.hidden = true;
+  }
+
+  function closeNotifyInbox() {
+    const bell = document.getElementById("notify-bell");
+    const box = document.getElementById("notify-inbox");
+    if (box) box.hidden = true;
+    if (bell) {
+      bell.classList.remove("is-open");
+      bell.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  function setupNotifyBell() {
+    const bell = document.getElementById("notify-bell");
+    const box = document.getElementById("notify-inbox");
+    const listEl = document.getElementById("notify-list");
+    if (!bell || !box) return;
+    paintNotifyBell();
+    bell.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (box.hidden) openNotifyInbox();
+      else closeNotifyInbox();
+    });
+    if (listEl) {
+      listEl.addEventListener("click", (e) => {
+        const item = e.target.closest ? e.target.closest("[data-alert-id]") : null;
+        if (!item) return;
+        closeNotifyInbox();
+        const kind = item.getAttribute("data-alert-kind") || "";
+        if (kind === "story") consumeOpenParam("stories");
+        else consumeOpenParam("menu");
+      });
+    }
+    document.addEventListener("click", (e) => {
+      const wrap = e.target.closest ? e.target.closest(".notify-wrap") : null;
+      if (!wrap) closeNotifyInbox();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeNotifyInbox();
+    });
   }
 
   function toast(msg) {
@@ -1571,6 +1664,7 @@
 
   function bind() {
     applyTheme(localStorage.getItem("yam-theme") || "dark");
+    setupNotifyBell();
     document.getElementById("theme-toggle").addEventListener("click", () => {
       const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
       applyTheme(next);
@@ -1915,15 +2009,20 @@
 
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const android = /android/i.test(navigator.userAgent);
-    const samsung = /SamsungBrowser|SM-|Samsung/i.test(ua);
+    const samsung = /SamsungBrowser/i.test(ua);
     if (apkBtn) apkBtn.hidden = !android;
-    if (android && btn) btn.hidden = true;
     const apkUrl = "https://maakolat.github.io/food/android/alyaqout-app.apk?v=24";
     if (apkBtn && android) apkBtn.href = apkUrl;
     const mobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
       || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     let deferred = null;
     const hideKey = needsApkUpdate ? "yam-apk-update-26" : "yam-install-popup";
+
+    function nativeIntent(fallback) {
+      let s = "intent://maakolat.github.io/food/#Intent;scheme=https;package=iq.alyaqout.app";
+      if (fallback) s += ";S.browser_fallback_url=" + encodeURIComponent(fallback);
+      return s + ";end";
+    }
 
     function showPopup(force) {
       if (!force && sessionStorage.getItem(hideKey) === "1") return;
@@ -1963,7 +2062,6 @@
           "افتح كروم أو سفاري",
           "بعدها ثبّت التطبيق من هناك"
         ]);
-        btn.hidden = false;
         btn.textContent = "فتح في كروم";
         return;
       }
@@ -1974,7 +2072,6 @@
           "اختر إضافة إلى الشاشة الرئيسية",
           "ثم اضغط إضافة"
         ]);
-        btn.hidden = false;
         btn.textContent = "حسناً، فهمت";
         return;
       }
@@ -1985,28 +2082,28 @@
           "ثبّت النسخة الجديدة فوق الحالية",
           "افتح التطبيق واسمح بالإشعارات"
         ]);
-        btn.hidden = true;
+        btn.textContent = "تحديث التطبيق";
         if (apkBtn) apkBtn.hidden = false;
         return;
       }
       if (android) {
         if (text) {
           text.textContent = samsung
-            ? "حمّل الملف ثم ثبّته من مجلد التنزيلات. لا تضغط فتح التطبيق قبل التثبيت."
-            : "حمّل تطبيق الأندرويد، ثبّته، ثم افتحه من الشاشة الرئيسية.";
+            ? "على سامسونج حمّل التطبيق ثم ثبّته من التنزيلات. إذا ظهرت رسالة أنه غير مثبت، اسمح للمتصفح بتثبيت التطبيقات."
+            : "حمّل تطبيق الأندرويد حتى توصلك الإشعارات والهاتف مقفل، والقائمة تبقى متصلة بالموقع.";
         }
         showSteps(samsung
           ? [
               "اضغط حمّل تطبيق أندرويد",
-              "إذا طلب الهاتف: اسمح بتثبيت التطبيقات من هذا المتصفح",
-              "افتح ملف التنزيل وثبّته، ثم اضغط أيقونة الياقوت والمرجان"
+              "إعدادات ← تطبيقات ← متصفح إنترنت ← تثبيت تطبيقات غير معروفة",
+              "افتح التنزيلات واضغط الملف، ثم افتح التطبيق من الشاشة الرئيسية"
             ]
           : [
               "اضغط حمّل تطبيق أندرويد",
               "اسمح بالتثبيت من هذا المصدر إذا طلب الهاتف",
               "افتح التطبيق من الشاشة الرئيسية ثم اسمح بالإشعارات"
             ]);
-        btn.hidden = true;
+        btn.textContent = "فتح التطبيق إذا كان مثبتاً";
         if (apkBtn) apkBtn.hidden = false;
         return;
       }
@@ -2038,12 +2135,13 @@
         return;
       }
       if (android) {
-        try { localStorage.setItem("yam-apk-clicked", "1"); } catch (err) {}
-        if (apkBtn) {
-          try { apkBtn.click(); } catch (err) { window.location.href = apkUrl; }
-        } else {
-          window.location.href = apkUrl;
-        }
+        try { window.location.href = nativeIntent(apkUrl); } catch (err) {}
+        setTimeout(() => {
+          if (document.visibilityState === "visible") {
+            setCopy(false);
+            showPopup(true);
+          }
+        }, 900);
         return;
       }
       if (deferred) {
@@ -2078,9 +2176,13 @@
       });
     }
     if (headerBtn) headerBtn.addEventListener("click", () => {
-      setCopy(!!deferred && !android);
+      if (android) {
+        tryInstall();
+        return;
+      }
+      setCopy(!!deferred);
       showPopup(true);
-      if (!android && deferred) tryInstall();
+      if (deferred) tryInstall();
     });
 
     window.addEventListener("beforeinstallprompt", (e) => {
@@ -2116,12 +2218,9 @@
       if (list.length) showStoryAt(0);
       const strip = document.getElementById("stories-strip");
       if (strip) strip.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else if (open === "menu" || open === "alert") {
-      const banner = document.getElementById("urgent-banner");
-      if (open === "alert" && banner && !banner.hidden) {
-        banner.scrollIntoView({ behavior: "smooth", block: "start" });
-        return;
-      }
+    } else if (open === "alert") {
+      openNotifyInbox();
+    } else if (open === "menu") {
       const section = document.getElementById("menu");
       if (section) section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
