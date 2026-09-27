@@ -415,6 +415,8 @@
     const avatar = document.getElementById("story-avatar");
     const src = dishImage(s.image);
     photo.src = src;
+    const bg = document.getElementById("story-photo-bg");
+    if (bg) bg.src = src;
     if (avatar) avatar.src = src;
     const label = (s.title || s.caption || "").trim();
     document.getElementById("story-title").textContent = label;

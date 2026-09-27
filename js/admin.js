@@ -606,7 +606,7 @@
       const expired = Number(s.expiresAt) <= Date.now();
       return `
       <article class="admin-dish ${expired ? "admin-story-expired" : ""}">
-        <img src="${esc(dishImage(s.image))}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
+        <img class="admin-story-thumb" src="${esc(dishImage(s.image))}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
         <div>
           <strong>${esc(s.title || "ستوري")}</strong>
           <p class="muted">${esc(STORY_HOURS[s.durationHours] || "24 ساعة")} · ${esc(storyRemaining(s.expiresAt))}</p>
