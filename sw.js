@@ -1,4 +1,4 @@
-const CACHE = "yam-app-v89";
+const CACHE = "yam-app-v90";
 const IDB_NAME = "yam-notify-v1";
 const IDB_STORE = "state";
 const VAPID_PUBLIC = "BEfFV9lMNzSY-Z9xW8zr_ISpD5BYdkQMUpOOCf29MZEP6X6_6cOdEOzpX5wl-jdMvg88wgUXYEhbwuvWjnhxO-M";
@@ -305,12 +305,12 @@ async function showNote(title, body, url, tag, opts) {
     badge: iconUrl(),
     tag: tag || "yam-news",
     renotify: true,
-    requireInteraction: urgent,
+    requireInteraction: true,
     silent: false,
     timestamp: Date.now(),
     vibrate: urgent
       ? [70, 40, 70, 40, 90, 120, 240, 70, 240, 70, 380]
-      : [160, 80, 160],
+      : [200, 80, 200, 80, 400],
     sound: chimeUrl(),
     data: { url: url || "./", urgent }
   });

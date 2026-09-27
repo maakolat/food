@@ -128,7 +128,7 @@
   function playNotifyChime() {
     try {
       if (!chimeAudio) {
-        chimeAudio = new Audio("assets/notify-chime.wav?v=61");
+        chimeAudio = new Audio("assets/notify-chime.wav?v=90");
         chimeAudio.preload = "auto";
       }
       chimeAudio.currentTime = 0;
@@ -2065,6 +2065,11 @@
   function setupNotify() {
     const supported = "Notification" in window && "serviceWorker" in navigator;
     const cfg = window.SITE_CONFIG || {};
+    const nativeApp = /AlyaqoutApp/i.test(navigator.userAgent || "");
+    const bar = document.getElementById("notify-bar");
+    const allowBtn = document.getElementById("notify-allow");
+    const laterBtn = document.getElementById("notify-later");
+    const hideKey = "yam-notify-bar";
 
     function urlBase64ToUint8Array(base64String) {
       const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -2131,6 +2136,38 @@
       enablePeriodic();
       registerPush().catch(() => {});
       setTimeout(askSwCheck, 800);
+      if (bar) bar.hidden = true;
+    } else if (!nativeApp && supported && Notification.permission === "default") {
+      const showBar = () => {
+        if (!bar) return;
+        if (sessionStorage.getItem(hideKey) === "1") return;
+        bar.hidden = false;
+      };
+      setTimeout(showBar, 1400);
+      if (allowBtn) {
+        allowBtn.addEventListener("click", async () => {
+          try {
+            const perm = await Notification.requestPermission();
+            if (perm === "granted") {
+              if (bar) bar.hidden = true;
+              enablePeriodic();
+              await registerPush();
+              askSwCheck();
+              toast("تم تفعيل إشعارات الهاتف");
+            } else if (bar) bar.hidden = true;
+          } catch (err) {
+            if (bar) bar.hidden = true;
+          }
+        });
+      }
+      if (laterBtn) {
+        laterBtn.addEventListener("click", () => {
+          if (bar) bar.hidden = true;
+          sessionStorage.setItem(hideKey, "1");
+        });
+      }
+    } else if (bar) {
+      bar.hidden = true;
     }
 
     setInterval(() => {

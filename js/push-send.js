@@ -248,11 +248,36 @@
     return subs.length;
   }
 
+  async function publishPhoneAlert(opts) {
+    const t = topic();
+    if (!t) return false;
+    const title = String(opts.title || "تحديث من الياقوت والمرجان").slice(0, 90);
+    const body = String(opts.body || "افتح التطبيق").slice(0, 500);
+    const path = String(opts.url || "./").replace(/^\.\//, "");
+    const click = "https://maakolat.github.io/food/" + path.replace(/^\//, "");
+    try {
+      const u = new URL("https://ntfy.sh/" + encodeURIComponent(t));
+      u.searchParams.set("title", title);
+      u.searchParams.set("priority", opts.urgent ? "5" : "4");
+      u.searchParams.set("tags", "bell");
+      u.searchParams.set("click", click);
+      const res = await fetch(u.toString(), {
+        method: "POST",
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+        body: body
+      });
+      return !!res && res.ok;
+    } catch (err) {
+      return false;
+    }
+  }
+
   async function notifyCustomers(opts) {
     opts = opts || {};
-    if (!vapidPublic() || !vapidPrivate()) return 0;
+    const phone = await publishPhoneAlert(opts).catch(() => false);
+    if (!vapidPublic() || !vapidPrivate()) return phone ? 1 : 0;
     const subs = await collectSubs();
-    if (!subs.length) return 0;
+    if (!subs.length) return phone ? 1 : 0;
     try { await saveGithubSubs(subs); } catch (err) {}
 
     const signKey = await importVapidSignKey();
@@ -282,7 +307,7 @@
     if (kept.length !== subs.length) {
       try { await saveGithubSubs(kept); } catch (err) {}
     }
-    return sent;
+    return sent + (phone ? 1 : 0);
   }
 
   window.YamPush = {

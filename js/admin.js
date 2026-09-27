@@ -822,7 +822,7 @@
       }
       renderAlertLast();
       if (result && result.pushed > 0) {
-        toast("وصل الإشعار لـ " + result.pushed + " زبون بجرس الياقوت");
+        toast("تم إرسال الإشعار إلى هواتف الزبائن مع جرس الياقوت");
       } else if (result && result.remote) {
         toast("ظهر الشريط على الموقع. يصل الجرس لمن فعّل الإشعارات");
       } else {
@@ -1003,7 +1003,7 @@
     if (result.remote === "images-stripped") {
       toast("تم حفظ الصنف. الصورة الجديدة لم تُرفع — جرّب صورة أصغر أو اختَر صورة جاهزة");
     } else if (result.remote) {
-      if (isNew && result.pushed > 0) toast("تم نشر الصنف ووصل إشعار لـ " + result.pushed + " زبون");
+      if (isNew && result.pushed > 0) toast("تم نشر الصنف ووصل إشعار للهواتف");
       else if (isNew) toast("تم نشر الصنف. من فعّل الإشعارات يصله الخبر على الهاتف");
       else toast("تم تحديث الصنف على الموقع");
     } else {
@@ -1099,7 +1099,7 @@
     if (result.remote === "images-stripped") {
       toast("حُفظ الستوري. الصورة لم تُرفع — جرّب صورة أصغر");
     } else if (result.remote) {
-      if (result.pushed > 0) toast("تم نشر الستوري ووصل إشعار لـ " + result.pushed + " زبون");
+      if (result.pushed > 0) toast("تم نشر الستوري ووصل إشعار للهواتف");
       else toast("تم نشر الستوري. من فعّل الإشعارات يصله الخبر على الهاتف");
     } else {
       toast("حُفظ على هذا الجهاز فقط. تحقق من الإنترنت واحفظ مرة ثانية");
