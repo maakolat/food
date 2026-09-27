@@ -257,21 +257,52 @@
     row.n = row.u.length;
   }
 
+  function storyPeopleCount(id) {
+    const row = visitStats.stories && visitStats.stories[id];
+    if (!row) return 0;
+    if (Array.isArray(row.u)) return row.u.length;
+    return Number(row.n || 0) || 0;
+  }
+
+  function peopleRange(days, length) {
+    const seen = {};
+    let extra = 0;
+    for (let i = 0; i < length; i++) {
+      const row = days && days[baghdadDay(-i)];
+      if (!row) continue;
+      if (Array.isArray(row.u) && row.u.length) {
+        row.u.forEach((id) => { if (id) seen[id] = true; });
+      } else {
+        extra += Number(row.n || 0) || 0;
+      }
+    }
+    return Object.keys(seen).length + extra;
+  }
+
   function paintVisits() {
     const set = (id, n) => {
       const el = document.getElementById(id);
       if (el) el.textContent = String(n);
     };
     const today = baghdadDay(0);
+    const siteDays = visitStats.days || {};
+    const storyDays = visitStats.storyDays || {};
     set("status-visits-today", dayCount(visitStats, today));
     set("status-visits-yesterday", dayCount(visitStats, baghdadDay(-1)));
     set("status-visits-week", rangeCount(visitStats, 7));
     set("status-visits-total", totalCount(visitStats));
-    const storyDays = visitStats.storyDays || {};
+    set("status-visitors-today", dayPeople(visitStats, today));
+    set("status-visitors-yesterday", dayPeople(visitStats, baghdadDay(-1)));
+    set("status-visitors-week", peopleRange(siteDays, 7));
+    set("status-visitors-total", peopleRange(siteDays, 60));
     set("status-stories-today", bucketCount(storyDays, today));
     set("status-stories-yesterday", bucketCount(storyDays, baghdadDay(-1)));
     set("status-stories-week", bucketRange(storyDays, 7));
     set("status-stories-total", bucketTotal(storyDays));
+    set("status-story-visitors-today", bucketPeople(storyDays, today));
+    set("status-story-visitors-yesterday", bucketPeople(storyDays, baghdadDay(-1)));
+    set("status-story-visitors-week", peopleRange(storyDays, 7));
+    set("status-story-visitors-total", peopleRange(storyDays, 60));
   }
 
   function dayCount(stats, day) {
@@ -335,7 +366,7 @@
       const row = keep[day];
       const views = Number(row.v || 0) || (Array.isArray(row.u) ? row.u.length : Number(row.n || 0));
       const people = Array.isArray(row.u) ? row.u.length : Number(row.n || 0);
-      if (day < baghdadDay(-2)) keep[day] = { v: views, n: people };
+      if (day < baghdadDay(-7)) keep[day] = { v: views, n: people };
       else keep[day] = { v: views, n: people, u: Array.isArray(row.u) ? row.u.slice(-800) : [] };
     });
     return keep;
@@ -658,7 +689,11 @@
         <img class="admin-story-thumb" src="${esc(dishImage(s.image))}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
         <div>
           <strong>${esc(s.title || "ستوري")}</strong>
-          <p class="muted">${esc(STORY_HOURS[s.durationHours] || "24 ساعة")} · ${esc(storyRemaining(s.expiresAt))} · ${storyViewCount(s.id)} مشاهدة</p>
+          <p class="muted">${esc(STORY_HOURS[s.durationHours] || "24 ساعة")} · ${esc(storyRemaining(s.expiresAt))}</p>
+          <p class="admin-story-counts">
+            <span>مشاهدات <strong>${storyViewCount(s.id)}</strong></span>
+            <span>زائرون <strong>${storyPeopleCount(s.id)}</strong></span>
+          </p>
         </div>
         <div class="admin-dish-actions">
           <button class="btn btn-ghost" type="button" data-edit-story="${esc(s.id)}">تعديل</button>

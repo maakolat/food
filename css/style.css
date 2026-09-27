@@ -1252,6 +1252,43 @@ input[type="text"], input[type="tel"], textarea, select {
 .admin-stat strong {
   font-size: 1.35rem;
 }
+.admin-stat-pair {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+.admin-stat-pair > span {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+.admin-stat-pair strong {
+  font-size: 1.25rem;
+  color: var(--ink);
+  font-weight: 800;
+}
+.admin-story-counts {
+  display: flex;
+  gap: 14px;
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+.admin-story-counts span {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+.admin-story-counts strong {
+  font-size: 1.05rem;
+  color: var(--ink);
+}
 .admin-visits-title {
   margin: 8px 0 6px;
   font-size: 1.05rem;
