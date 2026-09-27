@@ -120,13 +120,15 @@ a { color: inherit; }
   align-items: center;
   gap: 16px;
   flex-wrap: nowrap;
+  min-width: 0;
 }
 .brand {
   display: flex;
   align-items: center;
   gap: 12px;
   text-decoration: none;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
 }
 .brand-mark {
   width: 48px;
@@ -166,12 +168,15 @@ a { color: inherit; }
   bottom: 10px;
   left: 11px;
 }
-.brand-text { display: flex; flex-direction: column; }
+.brand-text { display: flex; flex-direction: column; min-width: 0; }
 .brand-text strong {
   font-family: "Cairo", sans-serif;
   font-weight: 800;
   font-size: 1.12rem;
   line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .brand-text small { color: var(--muted); font-size: 0.9rem; font-weight: 600; }
 .header-nav {
@@ -237,8 +242,27 @@ html[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
 .notify-wrap {
   position: relative;
   flex-shrink: 0;
+  display: block;
 }
-.notify-bell svg { display: block; width: 20px; height: 20px; }
+.notify-bell {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  position: relative;
+}
+.notify-bell svg {
+  display: block !important;
+  width: 20px;
+  height: 20px;
+}
 .notify-bell.is-open {
   border-color: var(--gold);
   color: var(--ruby);
@@ -2500,6 +2524,21 @@ html.has-dock body {
 html.has-dock .header-nav { display: none !important; }
 html.has-dock .profile-btn,
 html.has-dock .game-btn { display: none; }
+html.has-dock .brand-text small,
+html[data-native-app] .brand-text small { display: none; }
+html.has-dock .header-actions,
+html[data-native-app] .header-actions {
+  z-index: 6;
+}
+html.has-dock .cart-btn span:not(.cart-count),
+html[data-native-app] .cart-btn span:not(.cart-count) {
+  display: none;
+}
+html.has-dock .notify-wrap,
+html[data-native-app] .notify-wrap {
+  display: block !important;
+  flex-shrink: 0;
+}
 html.has-dock .mobile-bar {
   bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   inset-inline: 10px;

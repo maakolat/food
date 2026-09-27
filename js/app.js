@@ -2050,7 +2050,7 @@
     const nativeMatch = ua.match(/AlyaqoutApp\/(\d+(?:\.\d+)?)/i);
     const nativeApp = !!nativeMatch;
     const nativeVer = nativeMatch ? Number(nativeMatch[1]) : 0;
-    const needsApkUpdate = nativeApp && nativeVer < 2.6;
+    const needsApkUpdate = nativeApp && nativeVer < 2.7;
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || window.navigator.standalone === true;
     if (nativeApp && !needsApkUpdate) {
@@ -2079,12 +2079,12 @@
     const samsung = /SamsungBrowser|SM-|Samsung/i.test(ua);
     if (apkBtn) apkBtn.hidden = !android;
     if (android && btn) btn.hidden = true;
-    const apkUrl = "https://maakolat.github.io/food/android/alyaqout-app.apk?v=24";
+    const apkUrl = "https://maakolat.github.io/food/android/alyaqout-app.apk?v=25";
     if (apkBtn && android) apkBtn.href = apkUrl;
     const mobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
       || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     let deferred = null;
-    const hideKey = needsApkUpdate ? "yam-apk-update-26" : "yam-install-popup";
+    const hideKey = needsApkUpdate ? "yam-apk-update-27" : "yam-install-popup";
 
     function showPopup(force) {
       if (!force && sessionStorage.getItem(hideKey) === "1") return;
@@ -2140,7 +2140,7 @@
         return;
       }
       if (needsApkUpdate) {
-        if (text) text.textContent = "حدّث التطبيق حتى توصلك إشعارات المطعم بنغمة مميزة والهاتف مقفل.";
+        if (text) text.textContent = "حدّث التطبيق حتى يظهر جرس الإشعارات ولا تنقطع الصفحة تحت ساعة الهاتف.";
         showSteps([
           "اضغط حمّل تطبيق أندرويد",
           "ثبّت النسخة الجديدة فوق الحالية",
