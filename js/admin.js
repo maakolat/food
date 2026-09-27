@@ -272,14 +272,6 @@
     set("status-stories-yesterday", bucketCount(storyDays, baghdadDay(-1)));
     set("status-stories-week", bucketRange(storyDays, 7));
     set("status-stories-total", bucketTotal(storyDays));
-    const storyHint = document.getElementById("stories-views-hint");
-    if (storyHint) {
-      const people = bucketPeople(storyDays, today);
-      const views = bucketCount(storyDays, today);
-      storyHint.textContent = views
-        ? ("اليوم " + views + " مشاهدة ستوري من " + people + " زائر.")
-        : "كل فتح لستوري يُحسب، حتى لو نفس الزائر شاهده أكثر من مرة.";
-    }
   }
 
   function dayCount(stats, day) {
