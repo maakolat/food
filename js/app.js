@@ -796,18 +796,11 @@
       buttons.forEach((btn, i) => {
         const on = btn.getAttribute("data-dock") === view;
         btn.classList.toggle("is-on", on);
-        if (on && glow) {
-          if (vertical) {
-            glow.style.width = "calc(100% - 12px)";
-            glow.style.height = (100 / buttons.length) + "%";
-            glow.style.insetInlineStart = "6px";
-            glow.style.insetBlockStart = (i * 100 / buttons.length) + "%";
-          } else {
-            glow.style.width = (100 / buttons.length) + "%";
-            glow.style.height = "46px";
-            glow.style.insetInlineStart = (i * 100 / buttons.length) + "%";
-            glow.style.insetBlockStart = "6px";
-          }
+        if (on && glow && !vertical) {
+          glow.style.width = (100 / buttons.length) + "%";
+          glow.style.height = "46px";
+          glow.style.insetInlineStart = (i * 100 / buttons.length) + "%";
+          glow.style.insetBlockStart = "6px";
         }
       });
     }
@@ -842,18 +835,11 @@
       buttons.forEach((btn, i) => {
         const on = btn.getAttribute("data-dock") === current;
         btn.classList.toggle("is-on", on);
-        if (on && glow) {
-          if (vertical) {
-            glow.style.width = "calc(100% - 12px)";
-            glow.style.height = (100 / buttons.length) + "%";
-            glow.style.insetInlineStart = "6px";
-            glow.style.insetBlockStart = (i * 100 / buttons.length) + "%";
-          } else {
-            glow.style.width = (100 / buttons.length) + "%";
-            glow.style.height = "46px";
-            glow.style.insetInlineStart = (i * 100 / buttons.length) + "%";
-            glow.style.insetBlockStart = "6px";
-          }
+        if (on && glow && !vertical) {
+          glow.style.width = (100 / buttons.length) + "%";
+          glow.style.height = "46px";
+          glow.style.insetInlineStart = (i * 100 / buttons.length) + "%";
+          glow.style.insetBlockStart = "6px";
         }
       });
     }

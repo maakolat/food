@@ -2363,9 +2363,9 @@ html.has-dock .app-dock button svg {
     min-height: 0;
     height: 100%;
     flex-direction: column;
-    justify-content: center;
-    gap: 6px;
-    padding: 18px 10px;
+    justify-content: space-evenly;
+    overflow: hidden;
+    padding: 12px 8px;
     border-radius: 0;
     border-top: 0;
     border-inline-end: 1px solid var(--line);
@@ -2374,16 +2374,14 @@ html.has-dock .app-dock button svg {
       inset -1px 0 0 color-mix(in srgb, var(--gold) 40%, transparent);
   }
   html.has-dock .app-dock-glow {
-    top: auto;
-    height: auto;
-    border-radius: 18px;
+    display: none;
   }
   html.has-dock .app-dock button {
-    flex: 0 0 auto;
-    min-height: 74px;
-    padding: 8px 4px;
+    flex: 1 1 0;
+    min-height: 0;
+    padding: 6px 4px;
     gap: 4px;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     border-radius: 18px;
   }
   html.has-dock .app-dock button svg {
