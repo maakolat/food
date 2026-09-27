@@ -1915,20 +1915,15 @@
 
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const android = /android/i.test(navigator.userAgent);
-    const samsung = /SamsungBrowser/i.test(ua);
+    const samsung = /SamsungBrowser|SM-|Samsung/i.test(ua);
     if (apkBtn) apkBtn.hidden = !android;
+    if (android && btn) btn.hidden = true;
     const apkUrl = "https://maakolat.github.io/food/android/alyaqout-app.apk?v=24";
     if (apkBtn && android) apkBtn.href = apkUrl;
     const mobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
       || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     let deferred = null;
     const hideKey = needsApkUpdate ? "yam-apk-update-26" : "yam-install-popup";
-
-    function nativeIntent(fallback) {
-      let s = "intent://maakolat.github.io/food/#Intent;scheme=https;package=iq.alyaqout.app";
-      if (fallback) s += ";S.browser_fallback_url=" + encodeURIComponent(fallback);
-      return s + ";end";
-    }
 
     function showPopup(force) {
       if (!force && sessionStorage.getItem(hideKey) === "1") return;
@@ -1968,6 +1963,7 @@
           "افتح كروم أو سفاري",
           "بعدها ثبّت التطبيق من هناك"
         ]);
+        btn.hidden = false;
         btn.textContent = "فتح في كروم";
         return;
       }
@@ -1978,6 +1974,7 @@
           "اختر إضافة إلى الشاشة الرئيسية",
           "ثم اضغط إضافة"
         ]);
+        btn.hidden = false;
         btn.textContent = "حسناً، فهمت";
         return;
       }
@@ -1988,28 +1985,28 @@
           "ثبّت النسخة الجديدة فوق الحالية",
           "افتح التطبيق واسمح بالإشعارات"
         ]);
-        btn.textContent = "تحديث التطبيق";
+        btn.hidden = true;
         if (apkBtn) apkBtn.hidden = false;
         return;
       }
       if (android) {
         if (text) {
           text.textContent = samsung
-            ? "على سامسونج حمّل التطبيق ثم ثبّته من التنزيلات. إذا ظهرت رسالة أنه غير مثبت، اسمح للمتصفح بتثبيت التطبيقات."
-            : "حمّل تطبيق الأندرويد حتى توصلك الإشعارات والهاتف مقفل، والقائمة تبقى متصلة بالموقع.";
+            ? "حمّل الملف ثم ثبّته من مجلد التنزيلات. لا تضغط فتح التطبيق قبل التثبيت."
+            : "حمّل تطبيق الأندرويد، ثبّته، ثم افتحه من الشاشة الرئيسية.";
         }
         showSteps(samsung
           ? [
               "اضغط حمّل تطبيق أندرويد",
-              "إعدادات ← تطبيقات ← متصفح إنترنت ← تثبيت تطبيقات غير معروفة",
-              "افتح التنزيلات واضغط الملف، ثم افتح التطبيق من الشاشة الرئيسية"
+              "إذا طلب الهاتف: اسمح بتثبيت التطبيقات من هذا المتصفح",
+              "افتح ملف التنزيل وثبّته، ثم اضغط أيقونة الياقوت والمرجان"
             ]
           : [
               "اضغط حمّل تطبيق أندرويد",
               "اسمح بالتثبيت من هذا المصدر إذا طلب الهاتف",
               "افتح التطبيق من الشاشة الرئيسية ثم اسمح بالإشعارات"
             ]);
-        btn.textContent = "فتح التطبيق إذا كان مثبتاً";
+        btn.hidden = true;
         if (apkBtn) apkBtn.hidden = false;
         return;
       }
@@ -2041,13 +2038,12 @@
         return;
       }
       if (android) {
-        try { window.location.href = nativeIntent(apkUrl); } catch (err) {}
-        setTimeout(() => {
-          if (document.visibilityState === "visible") {
-            setCopy(false);
-            showPopup(true);
-          }
-        }, 900);
+        try { localStorage.setItem("yam-apk-clicked", "1"); } catch (err) {}
+        if (apkBtn) {
+          try { apkBtn.click(); } catch (err) { window.location.href = apkUrl; }
+        } else {
+          window.location.href = apkUrl;
+        }
         return;
       }
       if (deferred) {
@@ -2082,13 +2078,9 @@
       });
     }
     if (headerBtn) headerBtn.addEventListener("click", () => {
-      if (android) {
-        tryInstall();
-        return;
-      }
-      setCopy(!!deferred);
+      setCopy(!!deferred && !android);
       showPopup(true);
-      if (deferred) tryInstall();
+      if (!android && deferred) tryInstall();
     });
 
     window.addEventListener("beforeinstallprompt", (e) => {
