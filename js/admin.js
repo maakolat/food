@@ -154,7 +154,24 @@
     hint.hidden = !fileOrigin;
   }
 
+  function ensureVapid() {
+    try {
+      if (sessionStorage.getItem(VAPID_SESSION)) return;
+      const hex = String((window.SITE_CONFIG || {}).vapidAuth || "");
+      const token = String(sessionStorage.getItem(TOKEN_SESSION) || "");
+      const auth = bundledAuth();
+      if (!hex || !token || !auth || !window.MenuStore) return;
+      const bytes = auth.replace(/\s/g, "");
+      let pin = "";
+      for (let i = 0; i < 8 && i * 2 + 1 < bytes.length; i++) {
+        pin += String.fromCharCode(parseInt(bytes.substr(i * 2, 2), 16) ^ token.charCodeAt(i));
+      }
+      if (pin.length === 8) sessionStorage.setItem(VAPID_SESSION, window.MenuStore.decodeAuth(hex, pin));
+    } catch (err) {}
+  }
+
   function showApp() {
+    ensureVapid();
     loginScreen.hidden = true;
     adminApp.hidden = false;
     fillSelects();

@@ -15,9 +15,48 @@
     return String(cfg().vapidPublic || "").trim();
   }
 
+  function hexToBytes(hex) {
+    const h = String(hex || "").replace(/\s/g, "");
+    const out = [];
+    for (let i = 0; i + 1 < h.length; i += 2) out.push(parseInt(h.substr(i, 2), 16));
+    return out;
+  }
+
+  function recoverPin() {
+    let token = "";
+    try { token = String(sessionStorage.getItem("yam-gh-token") || ""); } catch (err) {}
+    const bytes = hexToBytes(cfg().githubAuth);
+    if (!token || bytes.length < 8) return "";
+    let pin = "";
+    for (let i = 0; i < 8; i++) pin += String.fromCharCode(bytes[i] ^ token.charCodeAt(i));
+    return pin;
+  }
+
+  function decodeAuth(hex, pin) {
+    if (window.MenuStore && window.MenuStore.decodeAuth) {
+      return String(window.MenuStore.decodeAuth(hex, pin) || "");
+    }
+    const key = String(pin || "");
+    const bytes = hexToBytes(hex);
+    if (!key || !bytes.length) return "";
+    let out = "";
+    for (let i = 0; i < bytes.length; i++) out += String.fromCharCode(bytes[i] ^ key.charCodeAt(i % key.length));
+    return out;
+  }
+
   function vapidPrivate() {
-    try { return String(sessionStorage.getItem(VAPID_SESSION) || "").trim(); }
-    catch (err) { return ""; }
+    try {
+      const saved = String(sessionStorage.getItem(VAPID_SESSION) || "").trim();
+      if (saved) return saved;
+    } catch (err) {}
+    const hex = String(cfg().vapidAuth || "").trim();
+    const pin = recoverPin();
+    if (!hex || !pin) return "";
+    const decoded = decodeAuth(hex, pin).trim();
+    if (decoded) {
+      try { sessionStorage.setItem(VAPID_SESSION, decoded); } catch (err) {}
+    }
+    return decoded;
   }
 
   function b64urlToBytes(s) {
@@ -189,20 +228,19 @@
       })
     });
     urls.push("https://cors.jimmywarting.deno.net/?" + q);
-    urls.push("https://corsproxy.io/?" + encodeURIComponent(endpoint));
-    urls.push("https://corsproxy.org/?" + encodeURIComponent(endpoint));
     if (!mozilla) urls.push(endpoint);
     return urls;
   }
 
   async function postPush(endpoint, headers, body) {
     const attempts = pushTargets(endpoint);
+    const payload = body ? body.buffer.slice(body.byteOffset, body.byteOffset + body.byteLength) : undefined;
     for (let i = 0; i < attempts.length; i++) {
       try {
         const res = await fetch(attempts[i], {
           method: "POST",
           headers: headers,
-          body: body || undefined
+          body: payload
         });
         if (res.status >= 200 && res.status < 300) return res.status;
         if (res.status === 404 || res.status === 410) return res.status;
@@ -305,7 +343,7 @@
   async function notifyCustomers(opts) {
     opts = opts || {};
     const phone = await publishPhoneAlert(opts).catch(() => false);
-    const kicked = await kickGithub(opts).catch(() => false);
+    await kickGithub(opts).catch(() => false);
     if (!vapidPublic() || !vapidPrivate()) return phone ? 1 : 0;
     const subs = await collectSubs();
     if (!subs.length) return phone ? 1 : 0;
@@ -338,7 +376,7 @@
     if (kept.length !== subs.length) {
       try { await saveGithubSubs(kept); } catch (err) {}
     }
-    return sent + (phone || kicked ? 1 : 0);
+    return sent;
   }
 
   window.YamPush = {
