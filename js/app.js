@@ -1889,7 +1889,7 @@
     const nativeMatch = ua.match(/AlyaqoutApp\/(\d+(?:\.\d+)?)/i);
     const nativeApp = !!nativeMatch;
     const nativeVer = nativeMatch ? Number(nativeMatch[1]) : 0;
-    const needsApkUpdate = nativeApp && nativeVer < 2.5;
+    const needsApkUpdate = nativeApp && nativeVer < 2.6;
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || window.navigator.standalone === true;
     if (nativeApp && !needsApkUpdate) {
@@ -1915,11 +1915,20 @@
 
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const android = /android/i.test(navigator.userAgent);
+    const samsung = /SamsungBrowser/i.test(ua);
     if (apkBtn) apkBtn.hidden = !android;
+    const apkUrl = "https://maakolat.github.io/food/android/alyaqout-app.apk?v=24";
+    if (apkBtn && android) apkBtn.href = apkUrl;
     const mobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
       || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     let deferred = null;
-    const hideKey = needsApkUpdate ? "yam-apk-update-25" : "yam-install-popup";
+    const hideKey = needsApkUpdate ? "yam-apk-update-26" : "yam-install-popup";
+
+    function nativeIntent(fallback) {
+      let s = "intent://maakolat.github.io/food/#Intent;scheme=https;package=iq.alyaqout.app";
+      if (fallback) s += ";S.browser_fallback_url=" + encodeURIComponent(fallback);
+      return s + ";end";
+    }
 
     function showPopup(force) {
       if (!force && sessionStorage.getItem(hideKey) === "1") return;
@@ -1984,13 +1993,24 @@
         return;
       }
       if (android) {
-        if (text) text.textContent = "حمّل تطبيق الأندرويد حتى توصلك الإشعارات والهاتف مقفل، والقائمة تبقى متصلة بالموقع.";
-        showSteps([
-          "اضغط حمّل تطبيق أندرويد",
-          "اسمح بالتثبيت من هذا المصدر إذا طلب الهاتف",
-          "افتح التطبيق من الشاشة الرئيسية ثم اسمح بالإشعارات"
-        ]);
-        btn.textContent = "تثبيت من كروم";
+        if (text) {
+          text.textContent = samsung
+            ? "على سامسونج حمّل التطبيق ثم ثبّته من التنزيلات. إذا ظهرت رسالة أنه غير مثبت، اسمح للمتصفح بتثبيت التطبيقات."
+            : "حمّل تطبيق الأندرويد حتى توصلك الإشعارات والهاتف مقفل، والقائمة تبقى متصلة بالموقع.";
+        }
+        showSteps(samsung
+          ? [
+              "اضغط حمّل تطبيق أندرويد",
+              "إعدادات ← تطبيقات ← متصفح إنترنت ← تثبيت تطبيقات غير معروفة",
+              "افتح التنزيلات واضغط الملف، ثم افتح التطبيق من الشاشة الرئيسية"
+            ]
+          : [
+              "اضغط حمّل تطبيق أندرويد",
+              "اسمح بالتثبيت من هذا المصدر إذا طلب الهاتف",
+              "افتح التطبيق من الشاشة الرئيسية ثم اسمح بالإشعارات"
+            ]);
+        btn.textContent = "فتح التطبيق إذا كان مثبتاً";
+        if (apkBtn) apkBtn.hidden = false;
         return;
       }
       if (nativePrompt) {
@@ -2020,6 +2040,16 @@
         showPopup(true);
         return;
       }
+      if (android) {
+        try { window.location.href = nativeIntent(apkUrl); } catch (err) {}
+        setTimeout(() => {
+          if (document.visibilityState === "visible") {
+            setCopy(false);
+            showPopup(true);
+          }
+        }, 900);
+        return;
+      }
       if (deferred) {
         try {
           deferred.prompt();
@@ -2046,7 +2076,16 @@
     }
 
     btn.addEventListener("click", tryInstall);
+    if (apkBtn) {
+      apkBtn.addEventListener("click", () => {
+        try { localStorage.setItem("yam-apk-clicked", "1"); } catch (err) {}
+      });
+    }
     if (headerBtn) headerBtn.addEventListener("click", () => {
+      if (android) {
+        tryInstall();
+        return;
+      }
       setCopy(!!deferred);
       showPopup(true);
       if (deferred) tryInstall();
@@ -2064,9 +2103,13 @@
       if (headerBtn) headerBtn.hidden = true;
     });
 
+    let apkClicked = false;
+    try { apkClicked = localStorage.getItem("yam-apk-clicked") === "1"; } catch (err) {}
     if ((mobile || needsApkUpdate) && localStorage.getItem(hideKey) !== "1") {
-      setCopy(false);
-      setTimeout(() => showPopup(needsApkUpdate), 700);
+      if (!apkClicked || needsApkUpdate) {
+        setCopy(false);
+        setTimeout(() => showPopup(needsApkUpdate), 700);
+      }
     }
   }
 

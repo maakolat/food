@@ -1,0 +1,8 @@
+﻿[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "iq.alyaqout.app",
+    "sha256_cert_fingerprints": ["66:17:E5:D9:FB:71:F4:EB:38:B8:23:DE:09:3D:10:01:84:14:4B:1F:5E:6E:61:1B:69:9E:EF:BE:FE:FB:41:B4"]
+  }
+}]
