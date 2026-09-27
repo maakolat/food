@@ -145,6 +145,7 @@
     liveAlerts = Array.isArray(data && data.alerts) && data.alerts.length
       ? data.alerts.slice()
       : (data && data.alert ? [data.alert] : []);
+    rememberInbox(liveAlerts);
     renderStories();
     renderAlertBanner();
     if (window.YAM_GAME && typeof window.YAM_GAME.useMenu === "function") {
@@ -254,7 +255,22 @@
     paintNotifyBell();
   }
 
+  const INBOX_KEY = "yam-inbox-v1";
   const INBOX_SEEN_KEY = "yam-inbox-seen-v1";
+  const INBOX_MAX = 80;
+
+  function readInbox() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(INBOX_KEY) || "[]");
+      return Array.isArray(raw) ? raw.filter((a) => a && a.title) : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  function writeInbox(list) {
+    try { localStorage.setItem(INBOX_KEY, JSON.stringify((list || []).slice(0, INBOX_MAX))); } catch (err) {}
+  }
 
   function readInboxSeen() {
     try {
@@ -266,15 +282,62 @@
   }
 
   function writeInboxSeen(ids) {
-    try { localStorage.setItem(INBOX_SEEN_KEY, JSON.stringify(ids.slice(0, 40))); } catch (err) {}
+    try { localStorage.setItem(INBOX_SEEN_KEY, JSON.stringify(ids.slice(0, INBOX_MAX))); } catch (err) {}
+  }
+
+  function inboxItemId(item) {
+    if (item && item.id) return String(item.id);
+    const stamp = String((item && (item.at || item.createdAt || item.expiresAt)) || "");
+    return "n-" + String((item && item.title) || "").slice(0, 32) + "-" + stamp;
+  }
+
+  function rememberInbox(items) {
+    const incoming = (Array.isArray(items) ? items : [items]).filter((a) => a && a.title);
+    if (!incoming.length) return;
+    const now = Date.now();
+    const map = new Map();
+    readInbox().forEach((a) => map.set(inboxItemId(a), a));
+    incoming.forEach((raw) => {
+      const id = inboxItemId(raw);
+      const prev = map.get(id) || {};
+      map.set(id, {
+        id: id,
+        title: String(raw.title || prev.title || ""),
+        body: String(raw.body || prev.body || ""),
+        kind: String(raw.kind || prev.kind || "now"),
+        expiresAt: Number(raw.expiresAt || prev.expiresAt || 0),
+        at: Number(prev.at || raw.at || raw.createdAt || now)
+      });
+    });
+    writeInbox(Array.from(map.values()).sort((a, b) => Number(b.at || 0) - Number(a.at || 0)));
+  }
+
+  function inboxList() {
+    return readInbox().sort((a, b) => Number(b.at || 0) - Number(a.at || 0));
+  }
+
+  function formatInboxWhen(at) {
+    const n = Number(at || 0);
+    if (!n) return "";
+    try {
+      return new Intl.DateTimeFormat("ar-IQ", {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(new Date(n));
+    } catch (err) {
+      return "";
+    }
   }
 
   function paintNotifyBell() {
     const bell = document.getElementById("notify-bell");
     const dot = document.getElementById("notify-dot");
     const listEl = document.getElementById("notify-list");
-    const list = liveAlertList();
+    const list = inboxList();
     const seen = readInboxSeen();
+    const now = Date.now();
     const unread = list.filter((a) => a.id && seen.indexOf(String(a.id)) < 0).length;
     if (dot) {
       dot.hidden = unread < 1;
@@ -283,14 +346,18 @@
     if (bell) bell.setAttribute("aria-label", unread ? "الإشعارات، " + unread + " جديدة" : "الإشعارات");
     if (!listEl) return;
     if (!list.length) {
-      listEl.innerHTML = `<p class="notify-empty">لا توجد إشعارات حالياً</p>`;
+      listEl.innerHTML = `<p class="notify-empty">لا توجد إشعارات محفوظة</p>`;
     } else {
-      listEl.innerHTML = list.map((a) =>
-        `<button type="button" class="notify-item" data-alert-id="${escapeHtml(a.id || "")}" data-alert-kind="${escapeHtml(a.kind || "now")}">
+      listEl.innerHTML = list.map((a) => {
+        const ended = Number(a.expiresAt || 0) > 0 && Number(a.expiresAt) <= now;
+        const when = formatInboxWhen(a.at);
+        const meta = ended ? (when ? when + " · انتهى" : "انتهى") : when;
+        return `<button type="button" class="notify-item${ended ? " is-old" : ""}" data-alert-id="${escapeHtml(a.id || "")}" data-alert-kind="${escapeHtml(a.kind || "now")}">
           <strong>${escapeHtml(a.title)}</strong>
           <span>${escapeHtml(a.body || "")}</span>
-        </button>`
-      ).join("");
+          ${meta ? `<em>${escapeHtml(meta)}</em>` : ""}
+        </button>`;
+      }).join("");
     }
     const box = document.getElementById("notify-inbox");
     if (box && !box.hidden) {
@@ -309,7 +376,7 @@
       bell.classList.add("is-open");
       bell.setAttribute("aria-expanded", "true");
     }
-    const ids = liveAlertList().map((a) => String(a.id || "")).filter(Boolean);
+    const ids = inboxList().map((a) => String(a.id || "")).filter(Boolean);
     writeInboxSeen(Array.from(new Set(readInboxSeen().concat(ids))));
     const dot = document.getElementById("notify-dot");
     if (dot) dot.hidden = true;
@@ -2440,9 +2507,25 @@
         if (data.type === "yam-news") {
           if (data.stories && data.stories.length) {
             renderStories();
+            rememberInbox(data.stories.map((s) => ({
+              id: "story-" + (s.id || Date.now()),
+              title: "ستوري جديد",
+              body: s.title || "افتح التطبيق لمشاهدة القصة",
+              kind: "story",
+              at: Date.now()
+            })));
+            paintNotifyBell();
             toast(data.stories.length === 1 ? "ستوري جديد — اضغط الدائرة للمشاهدة" : "ستوريات جديدة وصلت");
           }
           if (data.dishes && data.dishes.length) {
+            rememberInbox(data.dishes.map((d) => ({
+              id: "dish-" + (d.id || Date.now()),
+              title: "صنف جديد في القائمة",
+              body: d.name || "تمت إضافة صنف جديد",
+              kind: "now",
+              at: Date.now()
+            })));
+            paintNotifyBell();
             toast(data.dishes.length === 1 ? "صنف جديد في القائمة" : "أصناف جديدة في القائمة");
           }
         }
@@ -2458,15 +2541,17 @@
               renderMenu();
             }).catch(() => {});
           }
-          if (data.title && data.body) {
+          if (data.title) {
             const incoming = {
               id: data.id || ("live-" + Date.now()),
               title: data.title,
-              body: data.body,
+              body: data.body || "",
               kind: data.kind || "now",
-              expiresAt: Date.now() + 24 * 3600000
+              expiresAt: Date.now() + 24 * 3600000,
+              at: Date.now()
             };
             liveAlerts = [incoming].concat(liveAlerts.filter((a) => a.id !== incoming.id));
+            rememberInbox(incoming);
             alertIndex = 0;
             renderAlertBanner();
           }

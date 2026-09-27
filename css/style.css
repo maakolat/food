@@ -312,6 +312,17 @@ html[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
   color: var(--muted);
   line-height: 1.55;
 }
+.notify-item em {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  font-style: normal;
+  color: var(--muted);
+  opacity: 0.85;
+}
+.notify-item.is-old {
+  opacity: 0.72;
+}
 .notify-item:hover,
 .notify-item:focus-visible {
   outline: none;
