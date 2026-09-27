@@ -207,7 +207,7 @@
       btn.setAttribute("aria-selected", on ? "true" : "false");
     });
     try { sessionStorage.setItem("yam-admin-tab", tab); } catch (err) {}
-    if (tab === "status") refreshVisits().catch(() => {});
+    if (tab === "status" || tab === "stories") refreshVisits().catch(() => {});
   }
 
   const STATS_PATH = "stats.json";
@@ -224,7 +224,71 @@
   }
 
   function emptyStats() {
-    return { updatedAt: 0, days: {} };
+    return { updatedAt: 0, days: {}, storyDays: {}, stories: {} };
+  }
+
+  function bucketCount(days, day) {
+    return dayCount({ days: days || {} }, day);
+  }
+
+  function bucketRange(days, length) {
+    return rangeCount({ days: days || {} }, length);
+  }
+
+  function bucketTotal(days) {
+    return totalCount({ days: days || {} });
+  }
+
+  function bucketPeople(days, day) {
+    return dayPeople({ days: days || {} }, day);
+  }
+
+  function storyViewCount(id) {
+    const row = visitStats.stories && visitStats.stories[id];
+    return row ? Number(row.v || 0) || 0 : 0;
+  }
+
+  function bumpRow(map, key, visitorId) {
+    if (!map[key]) map[key] = { v: 0, n: 0, u: [] };
+    const row = map[key];
+    if (!Array.isArray(row.u)) row.u = [];
+    row.v = Number(row.v || 0) + 1;
+    if (visitorId && row.u.indexOf(visitorId) < 0 && row.u.length < 800) row.u.push(visitorId);
+    row.n = row.u.length;
+  }
+
+  function paintVisits() {
+    const set = (id, n) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(n);
+    };
+    const today = baghdadDay(0);
+    set("status-visits-today", dayCount(visitStats, today));
+    set("status-visits-yesterday", dayCount(visitStats, baghdadDay(-1)));
+    set("status-visits-week", rangeCount(visitStats, 7));
+    set("status-visits-total", totalCount(visitStats));
+    const storyDays = visitStats.storyDays || {};
+    set("status-stories-today", bucketCount(storyDays, today));
+    set("status-stories-yesterday", bucketCount(storyDays, baghdadDay(-1)));
+    set("status-stories-week", bucketRange(storyDays, 7));
+    set("status-stories-total", bucketTotal(storyDays));
+    const hint = document.getElementById("visits-hint");
+    if (hint) {
+      const people = dayPeople(visitStats, today);
+      const views = dayCount(visitStats, today);
+      const when = visitStats.updatedAt ? new Date(visitStats.updatedAt).toLocaleString("ar-IQ") : "";
+      hint.textContent = views
+        ? ("اليوم " + views + " مشاهدة من " + people + " زائر. كل فتح يُحسب حتى لنفس الزائر." + (when ? " آخر تحديث: " + when : ""))
+        : "كل فتح للموقع يُحسب، حتى لو نفس الزائر دخل أكثر من مرة.";
+    }
+    const storyHint = document.getElementById("stories-views-hint");
+    if (storyHint) {
+      const people = bucketPeople(storyDays, today);
+      const views = bucketCount(storyDays, today);
+      storyHint.textContent = views
+        ? ("اليوم " + views + " مشاهدة ستوري من " + people + " زائر.")
+        : "كل فتح لستوري يُحسب، حتى لو نفس الزائر شاهده أكثر من مرة.";
+    }
   }
 
   function dayCount(stats, day) {
@@ -254,66 +318,67 @@
     return Object.keys(days).reduce((sum, day) => sum + dayCount(stats, day), 0);
   }
 
-  function paintVisits() {
-    const set = (id, n) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = String(n);
-    };
-    const today = baghdadDay(0);
-    set("status-visits-today", dayCount(visitStats, today));
-    set("status-visits-yesterday", dayCount(visitStats, baghdadDay(-1)));
-    set("status-visits-week", rangeCount(visitStats, 7));
-    set("status-visits-total", totalCount(visitStats));
-    const hint = document.getElementById("visits-hint");
-    if (hint) {
-      const people = dayPeople(visitStats, today);
-      const views = dayCount(visitStats, today);
-      const when = visitStats.updatedAt ? new Date(visitStats.updatedAt).toLocaleString("ar-IQ") : "";
-      hint.textContent = views
-        ? ("اليوم " + views + " مشاهدة من " + people + " زائر. كل فتح يُحسب حتى لنفس الزائر." + (when ? " آخر تحديث: " + when : ""))
-        : "كل فتح للموقع يُحسب، حتى لو نفس الزائر دخل أكثر من مرة.";
-    }
-  }
-
-  function mergeVisit(stats, id, day, eventId) {
+  function mergePing(stats, payload, eventId) {
+    const id = String((payload && payload.i) || "").replace(/[^a-z0-9]/gi, "").slice(0, 8);
+    const day = String((payload && payload.d) || "").slice(0, 10);
     if (!day || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return false;
-    if (!stats.days) stats.days = {};
     if (!Array.isArray(stats.seen)) stats.seen = [];
     if (eventId) {
       if (stats.seen.indexOf(eventId) >= 0) return false;
       stats.seen.push(String(eventId));
       if (stats.seen.length > 1500) stats.seen = stats.seen.slice(-900);
     }
-    let row = stats.days[day];
-    if (!row) row = stats.days[day] = { v: 0, n: 0, u: [] };
-    if (!Array.isArray(row.u)) row.u = [];
-    row.v = Number(row.v || 0) + 1;
-    if (id && row.u.indexOf(id) < 0 && row.u.length < 800) row.u.push(id);
-    row.n = row.u.length;
+    const kind = String((payload && payload.k) || "");
+    const storyId = String((payload && payload.s) || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 48);
+    if (kind === "s" && storyId) {
+      if (!stats.storyDays || typeof stats.storyDays !== "object") stats.storyDays = {};
+      if (!stats.stories || typeof stats.stories !== "object") stats.stories = {};
+      bumpRow(stats.storyDays, day, id);
+      bumpRow(stats.stories, storyId, id);
+      return true;
+    }
+    if (!stats.days) stats.days = {};
+    bumpRow(stats.days, day, id);
     return true;
   }
 
-  function pruneStats(stats) {
+  function pruneDayMap(days) {
     const keep = {};
     for (let i = 0; i < 60; i++) {
       const day = baghdadDay(-i);
-      if (stats.days && stats.days[day]) keep[day] = stats.days[day];
+      if (days && days[day]) keep[day] = days[day];
     }
     Object.keys(keep).forEach((day) => {
       const row = keep[day];
       const views = Number(row.v || 0) || (Array.isArray(row.u) ? row.u.length : Number(row.n || 0));
       const people = Array.isArray(row.u) ? row.u.length : Number(row.n || 0);
-      if (day < baghdadDay(-2)) {
-        keep[day] = { v: views, n: people };
-      } else {
-        keep[day] = {
-          v: views,
-          n: people,
-          u: Array.isArray(row.u) ? row.u.slice(-800) : []
-        };
-      }
+      if (day < baghdadDay(-2)) keep[day] = { v: views, n: people };
+      else keep[day] = { v: views, n: people, u: Array.isArray(row.u) ? row.u.slice(-800) : [] };
     });
-    stats.days = keep;
+    return keep;
+  }
+
+  function pruneStats(stats) {
+    stats.days = pruneDayMap(stats.days);
+    stats.storyDays = pruneDayMap(stats.storyDays);
+    const stories = stats.stories && typeof stats.stories === "object" ? stats.stories : {};
+    const live = (catalog.stories || []).map((s) => s && s.id).filter(Boolean);
+    const ids = Object.keys(stories).sort((a, b) => Number((stories[b] && stories[b].v) || 0) - Number((stories[a] && stories[a].v) || 0));
+    const keepIds = {};
+    live.forEach((id) => { keepIds[id] = true; });
+    ids.forEach((id) => {
+      if (Object.keys(keepIds).length < 80) keepIds[id] = true;
+    });
+    const next = {};
+    Object.keys(keepIds).forEach((id) => {
+      const row = stories[id];
+      if (!row) return;
+      next[id] = {
+        v: Number(row.v || 0) || 0,
+        n: Array.isArray(row.u) ? row.u.length : Number(row.n || 0) || 0
+      };
+    });
+    stats.stories = next;
     if (Array.isArray(stats.seen) && stats.seen.length > 1500) stats.seen = stats.seen.slice(-900);
     return stats;
   }
@@ -326,6 +391,8 @@
       const data = JSON.parse(window.MenuStore.base64ToUtf8(meta.content));
       if (!data || typeof data !== "object") return emptyStats();
       if (!data.days || typeof data.days !== "object") data.days = {};
+      if (!data.storyDays || typeof data.storyDays !== "object") data.storyDays = {};
+      if (!data.stories || typeof data.stories !== "object") data.stories = {};
       return data;
     } catch (err) {
       return emptyStats();
@@ -345,10 +412,8 @@
         const ev = JSON.parse(line);
         const msg = ev.message || ev.msg || "";
         const row = typeof msg === "string" ? JSON.parse(msg) : msg;
-        const id = String((row && row.i) || "").replace(/[^a-z0-9]/gi, "").slice(0, 8);
-        const day = String((row && row.d) || "").slice(0, 10);
         const evid = String((ev && ev.id) || (row && row.t) || "");
-        if (mergeVisit(stats, id, day, evid)) changed = true;
+        if (mergePing(stats, row, evid)) changed = true;
       } catch (err) {}
     });
     return changed;
@@ -373,6 +438,7 @@
       const changed = await harvestVisitPings(saved).catch(() => false);
       visitStats = pruneStats(saved);
       paintVisits();
+      if (storiesEl && currentTab() === "stories") renderStories();
       if (changed) await saveVisitStats(visitStats).catch(() => {});
     } catch (err) {
       paintVisits();
@@ -609,7 +675,7 @@
         <img class="admin-story-thumb" src="${esc(dishImage(s.image))}" alt="" onerror="this.onerror=null;this.src='assets/pastry-mix.jpg'">
         <div>
           <strong>${esc(s.title || "ستوري")}</strong>
-          <p class="muted">${esc(STORY_HOURS[s.durationHours] || "24 ساعة")} · ${esc(storyRemaining(s.expiresAt))}</p>
+          <p class="muted">${esc(STORY_HOURS[s.durationHours] || "24 ساعة")} · ${esc(storyRemaining(s.expiresAt))} · ${storyViewCount(s.id)} مشاهدة</p>
         </div>
         <div class="admin-dish-actions">
           <button class="btn btn-ghost" type="button" data-edit-story="${esc(s.id)}">تعديل</button>

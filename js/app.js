@@ -448,6 +448,7 @@
     markStorySeen(s.id);
     document.getElementById("story-progress").innerHTML = storyProgressHtml(list, storyIndex);
     fillStory(s);
+    pingStoryView(s && s.id);
     viewer.hidden = false;
     document.body.style.overflow = "hidden";
     restartStoryTimer();
@@ -2104,6 +2105,33 @@
     const id = visitorId();
     if (!id) return;
     const body = JSON.stringify({ i: id, d: visitDay(), t: Date.now() });
+    const u = "https://ntfy.sh/" + encodeURIComponent(topic) + "?priority=min";
+    fetch(u, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain; charset=utf-8", Title: "v" },
+      body: body,
+      keepalive: true
+    }).catch(() => {});
+  }
+
+  function pingStoryView(storyId) {
+    const cfg = window.SITE_CONFIG || {};
+    const topic = String(cfg.visitTopic || "").trim();
+    const sid = String(storyId || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 48);
+    if (!topic || !sid) return;
+    try {
+      if (sessionStorage.getItem("yam-admin-ok") === "1") return;
+      const now = Date.now();
+      const last = String(sessionStorage.getItem("yam-story-ping") || "");
+      const parts = last.split("|");
+      if (parts[0] === sid && now - Number(parts[1] || 0) < 2000) return;
+      sessionStorage.setItem("yam-story-ping", sid + "|" + now);
+    } catch (err) {
+      return;
+    }
+    const id = visitorId();
+    if (!id) return;
+    const body = JSON.stringify({ i: id, d: visitDay(), t: Date.now(), k: "s", s: sid });
     const u = "https://ntfy.sh/" + encodeURIComponent(topic) + "?priority=min";
     fetch(u, {
       method: "POST",
