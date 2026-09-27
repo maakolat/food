@@ -128,7 +128,7 @@
   function playNotifyChime() {
     try {
       if (!chimeAudio) {
-        chimeAudio = new Audio("assets/notify-chime.wav?v=90");
+        chimeAudio = new Audio("assets/notify-chime.wav?v=102");
         chimeAudio.preload = "auto";
       }
       chimeAudio.currentTime = 0;
@@ -1889,7 +1889,7 @@
     const nativeMatch = ua.match(/AlyaqoutApp\/(\d+(?:\.\d+)?)/i);
     const nativeApp = !!nativeMatch;
     const nativeVer = nativeMatch ? Number(nativeMatch[1]) : 0;
-    const needsApkUpdate = nativeApp && nativeVer < 2.3;
+    const needsApkUpdate = nativeApp && nativeVer < 2.4;
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || window.navigator.standalone === true;
     if (nativeApp && !needsApkUpdate) {
@@ -1919,7 +1919,7 @@
     const mobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
       || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     let deferred = null;
-    const hideKey = needsApkUpdate ? "yam-apk-update-23" : "yam-install-popup";
+    const hideKey = needsApkUpdate ? "yam-apk-update-24" : "yam-install-popup";
 
     function showPopup(force) {
       if (!force && sessionStorage.getItem(hideKey) === "1") return;
@@ -1973,7 +1973,7 @@
         return;
       }
       if (needsApkUpdate) {
-        if (text) text.textContent = "حدّث تطبيق الأندرويد حتى توصلك إشعارات المطعم والهاتف مقفل.";
+        if (text) text.textContent = "حدّث التطبيق حتى توصلك إشعارات المطعم بنغمة مميزة والهاتف مقفل.";
         showSteps([
           "اضغط حمّل تطبيق أندرويد",
           "ثبّت النسخة الجديدة فوق الحالية",
