@@ -453,9 +453,21 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790503647345-1790503647352.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790508538030-1790508538038.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790512059336-1790512059340.jpg",
-    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790513550209-1790513550213.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790513550209-1790513550213.jpg",
+    "assets/uploads/story-story-1790516738269-1790516738272.jpg"
   ],
   "stories": [
+    {
+      "id": "story-1790516738269",
+      "kind": "dish",
+      "title": "",
+      "caption": "",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516738269-1790516738272.jpg?v=1790516738272",
+      "durationHours": 24,
+      "createdAt": 1790516738269,
+      "expiresAt": 1790603138269,
+      "updatedAt": 1790516738269
+    },
     {
       "id": "story-1790513550209",
       "kind": "dish",
@@ -567,7 +579,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790516696133,
+  "updatedAt": 1790516738272,
   "alerts": [
     {
       "id": "alert-1790516696132",
