@@ -1252,8 +1252,16 @@ input[type="text"], input[type="tel"], textarea, select {
 .admin-stat strong {
   font-size: 1.35rem;
 }
+.admin-visits-title {
+  margin: 8px 0 6px;
+  font-size: 1.05rem;
+}
+.admin-visits-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
 @media (max-width: 720px) {
   .admin-status-grid { grid-template-columns: 1fr; }
+  .admin-visits-grid { grid-template-columns: 1fr 1fr; }
 }
 .admin-toolbar {
   display: flex;

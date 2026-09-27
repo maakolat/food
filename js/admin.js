@@ -179,6 +179,7 @@
     renderStories();
     renderStatus();
     showTab(currentTab());
+    refreshVisits().catch(() => {});
   }
 
   function rememberSafeCatalog() {
@@ -206,6 +207,152 @@
       btn.setAttribute("aria-selected", on ? "true" : "false");
     });
     try { sessionStorage.setItem("yam-admin-tab", tab); } catch (err) {}
+    if (tab === "status") refreshVisits().catch(() => {});
+  }
+
+  const STATS_PATH = "stats.json";
+  let visitStats = { days: {} };
+  let visitsBusy = false;
+
+  function baghdadDay(offset) {
+    const ms = Date.now() + (offset || 0) * 86400000;
+    try {
+      return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Baghdad" }).format(new Date(ms));
+    } catch (err) {
+      return new Date(ms).toISOString().slice(0, 10);
+    }
+  }
+
+  function emptyStats() {
+    return { updatedAt: 0, days: {} };
+  }
+
+  function dayCount(stats, day) {
+    const row = stats && stats.days && stats.days[day];
+    if (!row) return 0;
+    if (Array.isArray(row.u)) return row.u.length;
+    return Number(row.n || row.v || 0) || 0;
+  }
+
+  function rangeCount(stats, days) {
+    let sum = 0;
+    for (let i = 0; i < days; i++) sum += dayCount(stats, baghdadDay(-i));
+    return sum;
+  }
+
+  function totalCount(stats) {
+    const days = (stats && stats.days) || {};
+    return Object.keys(days).reduce((sum, day) => sum + dayCount(stats, day), 0);
+  }
+
+  function paintVisits() {
+    const set = (id, n) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(n);
+    };
+    set("status-visits-today", dayCount(visitStats, baghdadDay(0)));
+    set("status-visits-yesterday", dayCount(visitStats, baghdadDay(-1)));
+    set("status-visits-week", rangeCount(visitStats, 7));
+    set("status-visits-total", totalCount(visitStats));
+    const hint = document.getElementById("visits-hint");
+    if (hint && visitStats.updatedAt) {
+      const when = new Date(visitStats.updatedAt);
+      hint.textContent = "كل زائر يُحسب مرة واحدة في اليوم. آخر تحديث: " + when.toLocaleString("ar-IQ");
+    }
+  }
+
+  function mergeVisit(stats, id, day) {
+    if (!id || !day || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return false;
+    if (!stats.days) stats.days = {};
+    let row = stats.days[day];
+    if (!row) row = stats.days[day] = { u: [] };
+    if (!Array.isArray(row.u)) row.u = [];
+    if (row.u.indexOf(id) >= 0) return false;
+    if (row.u.length >= 800) return false;
+    row.u.push(id);
+    row.n = row.u.length;
+    return true;
+  }
+
+  function pruneStats(stats) {
+    const keep = {};
+    for (let i = 0; i < 60; i++) {
+      const day = baghdadDay(-i);
+      if (stats.days && stats.days[day]) keep[day] = stats.days[day];
+    }
+    Object.keys(keep).forEach((day) => {
+      const row = keep[day];
+      if (Array.isArray(row.u)) {
+        if (day < baghdadDay(-2)) {
+          keep[day] = { n: row.u.length };
+        } else {
+          keep[day] = { u: row.u.slice(-800), n: row.u.length };
+        }
+      }
+    });
+    stats.days = keep;
+    return stats;
+  }
+
+  async function loadSavedStats() {
+    if (!window.MenuStore || !window.MenuStore.getFileMeta) return emptyStats();
+    try {
+      const meta = await window.MenuStore.getFileMeta(STATS_PATH);
+      if (!meta || !meta.content) return emptyStats();
+      const data = JSON.parse(window.MenuStore.base64ToUtf8(meta.content));
+      if (!data || typeof data !== "object") return emptyStats();
+      if (!data.days || typeof data.days !== "object") data.days = {};
+      return data;
+    } catch (err) {
+      return emptyStats();
+    }
+  }
+
+  async function harvestVisitPings(stats) {
+    const topic = String((window.SITE_CONFIG || {}).visitTopic || "").trim();
+    if (!topic) return false;
+    const res = await fetch("https://ntfy.sh/" + encodeURIComponent(topic) + "/json?poll=1&since=all", { cache: "no-store" });
+    if (!res.ok) return false;
+    const text = await res.text();
+    let changed = false;
+    text.split("\n").forEach((line) => {
+      if (!line.trim()) return;
+      try {
+        const ev = JSON.parse(line);
+        const msg = ev.message || ev.msg || "";
+        const row = typeof msg === "string" ? JSON.parse(msg) : msg;
+        const id = String((row && row.i) || "").replace(/[^a-z0-9]/gi, "").slice(0, 8);
+        const day = String((row && row.d) || "").slice(0, 10);
+        if (mergeVisit(stats, id, day)) changed = true;
+      } catch (err) {}
+    });
+    return changed;
+  }
+
+  async function saveVisitStats(stats) {
+    if (!window.MenuStore || !window.MenuStore.putFile) return;
+    pruneStats(stats);
+    stats.updatedAt = Date.now();
+    const json = JSON.stringify(stats);
+    await window.MenuStore.putFile(STATS_PATH, window.MenuStore.utf8ToBase64(json), "Update visit stats");
+  }
+
+  async function refreshVisits() {
+    if (visitsBusy) {
+      paintVisits();
+      return;
+    }
+    visitsBusy = true;
+    try {
+      const saved = await loadSavedStats();
+      const changed = await harvestVisitPings(saved).catch(() => false);
+      visitStats = pruneStats(saved);
+      paintVisits();
+      if (changed) await saveVisitStats(visitStats).catch(() => {});
+    } catch (err) {
+      paintVisits();
+    }
+    visitsBusy = false;
   }
 
   function renderStatus() {
@@ -1141,6 +1288,7 @@
         renderStatus();
         showTab(currentTab());
         if (window.YamPush) window.YamPush.syncSubs().catch(() => {});
+        refreshVisits().catch(() => {});
       }
     } catch (err) {
       console.warn("admin init", err);
