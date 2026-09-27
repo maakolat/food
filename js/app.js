@@ -1885,16 +1885,31 @@
     const text = document.getElementById("install-text");
     const steps = document.getElementById("install-steps");
     const apkBtn = document.getElementById("android-apk-btn");
-    const nativeApp = /AlyaqoutApp/i.test(navigator.userAgent || "");
+    const ua = navigator.userAgent || "";
+    const nativeMatch = ua.match(/AlyaqoutApp\/(\d+(?:\.\d+)?)/i);
+    const nativeApp = !!nativeMatch;
+    const nativeVer = nativeMatch ? Number(nativeMatch[1]) : 0;
+    const needsApkUpdate = nativeApp && nativeVer < 2.3;
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || window.navigator.standalone === true;
-    if (nativeApp || standalone) {
+    if (nativeApp && !needsApkUpdate) {
       try { document.documentElement.setAttribute("data-native-app", "1"); } catch (err) {}
       if (banner) banner.hidden = true;
       if (headerBtn) headerBtn.hidden = true;
       if (apkBtn) apkBtn.hidden = true;
       window.addEventListener("beforeinstallprompt", (e) => e.preventDefault());
       return;
+    }
+    if (!nativeApp && standalone) {
+      try { document.documentElement.setAttribute("data-native-app", "1"); } catch (err) {}
+      if (banner) banner.hidden = true;
+      if (headerBtn) headerBtn.hidden = true;
+      if (apkBtn) apkBtn.hidden = true;
+      window.addEventListener("beforeinstallprompt", (e) => e.preventDefault());
+      return;
+    }
+    if (needsApkUpdate) {
+      window.addEventListener("beforeinstallprompt", (e) => e.preventDefault());
     }
     if (!banner || !btn) return;
 
@@ -1904,7 +1919,7 @@
     const mobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent)
       || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
     let deferred = null;
-    const hideKey = "yam-install-popup";
+    const hideKey = needsApkUpdate ? "yam-apk-update-23" : "yam-install-popup";
 
     function showPopup(force) {
       if (!force && sessionStorage.getItem(hideKey) === "1") return;
@@ -1957,12 +1972,23 @@
         btn.textContent = "حسناً، فهمت";
         return;
       }
-      if (android) {
-        if (text) text.textContent = "حمّلي تطبيق الأندرويد ليظهر مع التطبيقات على الهاتف، والقائمة والإشعارات تبقى متصلة بالموقع.";
+      if (needsApkUpdate) {
+        if (text) text.textContent = "حدّث تطبيق الأندرويد حتى توصلك إشعارات المطعم والهاتف مقفل.";
         showSteps([
-          "اضغطي حمّل تطبيق أندرويد",
-          "اسمحي بالتثبيت من هذا المصدر إذا طلب الهاتف",
-          "افتحي التطبيق من الشاشة الرئيسية ثم فعّلي الإشعارات"
+          "اضغط حمّل تطبيق أندرويد",
+          "ثبّت النسخة الجديدة فوق الحالية",
+          "افتح التطبيق واسمح بالإشعارات"
+        ]);
+        btn.textContent = "تحديث التطبيق";
+        if (apkBtn) apkBtn.hidden = false;
+        return;
+      }
+      if (android) {
+        if (text) text.textContent = "حمّل تطبيق الأندرويد حتى توصلك الإشعارات والهاتف مقفل، والقائمة تبقى متصلة بالموقع.";
+        showSteps([
+          "اضغط حمّل تطبيق أندرويد",
+          "اسمح بالتثبيت من هذا المصدر إذا طلب الهاتف",
+          "افتح التطبيق من الشاشة الرئيسية ثم اسمح بالإشعارات"
         ]);
         btn.textContent = "تثبيت من كروم";
         return;
@@ -2038,9 +2064,9 @@
       if (headerBtn) headerBtn.hidden = true;
     });
 
-    if (mobile && localStorage.getItem(hideKey) !== "1") {
+    if ((mobile || needsApkUpdate) && localStorage.getItem(hideKey) !== "1") {
       setCopy(false);
-      setTimeout(() => showPopup(), 700);
+      setTimeout(() => showPopup(needsApkUpdate), 700);
     }
   }
 
