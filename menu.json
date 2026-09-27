@@ -141,7 +141,7 @@
     },
     {
       "id": "dolma",
-      "name": "جدر دولمة",
+      "name": "دولمة",
       "desc": "دولمة بيتية على ثلاث أحجام.",
       "category": "dolma",
       "extrasKey": "savory",
@@ -149,7 +149,7 @@
         "sofra",
         "pickles"
       ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dolma-1790098475333.jpg?v=1790098475333",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dolma-1790098475333.jpg",
       "unit": "",
       "variants": [
         {
@@ -454,8 +454,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790508538030-1790508538038.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790512059336-1790512059340.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790513550209-1790513550213.jpg",
-    "assets/uploads/story-story-1790516738269-1790516738272.jpg",
-    "assets/uploads/story-story-1790516822654-1790516822656.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516738269-1790516738272.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516822654-1790516822656.jpg"
   ],
   "stories": [
     {
@@ -580,7 +580,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790516854500,
+  "updatedAt": 1790520292022,
   "alerts": [
     {
       "id": "alert-1790516854499",
