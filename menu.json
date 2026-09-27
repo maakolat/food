@@ -449,9 +449,21 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790347817330-1790347817337.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790348130840-1790348130846.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790348470903-1790348470914.jpg",
-    "assets/uploads/story-story-1790502870988-1790502870994.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790502870988-1790502870994.jpg",
+    "assets/uploads/story-story-1790503647345-1790503647352.jpg"
   ],
   "stories": [
+    {
+      "id": "story-1790503647345",
+      "kind": "dish",
+      "title": "دولمة",
+      "caption": "",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790503647345-1790503647352.jpg?v=1790503647352",
+      "durationHours": 24,
+      "createdAt": 1790503647345,
+      "expiresAt": 1790590047345,
+      "updatedAt": 1790503647345
+    },
     {
       "id": "story-1790502870988",
       "kind": "dish",
@@ -530,7 +542,7 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790502870993,
+  "updatedAt": 1790503647352,
   "alerts": [
     {
       "id": "alert-1790502664823",
