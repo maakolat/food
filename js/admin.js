@@ -230,8 +230,17 @@
   function dayCount(stats, day) {
     const row = stats && stats.days && stats.days[day];
     if (!row) return 0;
+    const views = Number(row.v || 0);
+    if (views > 0) return views;
     if (Array.isArray(row.u)) return row.u.length;
-    return Number(row.n || row.v || 0) || 0;
+    return Number(row.n || 0) || 0;
+  }
+
+  function dayPeople(stats, day) {
+    const row = stats && stats.days && stats.days[day];
+    if (!row) return 0;
+    if (Array.isArray(row.u)) return row.u.length;
+    return Number(row.n || 0) || 0;
   }
 
   function rangeCount(stats, days) {
@@ -250,26 +259,36 @@
       const el = document.getElementById(id);
       if (el) el.textContent = String(n);
     };
-    set("status-visits-today", dayCount(visitStats, baghdadDay(0)));
+    const today = baghdadDay(0);
+    set("status-visits-today", dayCount(visitStats, today));
     set("status-visits-yesterday", dayCount(visitStats, baghdadDay(-1)));
     set("status-visits-week", rangeCount(visitStats, 7));
     set("status-visits-total", totalCount(visitStats));
     const hint = document.getElementById("visits-hint");
-    if (hint && visitStats.updatedAt) {
-      const when = new Date(visitStats.updatedAt);
-      hint.textContent = "كل زائر يُحسب مرة واحدة في اليوم. آخر تحديث: " + when.toLocaleString("ar-IQ");
+    if (hint) {
+      const people = dayPeople(visitStats, today);
+      const views = dayCount(visitStats, today);
+      const when = visitStats.updatedAt ? new Date(visitStats.updatedAt).toLocaleString("ar-IQ") : "";
+      hint.textContent = views
+        ? ("اليوم " + views + " مشاهدة من " + people + " زائر. كل فتح يُحسب حتى لنفس الزائر." + (when ? " آخر تحديث: " + when : ""))
+        : "كل فتح للموقع يُحسب، حتى لو نفس الزائر دخل أكثر من مرة.";
     }
   }
 
-  function mergeVisit(stats, id, day) {
-    if (!id || !day || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return false;
+  function mergeVisit(stats, id, day, eventId) {
+    if (!day || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return false;
     if (!stats.days) stats.days = {};
+    if (!Array.isArray(stats.seen)) stats.seen = [];
+    if (eventId) {
+      if (stats.seen.indexOf(eventId) >= 0) return false;
+      stats.seen.push(String(eventId));
+      if (stats.seen.length > 1500) stats.seen = stats.seen.slice(-900);
+    }
     let row = stats.days[day];
-    if (!row) row = stats.days[day] = { u: [] };
+    if (!row) row = stats.days[day] = { v: 0, n: 0, u: [] };
     if (!Array.isArray(row.u)) row.u = [];
-    if (row.u.indexOf(id) >= 0) return false;
-    if (row.u.length >= 800) return false;
-    row.u.push(id);
+    row.v = Number(row.v || 0) + 1;
+    if (id && row.u.indexOf(id) < 0 && row.u.length < 800) row.u.push(id);
     row.n = row.u.length;
     return true;
   }
@@ -282,15 +301,20 @@
     }
     Object.keys(keep).forEach((day) => {
       const row = keep[day];
-      if (Array.isArray(row.u)) {
-        if (day < baghdadDay(-2)) {
-          keep[day] = { n: row.u.length };
-        } else {
-          keep[day] = { u: row.u.slice(-800), n: row.u.length };
-        }
+      const views = Number(row.v || 0) || (Array.isArray(row.u) ? row.u.length : Number(row.n || 0));
+      const people = Array.isArray(row.u) ? row.u.length : Number(row.n || 0);
+      if (day < baghdadDay(-2)) {
+        keep[day] = { v: views, n: people };
+      } else {
+        keep[day] = {
+          v: views,
+          n: people,
+          u: Array.isArray(row.u) ? row.u.slice(-800) : []
+        };
       }
     });
     stats.days = keep;
+    if (Array.isArray(stats.seen) && stats.seen.length > 1500) stats.seen = stats.seen.slice(-900);
     return stats;
   }
 
@@ -323,7 +347,8 @@
         const row = typeof msg === "string" ? JSON.parse(msg) : msg;
         const id = String((row && row.i) || "").replace(/[^a-z0-9]/gi, "").slice(0, 8);
         const day = String((row && row.d) || "").slice(0, 10);
-        if (mergeVisit(stats, id, day)) changed = true;
+        const evid = String((ev && ev.id) || (row && row.t) || "");
+        if (mergeVisit(stats, id, day, evid)) changed = true;
       } catch (err) {}
     });
     return changed;

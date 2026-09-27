@@ -1856,7 +1856,7 @@
     }
     setupInstall();
     setupNotify();
-    pingVisit();
+    setupVisitPings();
     const banner = document.getElementById("urgent-banner");
     if (banner) {
       banner.addEventListener("mouseenter", stopAlertRotate);
@@ -2092,15 +2092,16 @@
     if (!topic) return;
     try {
       if (sessionStorage.getItem("yam-admin-ok") === "1") return;
-      const day = visitDay();
-      if (localStorage.getItem("yam-visit-on") === day) return;
-      localStorage.setItem("yam-visit-on", day);
+      const now = Date.now();
+      const last = Number(sessionStorage.getItem("yam-view-at") || 0);
+      if (now - last < 1500) return;
+      sessionStorage.setItem("yam-view-at", String(now));
     } catch (err) {
       return;
     }
     const id = visitorId();
     if (!id) return;
-    const body = JSON.stringify({ i: id, d: visitDay() });
+    const body = JSON.stringify({ i: id, d: visitDay(), t: Date.now() });
     const u = "https://ntfy.sh/" + encodeURIComponent(topic) + "?priority=min";
     fetch(u, {
       method: "POST",
@@ -2108,6 +2109,22 @@
       body: body,
       keepalive: true
     }).catch(() => {});
+  }
+
+  function setupVisitPings() {
+    pingVisit();
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible") {
+        try { sessionStorage.setItem("yam-view-hid", String(Date.now())); } catch (err) {}
+        return;
+      }
+      let hid = 0;
+      try { hid = Number(sessionStorage.getItem("yam-view-hid") || 0); } catch (err) {}
+      if (hid && Date.now() - hid >= 8000) pingVisit();
+    });
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) pingVisit();
+    });
   }
 
   function setupNotify() {
