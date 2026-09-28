@@ -455,9 +455,21 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790512059336-1790512059340.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790513550209-1790513550213.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516738269-1790516738272.jpg",
-    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516822654-1790516822656.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516822654-1790516822656.jpg",
+    "assets/uploads/story-story-1790606257100-1790606257106.jpg"
   ],
   "stories": [
+    {
+      "id": "story-1790606257100",
+      "kind": "dish",
+      "title": "دولمة",
+      "caption": "",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606257100-1790606257106.jpg?v=1790606257106",
+      "durationHours": 24,
+      "createdAt": 1790606257100,
+      "expiresAt": 1790692657100,
+      "updatedAt": 1790606257100
+    },
     {
       "id": "story-1790516822654",
       "kind": "dish",
@@ -580,37 +592,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790520292022,
-  "alerts": [
-    {
-      "id": "alert-1790516854499",
-      "kind": "book",
-      "title": "حجز مباشر على «دولمة»",
-      "body": "الكمية محدودة و«دولمة» بانتظارك. اطلب من التطبيق والتأكيد يوصلك واتساب.",
-      "dish": "دولمة",
-      "hours": 24,
-      "createdAt": 1790516854499,
-      "expiresAt": 1790603254499
-    },
-    {
-      "id": "alert-1790516696132",
-      "kind": "tomorrow",
-      "title": "غداً تتوفر «دولمة»",
-      "body": "بشارة لطيفة: غداً إن شاء الله «دولمة» بطعم البيت. احجز من اليوم حتى ما يفوتك.",
-      "dish": "دولمة",
-      "hours": 24,
-      "createdAt": 1790516696132,
-      "expiresAt": 1790603096132
-    }
-  ],
-  "alert": {
-    "id": "alert-1790516854499",
-    "kind": "book",
-    "title": "حجز مباشر على «دولمة»",
-    "body": "الكمية محدودة و«دولمة» بانتظارك. اطلب من التطبيق والتأكيد يوصلك واتساب.",
-    "dish": "دولمة",
-    "hours": 24,
-    "createdAt": 1790516854499,
-    "expiresAt": 1790603254499
-  }
+  "updatedAt": 1790606257105
 }
