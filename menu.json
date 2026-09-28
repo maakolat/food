@@ -456,9 +456,21 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790513550209-1790513550213.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516738269-1790516738272.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516822654-1790516822656.jpg",
-    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606257100-1790606257106.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606257100-1790606257106.jpg",
+    "assets/uploads/story-story-1790606472266-1790606472270.jpg"
   ],
   "stories": [
+    {
+      "id": "story-1790606472266",
+      "kind": "dish",
+      "title": "كبسة الدجاج",
+      "caption": "",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606472266-1790606472270.jpg?v=1790606472270",
+      "durationHours": 168,
+      "createdAt": 1790606472266,
+      "expiresAt": 1791211272266,
+      "updatedAt": 1790606472266
+    },
     {
       "id": "story-1790606257100",
       "kind": "dish",
@@ -592,5 +604,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790606422396
+  "updatedAt": 1790606472270
 }
