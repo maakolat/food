@@ -1,6 +1,14 @@
 {
-  "updatedAt": 1790606564539,
+  "updatedAt": 1790606578333,
   "subs": [
+    {
+      "endpoint": "https://fcm.googleapis.com/fcm/send/cS2DOQxT5uY:APA91bEjPg8fienzMbmO8Y_eoFUYdvaBSACLLFs_NqkZ8P8OPuDx-__1gKx7zyV1fmPbHDASI4tua-7KQLHlnyXTnPv2HKrEOr9h9Oa-Uj0MDkhBMTaX-mSqP5NynnZNjjbnr-zpy1hX",
+      "expirationTime": null,
+      "keys": {
+        "p256dh": "BKrVv3EkwqCqJslOkf8nikXoIwxAjslLDKT66nxjO2e7W8xkN1_98tpkrpriaZwEtfklQ-8JPhIAN5Y10-qxVEQ",
+        "auth": "JOQxqqfyCGu361PiXRtW4Q"
+      }
+    },
     {
       "endpoint": "https://fcm.googleapis.com/fcm/send/eImeVsHayb0:APA91bFCGkXOimPQZrvSLQXBe1jD1g73Sonp0Q9Wrm3oU-mmZk87U6TFsw3MkzkNknPqU3v9C5xVKbMaHvuYoi0oVaLpzeFA06ZJk74d-KSTZZTYSX5jIj0t5vbgFNyttImhTQHSkesY",
       "expirationTime": null,
