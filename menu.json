@@ -400,10 +400,10 @@
       "id": "dish-1790794115356",
       "name": "كيك بركاني مكس",
       "desc": "كيك بركاني مكس",
-      "category": "pastry",
+      "category": "sweets",
       "extrasKey": "none",
       "extraIds": [],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790794115356-1790794115372.jpg?v=1790794115372",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790794115356-1790794115372.jpg",
       "unit": "12نفر",
       "price": 22000
     }
@@ -640,5 +640,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790794115371
+  "updatedAt": 1790794153198
 }
