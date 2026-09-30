@@ -378,10 +378,10 @@
       "id": "dish-1790793784827",
       "name": "كيك بركاني",
       "desc": "كيك بركاني نوتيلا",
-      "category": "pastry",
+      "category": "sweets",
       "extrasKey": "none",
       "extraIds": [],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793784827-1790793784838.jpg?v=1790793784838",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793784827-1790793784838.jpg",
       "unit": "",
       "price": 17000
     }
@@ -616,5 +616,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790793784837
+  "updatedAt": 1790793831463
 }
