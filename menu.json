@@ -373,6 +373,17 @@
       "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790348470903-1790348470914.jpg?v=1790348470914",
       "unit": "صينيه",
       "price": 15000
+    },
+    {
+      "id": "dish-1790793784827",
+      "name": "كيك بركاني",
+      "desc": "كيك بركاني نوتيلا",
+      "category": "pastry",
+      "extrasKey": "none",
+      "extraIds": [],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793784827-1790793784838.jpg?v=1790793784838",
+      "unit": "",
+      "price": 17000
     }
   ],
   "assets": [
@@ -457,7 +468,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516738269-1790516738272.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516822654-1790516822656.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606257100-1790606257106.jpg",
-    "assets/uploads/story-story-1790606472266-1790606472270.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606472266-1790606472270.jpg",
+    "assets/uploads/dish-1790793784827-1790793784838.jpg"
   ],
   "stories": [
     {
@@ -604,27 +616,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790606554957,
-  "alerts": [
-    {
-      "id": "alert-1790606554955",
-      "kind": "book",
-      "title": "حجز مباشر على «دولمة»",
-      "body": "الكمية محدودة و«دولمة» بانتظارك. اطلب من التطبيق والتأكيد يوصلك واتساب.",
-      "dish": "دولمة",
-      "hours": 48,
-      "createdAt": 1790606554955,
-      "expiresAt": 1790779354955
-    }
-  ],
-  "alert": {
-    "id": "alert-1790606554955",
-    "kind": "book",
-    "title": "حجز مباشر على «دولمة»",
-    "body": "الكمية محدودة و«دولمة» بانتظارك. اطلب من التطبيق والتأكيد يوصلك واتساب.",
-    "dish": "دولمة",
-    "hours": 48,
-    "createdAt": 1790606554955,
-    "expiresAt": 1790779354955
-  }
+  "updatedAt": 1790793784837
 }
