@@ -384,6 +384,17 @@
       "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793784827-1790793784838.jpg",
       "unit": "",
       "price": 17000
+    },
+    {
+      "id": "dish-1790793947475",
+      "name": "كيك بركاني بستاشيوو",
+      "desc": "كيك بستاشيوو",
+      "category": "sweets",
+      "extrasKey": "none",
+      "extraIds": [],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793947475-1790793947481.jpg?v=1790793947481",
+      "unit": "",
+      "price": 20000
     }
   ],
   "assets": [
@@ -469,7 +480,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516822654-1790516822656.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606257100-1790606257106.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606472266-1790606472270.jpg",
-    "assets/uploads/dish-1790793784827-1790793784838.jpg"
+    "assets/uploads/dish-1790793784827-1790793784838.jpg",
+    "assets/uploads/dish-1790793947475-1790793947481.jpg"
   ],
   "stories": [
     {
@@ -616,5 +628,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790793831463
+  "updatedAt": 1790793947481
 }
