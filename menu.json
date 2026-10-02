@@ -491,9 +491,9 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790516822654-1790516822656.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606257100-1790606257106.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606472266-1790606472270.jpg",
-    "assets/uploads/dish-1790793784827-1790793784838.jpg",
-    "assets/uploads/dish-1790793947475-1790793947481.jpg",
-    "assets/uploads/dish-1790794115356-1790794115372.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793784827-1790793784838.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793947475-1790793947481.jpg",
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790794115356-1790794115372.jpg"
   ],
   "stories": [
     {
@@ -640,5 +640,27 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790794153198
+  "updatedAt": 1790932370125,
+  "alerts": [
+    {
+      "id": "alert-1790932370121",
+      "kind": "book",
+      "title": "حجز مباشر على «دولمة»",
+      "body": "الكمية محدودة و«دولمة» بانتظارك. اطلب من التطبيق والتأكيد يوصلك واتساب.",
+      "dish": "دولمة",
+      "hours": 24,
+      "createdAt": 1790932370121,
+      "expiresAt": 1791018770121
+    }
+  ],
+  "alert": {
+    "id": "alert-1790932370121",
+    "kind": "book",
+    "title": "حجز مباشر على «دولمة»",
+    "body": "الكمية محدودة و«دولمة» بانتظارك. اطلب من التطبيق والتأكيد يوصلك واتساب.",
+    "dish": "دولمة",
+    "hours": 24,
+    "createdAt": 1790932370121,
+    "expiresAt": 1791018770121
+  }
 }
