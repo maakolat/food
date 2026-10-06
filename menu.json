@@ -362,15 +362,15 @@
     },
     {
       "id": "dish-1790348470903",
-      "name": "مطبك سمج",
-      "desc": "صينيه مطبك سمج",
+      "name": "مطبك سمك",
+      "desc": "صينيه مطبك سمك",
       "category": "special",
       "extrasKey": "custom",
       "extraIds": [
         "pickles",
         "greens"
       ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790348470903-1790348470914.jpg?v=1790348470914",
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790348470903-1790348470914.jpg",
       "unit": "صينيه",
       "price": 15000
     },
@@ -406,19 +406,6 @@
       "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790794115356-1790794115372.jpg",
       "unit": "12نفر",
       "price": 22000
-    },
-    {
-      "id": "dish-1791315307642",
-      "name": "حرش تمن احمر",
-      "desc": "حرش",
-      "category": "mains",
-      "extrasKey": "custom",
-      "extraIds": [
-        "pickles"
-      ],
-      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1791315307642-1791315307657.jpg?v=1791315307657",
-      "unit": "",
-      "price": 15000
     }
   ],
   "assets": [
@@ -506,8 +493,7 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606472266-1790606472270.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793784827-1790793784838.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793947475-1790793947481.jpg",
-    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790794115356-1790794115372.jpg",
-    "assets/uploads/dish-1791315307642-1791315307657.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790794115356-1790794115372.jpg"
   ],
   "stories": [
     {
@@ -654,5 +640,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1791315307653
+  "updatedAt": 1791315568997
 }
