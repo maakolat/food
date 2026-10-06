@@ -406,6 +406,19 @@
       "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790794115356-1790794115372.jpg",
       "unit": "12نفر",
       "price": 22000
+    },
+    {
+      "id": "dish-1791315307642",
+      "name": "حرش تمن احمر",
+      "desc": "حرش",
+      "category": "mains",
+      "extrasKey": "custom",
+      "extraIds": [
+        "pickles"
+      ],
+      "image": "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1791315307642-1791315307657.jpg?v=1791315307657",
+      "unit": "",
+      "price": 15000
     }
   ],
   "assets": [
@@ -493,7 +506,8 @@
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/story-story-1790606472266-1790606472270.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793784827-1790793784838.jpg",
     "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790793947475-1790793947481.jpg",
-    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790794115356-1790794115372.jpg"
+    "https://raw.githubusercontent.com/maakolat/food/main/assets/uploads/dish-1790794115356-1790794115372.jpg",
+    "assets/uploads/dish-1791315307642-1791315307657.jpg"
   ],
   "stories": [
     {
@@ -640,37 +654,5 @@
       "updatedAt": 1790149635188
     }
   ],
-  "updatedAt": 1790934309765,
-  "alerts": [
-    {
-      "id": "alert-1790934309763",
-      "kind": "now",
-      "title": "توفّرت «بسبوسة» الآن",
-      "body": "يا هلا، «بسبوسة» صارت جاهزة والحجز مباشر. اطلبها قبل ما تخلص — الياقوت والمرجان.",
-      "dish": "بسبوسة",
-      "hours": 24,
-      "createdAt": 1790934309763,
-      "expiresAt": 1791020709763
-    },
-    {
-      "id": "alert-1790932370121",
-      "kind": "book",
-      "title": "حجز مباشر على «دولمة»",
-      "body": "الكمية محدودة و«دولمة» بانتظارك. اطلب من التطبيق والتأكيد يوصلك واتساب.",
-      "dish": "دولمة",
-      "hours": 24,
-      "createdAt": 1790932370121,
-      "expiresAt": 1791018770121
-    }
-  ],
-  "alert": {
-    "id": "alert-1790934309763",
-    "kind": "now",
-    "title": "توفّرت «بسبوسة» الآن",
-    "body": "يا هلا، «بسبوسة» صارت جاهزة والحجز مباشر. اطلبها قبل ما تخلص — الياقوت والمرجان.",
-    "dish": "بسبوسة",
-    "hours": 24,
-    "createdAt": 1790934309763,
-    "expiresAt": 1791020709763
-  }
+  "updatedAt": 1791315307653
 }
